@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Profile, Site } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight } from "lucide-react";
+import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -23,6 +23,7 @@ import { useTheme } from "@/components/ThemeProvider";
 export default function Dashboard({ profile }: { profile: Profile | null }) {
   const { theme } = useTheme();
   const [sites, setSites] = useState<Site[]>([]);
+  const [fiberCuts, setFiberCuts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,8 +31,12 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
   }, []);
 
   const fetchData = async () => {
-    const { data } = await supabase.from("sites").select("*");
-    if (data) setSites(data);
+    const [sitesRes, fiberCutsRes] = await Promise.all([
+      supabase.from("sites").select("*"),
+      supabase.from("fiber_cuts").select("*")
+    ]);
+    if (sitesRes.data) setSites(sitesRes.data);
+    if (fiberCutsRes.data) setFiberCuts(fiberCutsRes.data);
     setLoading(false);
   };
 
@@ -183,10 +188,10 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
       
       {/* Top Header Section */}
       <div className="border-b border-border pb-2">
-        <h2 className="text-[26px] font-extrabold tracking-tight text-blue-900 dark:text-blue-500 uppercase flex items-center gap-2">
-          <Activity className="h-7 w-7 text-blue-600 dark:text-blue-400" /> 
-          Site Overview
-        </h2>
+        <h1 className="text-4xl font-black tracking-widest text-blue-500 uppercase flex items-center gap-3 drop-shadow-md">
+          <Activity className="h-10 w-10 text-blue-400" />
+          OPERATIONS DASHBOARD
+        </h1>
         <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 tracking-wider mt-0.5 uppercase">
           Mission Status: Strengthening our network
         </p>
@@ -330,28 +335,62 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border">
+        <Card className="bg-card border-border flex flex-col h-full">
           <CardHeader className="py-3">
-            <CardTitle className="text-[11px] font-bold text-muted-foreground uppercase">Off-Air Breakdown</CardTitle>
+            <CardTitle className="text-[11px] font-bold text-muted-foreground uppercase flex items-center gap-2">
+              <Activity className="h-4 w-4 text-red-500" />
+              Fiber Cuts Overview
+            </CardTitle>
           </CardHeader>
-          <CardContent className="h-56 pb-4 flex flex-col justify-center px-8 gap-5">
-            {breakdownData.map(item => (
-              <div key={item.name} className="flex flex-col gap-2">
-                <div className="flex justify-between items-center text-sm font-bold">
-                  <span className="text-muted-foreground uppercase">{item.name}</span>
-                  <span className="text-foreground">{item.value}</span>
-                </div>
-                <div className="w-full bg-muted h-3 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full rounded-full transition-all duration-1000" 
-                    style={{ 
-                      width: `${(item.value / Math.max(1, turnedOffSites.length)) * 100}%`,
-                      backgroundColor: item.color
-                    }}
-                  />
+          <CardContent className="flex-1 pb-4 flex flex-col justify-center gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              
+              {/* Total Cuts */}
+              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Total Cuts</div>
+                <div className="text-3xl font-black text-foreground flex items-center justify-center gap-2">
+                  <Scissors className="h-5 w-5 text-red-500" />
+                  {fiberCuts.length}
                 </div>
               </div>
-            ))}
+
+              {/* Top Region */}
+              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Top Region</div>
+                <div className="text-2xl font-black text-foreground flex items-center justify-center gap-2 truncate">
+                  <MapPin className="h-4 w-4 text-orange-500" />
+                  {(() => {
+                    if (fiberCuts.length === 0) return "-";
+                    const regionCounts = fiberCuts.reduce((acc, cut) => {
+                      const r = cut.region_cut_type || "Unknown";
+                      acc[r] = (acc[r] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+                    const sorted = Object.entries(regionCounts).sort((a, b) => b[1] - a[1]);
+                    return sorted[0][0];
+                  })()}
+                </div>
+              </div>
+
+              {/* Backbone Cuts */}
+              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Backbone Cuts</div>
+                <div className="text-2xl font-black text-foreground flex items-center justify-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}
+                </div>
+              </div>
+
+              {/* Backhaul Cuts */}
+              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Backhaul Cuts</div>
+                <div className="text-2xl font-black text-foreground flex items-center justify-center gap-2">
+                  <Activity className="h-4 w-4 text-blue-500" />
+                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}
+                </div>
+              </div>
+
+            </div>
           </CardContent>
         </Card>
       </div>

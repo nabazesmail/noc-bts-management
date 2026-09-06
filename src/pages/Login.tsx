@@ -34,7 +34,7 @@ export default function Login() {
           <div className="flex justify-center mb-4">
             <Activity className="h-12 w-12 text-blue-600 dark:text-blue-500" />
           </div>
-          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">NOC BTS Management</CardTitle>
+          <CardTitle className="text-2xl text-gray-900 dark:text-gray-100">NOC Operations Portal</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
