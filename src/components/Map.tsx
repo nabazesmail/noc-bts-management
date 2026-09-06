@@ -15,11 +15,13 @@ L.Icon.Default.mergeOptions({
 });
 
 // Component that handles the automatic zooming/bounding box logic
-function MapBounds({ sites }: { sites: any[] }) {
+function MapBounds({ sites, forceCenter, forceZoom }: { sites: any[], forceCenter?: [number, number], forceZoom?: number }) {
   const map = useMap();
 
   useEffect(() => {
-    if (sites.length > 0) {
+    if (forceCenter && forceZoom) {
+      map.setView(forceCenter, forceZoom);
+    } else if (sites.length > 0) {
       // Create a bounding box array of all currently filtered sites
       const bounds = L.latLngBounds(
         sites.map((site) => [Number(site.latitude), Number(site.longitude)]),
@@ -29,7 +31,7 @@ function MapBounds({ sites }: { sites: any[] }) {
       // maxZoom prevents the map from zooming too close when only 1 site is searched
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
     }
-  }, [sites, map]);
+  }, [sites, map, forceCenter, forceZoom]);
 
   return null;
 }
@@ -39,9 +41,11 @@ interface MapProps {
   loading?: boolean;
   renderPopup?: (site: any) => React.ReactNode;
   getMarkerColor?: (site: any) => string;
+  forceCenter?: [number, number];
+  forceZoom?: number;
 }
 
-export default function Map({ sites, loading, renderPopup, getMarkerColor }: MapProps) {
+export default function Map({ sites, loading, renderPopup, getMarkerColor, forceCenter, forceZoom }: MapProps) {
   if (loading) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -51,6 +55,11 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor }: Map
   }
 
   const defaultGetColor = (site: any) => {
+    const isTicket = site.is_ticket === true;
+    if (isTicket) {
+      return site.status === 'closed' ? "#10b981" : "#ef4444";
+    }
+
     const r = String(site.region || site.region_cut_type || '').trim().toLowerCase();
     let color = "#64748b"; // default slate-500
     if (r === "1" || r === "region 1") color = "#3b82f6"; // blue-500
@@ -68,20 +77,63 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor }: Map
 
   const getMarkerIcon = (site: any) => {
     const color = getMarkerColor ? getMarkerColor(site) : defaultGetColor(site);
+    const isFiberCut = site.hasOwnProperty('cut_type') || site.hasOwnProperty('reason') || site.hasOwnProperty('region_cut_type');
+    const isTicket = site.is_ticket === true;
+
+    let innerIcon = '';
+    if (isTicket) {
+      if (site.status === 'closed') {
+        innerIcon = `
+          <g transform="translate(6, 6)" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </g>
+        `;
+      } else {
+        innerIcon = `
+          <g transform="translate(8, 8)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+            <path d="M12 9v4"/>
+            <path d="M12 17h.01"/>
+          </g>
+        `;
+      }
+    } else if (isFiberCut) {
+      // Scissors icon for Fiber Cuts
+      innerIcon = `
+        <g transform="translate(8, 8)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="6" cy="6" r="3"/>
+          <circle cx="6" cy="18" r="3"/>
+          <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+          <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+          <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+        </g>
+      `;
+    } else {
+      // Radio Tower icon for Sites
+      innerIcon = `
+        <g transform="translate(8, 8)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/>
+          <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/>
+          <circle cx="12" cy="12" r="2"/>
+          <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/>
+          <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+        </g>
+      `;
+    }
 
     const svgIcon = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="28" height="28">
-        <path fill="${color}" d="M12 0c-4.418 0-8 3.582-8 8 0 5.385 8 16 8 16s8-10.615 8-16c0-4.418-3.582-8-8-8zm0 11.5c-1.933 0-3.5-1.567-3.5-3.5s1.567-3.5 3.5-3.5 3.5 1.567 3.5 3.5-1.567 3.5-3.5 3.5z"/>
-        <circle cx="12" cy="8.5" r="3.5" fill="white" />
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="26" height="26" class="drop-shadow-sm">
+        <circle cx="20" cy="20" r="18" fill="${color}" stroke="#ffffff" stroke-width="2.5" />
+        ${innerIcon}
       </svg>
     `;
 
     return L.divIcon({
       html: svgIcon,
-      className: "",
-      iconSize: [28, 28],
-      iconAnchor: [14, 28],
-      popupAnchor: [0, -28],
+      className: "bg-transparent border-none",
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13],
     });
   };
 
@@ -97,7 +149,7 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor }: Map
       />
 
       {/* Applies the dynamic framing logic based on filtered sites */}
-      <MapBounds sites={sites} />
+      <MapBounds sites={sites} forceCenter={forceCenter} forceZoom={forceZoom} />
 
       {sites.map((site) => (
         <Marker
@@ -110,23 +162,48 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor }: Map
               renderPopup(site)
             ) : (
               <div className="p-1">
-                <h3 className="font-bold text-sm mb-1">
-                  {site.site_name || "Unknown Site"}
-                </h3>
-                <p className="text-xs text-gray-600">Code: {site.site_code}</p>
-                <p className="text-xs text-gray-600">Region: {site.region}</p>
-                <p className="text-xs font-semibold mt-2">
-                  Status:{" "}
-                  {site.b20_on_air_date || site.b7_on_air_date
-                    ? "On-Air"
-                    : "Off-Air"}
-                </p>
-                <a 
-                  href={`/sites/${site.id}`}
-                  className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
-                >
-                  View Details &rarr;
-                </a>
+                {site.is_ticket ? (
+                  <>
+                    <h3 className="font-bold text-sm mb-1">
+                      Customer Complaint ({site.city || 'Unknown'})
+                    </h3>
+                    <p className="text-xs text-gray-600">Region: {site.region}</p>
+                    <p className="text-xs font-semibold mt-2 text-red-600">
+                      Status: {site.status?.toUpperCase()}
+                    </p>
+                    {site.description && (
+                      <p className="text-xs text-gray-700 mt-2 italic border-l-2 border-gray-300 pl-2">
+                        "{site.description}"
+                      </p>
+                    )}
+                    <a 
+                      href="/tickets"
+                      className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
+                    >
+                      View Tickets &rarr;
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <h3 className="font-bold text-sm mb-1">
+                      {site.site_name || "Unknown Site"}
+                    </h3>
+                    <p className="text-xs text-gray-600">Code: {site.site_code}</p>
+                    <p className="text-xs text-gray-600">Region: {site.region}</p>
+                    <p className="text-xs font-semibold mt-2">
+                      Status:{" "}
+                      {site.b20_on_air_date || site.b7_on_air_date
+                        ? "On-Air"
+                        : "Off-Air"}
+                    </p>
+                    <a 
+                      href={`/sites/${site.id}`}
+                      className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
+                    >
+                      View Details &rarr;
+                    </a>
+                  </>
+                )}
               </div>
             )}
           </Popup>

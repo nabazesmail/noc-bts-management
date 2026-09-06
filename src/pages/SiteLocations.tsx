@@ -17,8 +17,18 @@ export default function SiteLocations({
   const [bandFilter, setBandFilter] = useState("All");
   const [yearFilter, setYearFilter] = useState("All");
   const [monthFilter, setMonthFilter] = useState("All");
-  const [strictGeography, setStrictGeography] = useState(true);
+  const [tickets, setTickets] = useState<any[]>([]);
+  const [ticketVisibility, setTicketVisibility] = useState("open"); // hidden, open, closed, all
   const [loading, setLoading] = useState(true);
+
+  // Read coordinates from URL if provided (for zooming from Tickets page)
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialLat = searchParams.get('lat') ? Number(searchParams.get('lat')) : null;
+  const initialLng = searchParams.get('lng') ? Number(searchParams.get('lng')) : null;
+  const initialZoom = searchParams.get('zoom') ? Number(searchParams.get('zoom')) : null;
+  
+  const forceCenter: [number, number] | undefined = initialLat && initialLng ? [initialLat, initialLng] : undefined;
+  const forceZoom: number | undefined = initialZoom || undefined;
 
   useEffect(() => {
     fetchSites();
@@ -78,6 +88,18 @@ export default function SiteLocations({
 
         setSites(sitesWithCoords);
       }
+
+      // Fetch tickets
+      const { data: ticketsData, error: ticketsError } = await supabase
+        .from("tickets")
+        .select("*");
+
+      if (ticketsError) {
+        console.warn("Could not fetch tickets.", ticketsError.message);
+      } else if (ticketsData) {
+        setTickets(ticketsData);
+      }
+
     } catch (error: any) {
       console.error("Error fetching map data:", error.message);
     } finally {
@@ -201,11 +223,26 @@ export default function SiteLocations({
 
     const lat = Number(site.latitude);
     const lng = Number(site.longitude);
-    const isStrictlySyria = lat >= 32.0 && lat <= 37.25 && lng >= 35.7 && lng <= 42.4;
-    const matchesGeography = strictGeography ? isStrictlySyria : true;
-
-    return matchesSearch && matchesRegion && matchesStatus && matchesBand && matchesYear && matchesMonth && matchesGeography;
+    return matchesSearch && matchesRegion && matchesStatus && matchesBand && matchesYear && matchesMonth;
   });
+
+  const filteredTickets = tickets.filter(ticket => {
+    const query = search.toLowerCase();
+    return (
+      (ticket.city && ticket.city.toLowerCase().includes(query)) ||
+      (ticket.region && ticket.region.toLowerCase().includes(query)) ||
+      (ticket.description && ticket.description.toLowerCase().includes(query))
+    );
+  });
+
+  const mapData = [
+    ...filteredSites,
+    ...(ticketVisibility !== "hidden" 
+        ? filteredTickets
+            .filter(t => ticketVisibility === "all" || t.status === ticketVisibility)
+            .map(t => ({...t, is_ticket: true})) 
+        : [])
+  ];
 
   const yearsSet = new Set<number>();
   sites.forEach(site => {
@@ -303,20 +340,21 @@ export default function SiteLocations({
             </select>
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer text-sm text-muted-foreground whitespace-nowrap bg-background border border-input rounded-md px-3 py-1 h-10 shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground">
-            <input 
-              type="checkbox" 
-              checked={strictGeography} 
-              onChange={(e) => setStrictGeography(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-            />
-            Strict Syria Filter
-          </label>
+          <select
+            className="flex h-10 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-900 dark:border-gray-800"
+            value={ticketVisibility}
+            onChange={(e) => setTicketVisibility(e.target.value)}
+          >
+            <option value="hidden">Hide Tickets</option>
+            <option value="open">Show Open Tickets</option>
+            <option value="closed">Show Closed Tickets</option>
+            <option value="all">Show All Tickets</option>
+          </select>
         </div>
       </div>
 
       <div className="flex-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden shadow-sm relative">
-        <Map sites={filteredSites} loading={loading} />
+        <Map sites={mapData} loading={loading} forceCenter={forceCenter} forceZoom={forceZoom} />
       </div>
     </div>
   );

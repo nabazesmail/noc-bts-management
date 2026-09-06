@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   Scissors,
   MapPinned,
-  Users
+  Users,
+  Ticket
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/components/ThemeProvider";
@@ -35,6 +36,7 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
     { name: "SLA Tracking", path: "/sla-tracking", icon: ClipboardList },
     { name: "Fiber Cuts", path: "/fiber-cuts", icon: Scissors },
     { name: "Fiber Cut Map", path: "/fiber-cut-map", icon: MapPinned },
+    { name: "Customer Tickets", path: "/tickets", icon: Ticket },
     { name: "Audit History", path: "/audit", icon: History },
   ];
 

@@ -12,6 +12,7 @@ const AVAILABLE_PAGES = [
   { name: "SLA Tracking", path: "/sla-tracking" },
   { name: "Fiber Cuts", path: "/fiber-cuts" },
   { name: "Fiber Cut Map", path: "/fiber-cut-map" },
+  { name: "Customer Tickets", path: "/tickets" },
   { name: "Audit History", path: "/audit" },
 ];
 

@@ -14,6 +14,7 @@ import FiberCutsPage from "./pages/FiberCutsPage";
 import FiberCutForm from "./pages/FiberCutForm";
 import FiberCutLocations from "./pages/FiberCutLocations";
 import UserManagement from "./pages/UserManagement";
+import TicketsPage from "./pages/TicketsPage";
 import MainLayout from "./layouts/MainLayout";
 import AuthRoute from "./components/AuthRoute";
 
@@ -107,6 +108,7 @@ function App() {
             <Route path="/audit" element={hasPermission("/audit") ? <AuditHistory profile={profile} /> : <Navigate to="/" />} />
             
             <Route path="/users" element={profile?.role === 'admin' ? <UserManagement currentUser={profile} /> : <Navigate to="/" />} />
+            <Route path="/tickets" element={hasPermission("/tickets") ? <TicketsPage profile={profile} /> : <Navigate to="/" />} />
             
             <Route path="*" element={<Navigate to="/" />} />
           </Route>
