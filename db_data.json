@@ -1,0 +1,686 @@
+[
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Fourth.Part",
+    "reason": "Generator start failure"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 3,
+    "issue_technical_area": "Traffic.Drop",
+    "responsible_department": "Operation.RF",
+    "reason": "RF Devices - are stuck (Reset site required)"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 11,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Temperature Sensor"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": null,
+    "responsible_department": "Fourth.Part",
+    "reason": null
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Power cables"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Generator belt"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Power.Source.Cable",
+    "responsible_department": "Fourth.Part",
+    "reason": "Power Outsite Power Cable"
+  },
+  {
+    "noc_mtta": 2,
+    "issue_technical_area": null,
+    "responsible_department": null,
+    "reason": null
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Temperature Sensor"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Generator start failure"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Violation-Overload shutdown"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fourth.Part",
+    "responsible_department": "Fourth.Part",
+    "reason": "Fourth.Part"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Commercial.Power",
+    "responsible_department": "Operation",
+    "reason": "Commercial Gensit"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backbone"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backbone"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backbone"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backbone"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Commercial.Power",
+    "responsible_department": "-",
+    "reason": "Main Grid"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Operation",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": null,
+    "responsible_department": "Fourth.Part",
+    "reason": null
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Overload shutdown"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Overload shutdown"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Overload shutdown"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Traffic.Drop",
+    "responsible_department": "Operation.RF",
+    "reason": "RF Devices - are stuck"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Fiber.Cut",
+    "responsible_department": "Fourth.Part",
+    "reason": "Backhaul"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Commercial.Power",
+    "responsible_department": "-",
+    "reason": "Main Grid"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Traffic.Drop",
+    "responsible_department": "Operation",
+    "reason": "Site generator start failure"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": null,
+    "responsible_department": null,
+    "reason": null
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Traffic.Drop",
+    "responsible_department": "Operation",
+    "reason": "Site generator start failure"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "LTE.Site.Rectifier.Cabinet",
+    "responsible_department": "Fourth.Part",
+    "reason": "Rectifier Issue"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Generator Battery"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Power.Source.Cable",
+    "responsible_department": "Operation",
+    "reason": "Power Outsite Power Cable"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Fourth.Part",
+    "reason": "Generator Battery"
+  },
+  {
+    "noc_mtta": 0,
+    "issue_technical_area": "Generator",
+    "responsible_department": "Operation",
+    "reason": "Violation-Overload shutdown"
+  }
+]
