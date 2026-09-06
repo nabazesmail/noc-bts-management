@@ -187,12 +187,12 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
     <div className="space-y-3">
       
       {/* Top Header Section */}
-      <div className="border-b border-border pb-2">
-        <h1 className="text-4xl font-black tracking-widest text-blue-500 uppercase flex items-center gap-3 drop-shadow-md">
-          <Activity className="h-10 w-10 text-blue-400" />
-          OPERATIONS DASHBOARD
+      <div className="border-b border-border pb-3 mb-2">
+        <h1 className="text-2xl font-bold tracking-tight text-blue-500 uppercase flex items-center gap-2">
+          <Activity className="h-6 w-6 text-blue-400" />
+          Operations Dashboard
         </h1>
-        <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 tracking-wider mt-0.5 uppercase">
+        <p className="text-xs font-medium text-blue-600/80 dark:text-blue-400/80 tracking-wide mt-1">
           Mission Status: Strengthening our network
         </p>
       </div>
