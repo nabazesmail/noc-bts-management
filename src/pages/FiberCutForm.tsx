@@ -31,10 +31,27 @@ export default function FiberCutForm() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [locations, setLocations] = useState<string[]>([]);
+  const [reasons, setReasons] = useState<string[]>([]);
   const [formData, setFormData] = useState<any>(defaultFormData);
 
   useEffect(() => {
-    if (id) fetchRecord();
+    const fetchLookups = async () => {
+      try {
+        const { data: locData } = await supabase.from('fiber_cut_locations').select('location_name');
+        if (locData) setLocations(locData.map((d: any) => d.location_name));
+
+        const { data: reasonData } = await supabase.from('fiber_cut_reasons').select('reason_text');
+        if (reasonData) setReasons(reasonData.map((d: any) => d.reason_text));
+      } catch (err) {
+        console.error("Error fetching lookups", err);
+      }
+    };
+    fetchLookups();
+
+    if (id) {
+      fetchRecord();
+    }
   }, [id]);
 
   const formatForDatePicker = (dateStr?: string) => {
@@ -137,7 +154,8 @@ export default function FiberCutForm() {
           </h1>
         </div>
         <button
-          onClick={handleSubmit}
+          type="submit"
+          form="fiber-cut-form"
           disabled={saving}
           className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50"
         >
@@ -147,34 +165,65 @@ export default function FiberCutForm() {
       </div>
 
       <div className="flex-1 overflow-auto">
-        <form onSubmit={handleSubmit} className="space-y-6 max-w-6xl mx-auto pb-12">
+        <form id="fiber-cut-form" onSubmit={handleSubmit} className="space-y-6 max-w-6xl mx-auto pb-12">
           
           <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
             <SectionHeading icon={MapPin} title="General & Location Information" />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Location</label>
-                <Input name="cut_location" value={formData.cut_location} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Location *</label>
+                <select name="cut_location" value={formData.cut_location} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">Select Location...</option>
+                  {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Region</label>
-                <Input name="region_cut_type" value={formData.region_cut_type} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Region *</label>
+                <select name="region_cut_type" value={formData.region_cut_type} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">Select Region...</option>
+                  <option value="Region 1">Region 1</option>
+                  <option value="Region 2">Region 2</option>
+                  <option value="Region 3">Region 3</option>
+                  <option value="Region 4">Region 4</option>
+                  <option value="Between Region 1 & 2">Between Region 1 & 2</option>
+                  <option value="Between Region 2 & 3">Between Region 2 & 3</option>
+                  <option value="Between Region 3 & 4">Between Region 3 & 4</option>
+                  <option value="Unknown">Unknown</option>
+                </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Quarter</label>
-                <Input name="quarter" value={formData.quarter} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Quarter *</label>
+                <select name="quarter" value={formData.quarter} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">Select Quarter...</option>
+                  <option value="Q1">Q1</option>
+                  <option value="Q2">Q2</option>
+                  <option value="Q3">Q3</option>
+                  <option value="Q4">Q4</option>
+                </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Month</label>
-                <Input name="month" value={formData.month} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Month *</label>
+                <select name="month" value={formData.month} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">Select Month...</option>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
+                  ))}
+                </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Cut Type</label>
-                <Input name="cut_type" value={formData.cut_type} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Cut Type *</label>
+                <select name="cut_type" value={formData.cut_type} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">Select Type...</option>
+                  <option value="Backbone">Backbone</option>
+                  <option value="Backhaul">Backhaul</option>
+                </select>
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Reason</label>
-                <Input name="reason" value={formData.reason} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Reason *</label>
+                <select name="reason" value={formData.reason} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                  <option value="">Select Reason...</option>
+                  {reasons.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Area Reason</label>
@@ -185,12 +234,12 @@ export default function FiberCutForm() {
                 <Input name="noc_cut_evaluation" value={formData.noc_cut_evaluation} onChange={handleChange} />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Lat Coordinates</label>
-                <Input name="lat_coordinates" value={formData.lat_coordinates} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Lat Coordinates *</label>
+                <Input name="lat_coordinates" value={formData.lat_coordinates} onChange={handleChange} required />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Log Coordinates</label>
-                <Input name="log_coordinates" value={formData.log_coordinates} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Log Coordinates *</label>
+                <Input name="log_coordinates" value={formData.log_coordinates} onChange={handleChange} required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Distance Source City</label>
@@ -207,7 +256,7 @@ export default function FiberCutForm() {
             <SectionHeading icon={Clock} title="Timeline & Dispatch Details" />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Start Date</label>
+                <label className="text-xs font-semibold text-muted-foreground">Start Date *</label>
                 <Input 
                   type="date" 
                   name="start_date" 
@@ -215,11 +264,12 @@ export default function FiberCutForm() {
                   onChange={handleChange} 
                   onClick={(e) => 'showPicker' in e.target && (e.target as any).showPicker()}
                   onKeyDown={(e) => e.preventDefault()}
+                  required
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Start Time</label>
-                <Input type="time" name="start_time" value={formData.start_time} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Start Time *</label>
+                <Input type="time" name="start_time" value={formData.start_time} onChange={handleChange} required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">End Date</label>
@@ -266,8 +316,8 @@ export default function FiberCutForm() {
                 <Input name="dispatched_team_source_city" value={formData.dispatched_team_source_city} onChange={handleChange} />
               </div>
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-muted-foreground">Supervisor Name</label>
-                <Input name="supervisors_name" value={formData.supervisors_name} onChange={handleChange} />
+                <label className="text-xs font-semibold text-muted-foreground">Supervisor Name *</label>
+                <Input name="supervisors_name" value={formData.supervisors_name} onChange={handleChange} placeholder="e.g. Jasem + Ayman" required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Excavator Machine</label>

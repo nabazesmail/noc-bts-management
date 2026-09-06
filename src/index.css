@@ -41,6 +41,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  option {
+    @apply bg-background text-foreground;
+  }
 }
 
 .leaflet-container {

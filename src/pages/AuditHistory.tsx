@@ -10,9 +10,9 @@ interface AuditLog {
   id: string;
   created_at: string;
   user_email: string;
-  site_id: string;
-  site_name: string;
-  site_code: string;
+  record_type: string;
+  record_id: string;
+  record_name: string;
   action: string;
   field_name?: string;
   old_value?: string;
@@ -32,12 +32,12 @@ export default function AuditHistory({}: AuditHistoryProps) {
     try {
       setLoading(true);
 
-      // FIXED QUERY: Fetches direct columns without the 'sites(...)' join
+      // Fetch from the new universal global_audit_logs table
       const { data, error } = await supabase
-        .from("site_history")
+        .from("global_audit_logs")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(100);
+        .limit(200);
 
       if (error) throw error;
       setLogs(data || []);
@@ -57,8 +57,9 @@ export default function AuditHistory({}: AuditHistoryProps) {
       return (
         log.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         log.action?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.site_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.site_code?.toLowerCase().includes(searchTerm.toLowerCase())
+        log.record_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.record_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.field_name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
   );
@@ -83,7 +84,8 @@ export default function AuditHistory({}: AuditHistoryProps) {
             <tr className="border-b dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
               <th className="p-4 font-semibold text-sm">Timestamp</th>
               <th className="p-4 font-semibold text-sm">User</th>
-              <th className="p-4 font-semibold text-sm">Site</th>
+              <th className="p-4 font-semibold text-sm">Type</th>
+              <th className="p-4 font-semibold text-sm">Record</th>
               <th className="p-4 font-semibold text-sm">Action</th>
               <th className="p-4 font-semibold text-sm">Field</th>
               <th className="p-4 font-semibold text-sm">Old Value</th>
@@ -110,10 +112,13 @@ export default function AuditHistory({}: AuditHistoryProps) {
                     {new Date(log.created_at).toLocaleString()}
                   </td>
                   <td className="p-4 text-sm text-gray-700 dark:text-gray-300">{log.user_email}</td>
+                  
+                  <td className="p-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {log.record_type}
+                  </td>
 
-                  {/* Safely display the site code directly from the history table */}
                   <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
-                    {log.site_code || log.site_name || "Unknown Site"}
+                    {log.record_name || log.record_id || "Unknown Record"}
                   </td>
 
                   <td className="p-4 text-sm">

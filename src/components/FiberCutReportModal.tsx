@@ -122,8 +122,10 @@ export default function FiberCutReportModal({ isOpen, onClose, data }: FiberCutR
             <label className="block text-xs font-semibold text-muted-foreground mb-1">Start Date</label>
             <input 
               type="date" 
-              className="w-full bg-background border border-border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-background border border-border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
               value={startDate}
+              onClick={(e) => (e.target as any).showPicker?.()}
+              onKeyDown={(e) => e.preventDefault()}
               onChange={(e) => setStartDate(e.target.value)}
             />
           </div>
@@ -131,8 +133,10 @@ export default function FiberCutReportModal({ isOpen, onClose, data }: FiberCutR
             <label className="block text-xs font-semibold text-muted-foreground mb-1">End Date</label>
             <input 
               type="date" 
-              className="w-full bg-background border border-border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
+              className="w-full bg-background border border-border rounded p-2 text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 cursor-pointer"
               value={endDate}
+              onClick={(e) => (e.target as any).showPicker?.()}
+              onKeyDown={(e) => e.preventDefault()}
               onChange={(e) => setEndDate(e.target.value)}
             />
           </div>
