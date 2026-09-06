@@ -4,10 +4,12 @@ import { supabase } from "../lib/supabase";
 import { SlaTracking } from "../types";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useToast } from "../components/ToastContext";
 
 export default function SlaForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
@@ -89,7 +91,7 @@ export default function SlaForm() {
       }
     } catch (error: any) {
       console.error("Error fetching SLA record:", error.message);
-      alert("Failed to load SLA record.");
+      toast.error("Failed to load SLA record.");
       navigate("/sla-tracking");
     } finally {
       setLoading(false);
@@ -192,7 +194,7 @@ export default function SlaForm() {
       navigate("/sla-tracking");
     } catch (error: any) {
       console.error("Error saving SLA:", error.message);
-      alert("Failed to save SLA record: " + error.message);
+      toast.error("Failed to save SLA record: " + error.message);
     } finally {
       setSaving(false);
     }

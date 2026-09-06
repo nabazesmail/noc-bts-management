@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { Profile, Site } from "@/types";
+import { useToast } from "@/components/ToastContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   const [availablePowerSources, setAvailablePowerSources] = useState<string[]>([]);
   const [deleteSiteId, setDeleteSiteId] = useState<string | null>(null);
   const [toggleSiteTarget, setToggleSiteTarget] = useState<Site | null>(null);
+  const toast = useToast();
   const pageSize = 50;
 
   useEffect(() => {
@@ -53,9 +55,14 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
 
   const confirmDelete = async () => {
     if (!deleteSiteId) return;
-    await supabase.from("sites").delete().eq("id", deleteSiteId);
-    setDeleteSiteId(null);
-    fetchSites();
+    const { error } = await supabase.from("sites").delete().eq("id", deleteSiteId);
+    if (error) {
+      toast.error("Failed to delete site");
+    } else {
+      toast.success("Site deleted successfully");
+      setDeleteSiteId(null);
+      fetchSites();
+    }
   };
 
   const getSiteStatus = (site: Site) => {
@@ -96,10 +103,11 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
         .eq('id', site.id);
       
       if (error) throw error;
+      toast.success("Site status updated successfully.");
       setAllSites(prev => prev.map(s => s.id === site.id ? { ...s, comments: newComment } : s));
       setToggleSiteTarget(null);
     } catch (err: any) {
-      alert("Failed to update status: " + err.message);
+      toast.error("Failed to update status: " + err.message);
     }
   };
 

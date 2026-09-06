@@ -3,6 +3,7 @@ import { Search, Loader2, Scissors, Calendar, ChevronDown, ChevronUp, MapPin, Cl
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import FiberCutReportModal from '../components/FiberCutReportModal';
+import { useToast } from '../components/ToastContext';
 
 export default function FiberCutsPage() {
   const [data, setData] = useState<any[]>([]);
@@ -18,6 +19,7 @@ export default function FiberCutsPage() {
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [reportOpen, setReportOpen] = useState(false);
   const [deleteRecordId, setDeleteRecordId] = useState<string | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     fetchFiberCuts();
@@ -47,8 +49,9 @@ export default function FiberCutsPage() {
       if (error) throw error;
       setData(data.filter(item => item.id !== deleteRecordId));
       setDeleteRecordId(null);
+      toast.success("Record deleted successfully");
     } catch (error: any) {
-      alert("Failed to delete record: " + error.message);
+      toast.error("Failed to delete record: " + error.message);
     }
   };
 

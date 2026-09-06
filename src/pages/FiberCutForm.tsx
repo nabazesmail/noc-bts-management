@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { Save, ArrowLeft, Loader2, MapPin, Clock, AlertTriangle, Activity } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useToast } from "../components/ToastContext";
 
 const defaultFormData = {
   quarter: "", month: "", start_date: "", start_time: "", end_date: "", end_time: "",
@@ -34,6 +35,7 @@ export default function FiberCutForm() {
   const [locations, setLocations] = useState<string[]>([]);
   const [reasons, setReasons] = useState<string[]>([]);
   const [formData, setFormData] = useState<any>(defaultFormData);
+  const toast = useToast();
 
   useEffect(() => {
     const fetchLookups = async () => {
@@ -88,7 +90,7 @@ export default function FiberCutForm() {
       }
     } catch (error: any) {
       console.error("Error fetching record:", error.message);
-      alert("Failed to load record.");
+      toast.error("Failed to load record.");
       navigate("/fiber-cuts");
     } finally {
       setLoading(false);
@@ -119,7 +121,7 @@ export default function FiberCutForm() {
       navigate("/fiber-cuts");
     } catch (error: any) {
       console.error("Error saving record:", error.message);
-      alert("Failed to save record: " + error.message);
+      toast.error("Failed to save record: " + error.message);
     } finally {
       setSaving(false);
     }

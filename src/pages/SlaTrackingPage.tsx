@@ -5,6 +5,7 @@ import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, Che
 import { isToday, isThisWeek, parseISO } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
+import { useToast } from "../components/ToastContext";
 
 export default function SlaTrackingPage() {
   const [data, setData] = useState<SlaTracking[]>([]);
@@ -18,6 +19,7 @@ export default function SlaTrackingPage() {
   const [siteSlaFilter, setSiteSlaFilter] = useState("All");
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [deleteSlaId, setDeleteSlaId] = useState<string | null>(null);
+  const toast = useToast();
   const [reportOpen, setReportOpen] = useState(false);
 
   const uniqueRegions = ["1", "2", "3", "4", "RC"];
@@ -55,8 +57,9 @@ export default function SlaTrackingPage() {
       if (error) throw error;
       setData(data.filter((item) => item.id !== deleteSlaId));
       setDeleteSlaId(null);
+      toast.success("Record deleted successfully");
     } catch (error: any) {
-      alert("Error deleting record: " + error.message);
+      toast.error("Error deleting record: " + error.message);
     }
   };
 

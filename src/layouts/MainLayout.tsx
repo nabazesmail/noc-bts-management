@@ -14,7 +14,8 @@ import {
   Scissors,
   MapPinned,
   Users,
-  Ticket
+  Ticket,
+  Flame
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useTheme } from "@/components/ThemeProvider";
@@ -37,6 +38,7 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
     { name: "Fiber Cuts", path: "/fiber-cuts", icon: Scissors },
     { name: "Fiber Cut Map", path: "/fiber-cut-map", icon: MapPinned },
     { name: "Customer Tickets", path: "/tickets", icon: Ticket },
+    { name: "Network Incidents", path: "/incidents", icon: Flame },
     { name: "Audit History", path: "/audit", icon: History },
   ];
 

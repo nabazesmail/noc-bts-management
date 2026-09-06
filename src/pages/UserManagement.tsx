@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { createClient } from "@supabase/supabase-js";
+import { useToast } from "@/components/ToastContext";
 import { Profile } from "@/types";
 import { Search, UserCog, Check, X, ShieldAlert, Plus, Trash2, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,9 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
   const [saving, setSaving] = useState(false);
 
   const [isAddingUser, setIsAddingUser] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
+  
+  const toast = useToast();
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newName, setNewName] = useState("");
@@ -77,22 +81,25 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
       
       await fetchUsers();
       setEditingUser(null);
+      toast.success("User updated successfully");
     } catch (err: any) {
-      alert("Error updating user: " + err.message);
+      toast.error("Error updating user: " + err.message);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDelete = async (userId: string) => {
-    if (!confirm("Are you sure you want to delete this profile? This removes their access entirely. Note: Their base authentication account may still exist in Supabase Auth but they won't have a profile.")) return;
+  const confirmDelete = async () => {
+    if (!deleteUserId) return;
     
     try {
-      const { error } = await supabase.from("profiles").delete().eq("id", userId);
+      const { error } = await supabase.from("profiles").delete().eq("id", deleteUserId);
       if (error) throw error;
+      toast.success("User deleted successfully");
       await fetchUsers();
+      setDeleteUserId(null);
     } catch (err: any) {
-      alert("Error deleting user: " + err.message);
+      toast.error("Error deleting user: " + err.message);
     }
   };
 
@@ -101,8 +108,6 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
     
     setSaving(true);
     try {
-      // Create a temporary client that DOES NOT persist the session to localStorage.
-      // This allows us to sign up a new user without logging out the current Admin!
       const tempClient = createClient(
         import.meta.env.VITE_SUPABASE_URL,
         import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -131,10 +136,11 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
       setNewName("");
       setNewEmail("");
       setNewPassword("");
+      toast.success("User created successfully");
       await fetchUsers();
       
     } catch (err: any) {
-      alert("Error creating user: " + err.message);
+      toast.error("Error creating user: " + err.message);
     } finally {
       setSaving(false);
     }
@@ -246,7 +252,7 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
                         Access
                       </button>
                       <button
-                        onClick={() => handleDelete(user.id)}
+                        onClick={() => setDeleteUserId(user.id)}
                         disabled={user.id === currentUser.id}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 dark:bg-red-500/10 dark:text-red-400 rounded-md hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -431,6 +437,42 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Modal */}
+      {deleteUserId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 animate-in fade-in duration-200">
+          <div className="bg-card w-full max-w-md rounded-xl shadow-xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <div className="flex items-center gap-3 text-red-600 dark:text-red-400 mb-4">
+                <div className="bg-red-100 dark:bg-red-900/30 p-2 rounded-full">
+                  <ShieldAlert className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground">Delete User Profile</h3>
+              </div>
+              <p className="text-muted-foreground mb-1">
+                Are you sure you want to delete this profile? This removes their access entirely.
+              </p>
+              <p className="text-xs text-muted-foreground/70 mb-6">
+                Note: Their base authentication account may still exist in Supabase Auth but they won't have a profile or any access.
+              </p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setDeleteUserId(null)}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-600 text-white rounded-md text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  Delete Profile
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

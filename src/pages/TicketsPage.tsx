@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Profile } from "@/types";
+import { useToast } from "@/components/ToastContext";
 import { Plus, X, Search, Ticket, MapPin, Map, Clock, CheckCircle2, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
@@ -10,6 +11,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
+  const toast = useToast();
   
   const [isAdding, setIsAdding] = useState(false);
   const [confirmTicket, setConfirmTicket] = useState<any>(null);
@@ -72,9 +74,10 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
       
       setIsAdding(false);
       setFormData({ region: "", city: "", latitude: "", longitude: "", description: "", status: "open", tracking_id: "" });
+      toast.success("Ticket saved successfully");
       await fetchTickets();
     } catch (err: any) {
-      alert("Error saving ticket: " + err.message);
+      toast.error("Error saving ticket: " + err.message);
     } finally {
       setSaving(false);
     }
@@ -96,10 +99,11 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
         .eq("id", confirmTicket.id);
         
       if (error) throw error;
+      toast.success("Ticket status updated");
       setConfirmTicket(null);
       await fetchTickets();
     } catch (err: any) {
-      alert("Error updating status: " + err.message);
+      toast.error("Error updating status: " + err.message);
     }
   };
 

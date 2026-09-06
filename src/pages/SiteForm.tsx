@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "../components/ToastContext";
 
 type FieldConfig = {
   name: string;
@@ -21,6 +22,7 @@ type FieldConfig = {
 export default function SiteForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
   const [powerSources, setPowerSources] = useState<string[]>([]);
@@ -206,7 +208,7 @@ export default function SiteForm() {
       }
       navigate("/sites");
     } catch (err: any) {
-      alert("Error saving site: " + err.message);
+      toast.error("Error saving site: " + err.message);
     } finally {
       setLoading(false);
     }
