@@ -40,6 +40,62 @@ export default function SlaForm() {
     }
   }, [id]);
 
+  // Auto-calculate Duration
+  useEffect(() => {
+    if (formData.start_date && formData.start_time && formData.end_date && formData.end_time) {
+      const start = new Date(`${formData.start_date}T${formData.start_time}`);
+      const end = new Date(`${formData.end_date}T${formData.end_time}`);
+      
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime()) && end > start) {
+        const diffMs = end.getTime() - start.getTime();
+        
+        const totalMinutes = Math.floor(diffMs / 60000);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const seconds = Math.floor((diffMs % 60000) / 1000);
+        
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
+        
+        setFormData(prev => ({
+          ...prev,
+          duration_hours: String(hours),
+          duration_minutes: String(totalMinutes),
+          duration_time: `${hh}:${mm}:${ss}`
+        }));
+      }
+    }
+  }, [formData.start_date, formData.start_time, formData.end_date, formData.end_time]);
+
+  // Auto-calculate NOC SLA Status
+  useEffect(() => {
+    if (formData.noc_mtta && formData.noc_sla) {
+      const mtta = parseFloat(formData.noc_mtta);
+      const sla = parseFloat(formData.noc_sla);
+      if (!isNaN(mtta) && !isNaN(sla)) {
+        setFormData(prev => ({
+          ...prev,
+          noc_sla_status: mtta <= sla ? 'Yes' : 'No'
+        }));
+      }
+    }
+  }, [formData.noc_mtta, formData.noc_sla]);
+
+  // Auto-calculate Site SLA Status
+  useEffect(() => {
+    if (formData.site_mttr && formData.site_sla) {
+      const mttr = parseFloat(formData.site_mttr);
+      const sla = parseFloat(formData.site_sla);
+      if (!isNaN(mttr) && !isNaN(sla)) {
+        setFormData(prev => ({
+          ...prev,
+          site_sla_status: mttr <= sla ? 'Yes' : 'No'
+        }));
+      }
+    }
+  }, [formData.site_mttr, formData.site_sla]);
+
   const fetchLookups = async () => {
     try {
       const { data: cityData } = await api.get("/cities");
