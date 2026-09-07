@@ -180,6 +180,7 @@ export default function IncidentForm() {
                   name="month" 
                   value={formData.month || ''} 
                   onChange={handleChange}
+                  required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <option value="">Select Month</option>
@@ -191,27 +192,53 @@ export default function IncidentForm() {
 
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">Start Date</label>
-                <Input type="date" name="start_date" value={formData.start_date || ''} onChange={handleChange} />
+                <Input 
+                  type="date" 
+                  name="start_date" 
+                  value={formData.start_date || ''} 
+                  onChange={handleChange} 
+                  required
+                  onClick={(e) => 'showPicker' in HTMLInputElement.prototype && (e.target as HTMLInputElement).showPicker()}
+                  onKeyDown={(e) => e.preventDefault()}
+                />
               </div>
               
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">Start Time</label>
-                <Input type="time" name="start_time" value={formData.start_time || ''} onChange={handleChange} />
+                <Input 
+                  type="time" 
+                  name="start_time" 
+                  value={formData.start_time || ''} 
+                  onChange={handleChange} 
+                />
               </div>
               
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">End Date</label>
-                <Input type="date" name="end_date" value={formData.end_date || ''} onChange={handleChange} />
+                <Input 
+                  type="date" 
+                  name="end_date" 
+                  value={formData.end_date || ''} 
+                  onChange={handleChange} 
+                  required
+                  onClick={(e) => 'showPicker' in HTMLInputElement.prototype && (e.target as HTMLInputElement).showPicker()}
+                  onKeyDown={(e) => e.preventDefault()}
+                />
               </div>
               
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">End Time</label>
-                <Input type="time" name="end_time" value={formData.end_time || ''} onChange={handleChange} />
+                <Input 
+                  type="time" 
+                  name="end_time" 
+                  value={formData.end_time || ''} 
+                  onChange={handleChange} 
+                />
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">Duration Time (HH:MM:SS)</label>
-                <Input type="text" placeholder="e.g. 0:30:00" name="duration_time" value={formData.duration_time || ''} onChange={handleChange} />
+                <Input type="text" placeholder="e.g. 0:30:00" name="duration_time" value={formData.duration_time || ''} onChange={handleChange} required />
               </div>
 
               <div className="space-y-2">
@@ -237,7 +264,7 @@ export default function IncidentForm() {
               
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">Issue Scope</label>
-                <Input type="text" name="issue_scope" value={formData.issue_scope || ''} onChange={handleChange} placeholder="e.g. RAQ#11 LTE site" />
+                <Input type="text" name="issue_scope" value={formData.issue_scope || ''} onChange={handleChange} placeholder="e.g. RAQ#11 LTE site" required />
               </div>
               
               <div className="space-y-2">
@@ -251,6 +278,7 @@ export default function IncidentForm() {
                   name="responsible_department" 
                   value={formData.responsible_department || ''} 
                   onChange={handleChange}
+                  required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="">Select Department</option>
@@ -288,6 +316,7 @@ export default function IncidentForm() {
                   onChange={handleChange} 
                   rows={3}
                   placeholder="Provide a detailed description of why the incident occurred..."
+                  required
                   className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 />
               </div>

@@ -111,7 +111,13 @@ export default function AuditHistory({}: AuditHistoryProps) {
                   <td className="p-4 text-sm text-gray-900 dark:text-gray-100">
                     {new Date(log.created_at).toLocaleString()}
                   </td>
-                  <td className="p-4 text-sm text-gray-700 dark:text-gray-300">{log.user_email}</td>
+                  <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
+                    {log.user_email ? (
+                      log.user_email
+                    ) : (
+                      <span className="text-gray-500 italic">System</span>
+                    )}
+                  </td>
                   
                   <td className="p-4 text-sm font-medium text-gray-900 dark:text-gray-100">
                     {log.record_type}

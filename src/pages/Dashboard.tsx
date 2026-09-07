@@ -276,7 +276,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
               return (
                 <div key={rp.region} className="relative flex flex-col items-center">
                   <div className={`px-3 py-0.5 rounded-t-md text-white font-bold text-xs mb-1.5 ${colorClass}`}>
-                    {rp.region || 'Unknown'}
+                    {rp.region === 'RC' ? 'RC' : (rp.region ? `R${rp.region}` : 'Unknown')}
                   </div>
                   <div className="text-xl font-bold text-foreground">
                     {rp.upgraded} <span className="text-xs text-muted-foreground font-normal">/ {rp.total}</span>

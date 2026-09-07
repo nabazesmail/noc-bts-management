@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Loader2, Calendar, ChevronDown, ChevronUp, AlertTriangle, Activity, Trash2, Edit2, Plus, Flame } from 'lucide-react';
+import { Search, Loader2, Calendar, ChevronDown, ChevronUp, AlertTriangle, Activity, Trash2, Edit2, Plus, Flame, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Link } from 'react-router-dom';
 import { useToast } from '../components/ToastContext';
+import IncidentReportModal from '../components/IncidentReportModal';
 
 export default function IncidentsPage() {
   const [data, setData] = useState<any[]>([]);
@@ -10,12 +11,14 @@ export default function IncidentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   
   // Basic filters
+  const [yearFilter, setYearFilter] = useState('All');
   const [monthFilter, setMonthFilter] = useState('All');
   const [deptFilter, setDeptFilter] = useState('All');
   const [approvalFilter, setApprovalFilter] = useState('All');
 
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [deleteRecordId, setDeleteRecordId] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -62,6 +65,15 @@ export default function IncidentsPage() {
     setExpandedRows(newExpanded);
   };
 
+  const uniqueYears = Array.from(new Set(data.map(item => {
+    if (!item.start_date) return null;
+    try {
+      return new Date(item.start_date).getFullYear().toString();
+    } catch {
+      return null;
+    }
+  }).filter(Boolean))).sort((a, b) => Number(b) - Number(a));
+
   const uniqueMonths = Array.from(new Set(data.map(item => String(item.month || '').toUpperCase()).filter(Boolean))).sort();
   const uniqueDepts = Array.from(new Set(data.map(item => item.responsible_department).filter(Boolean))).sort();
   const uniqueApprovals = Array.from(new Set(data.map(item => item.maintenance_approval).filter(Boolean))).sort();
@@ -73,11 +85,13 @@ export default function IncidentsPage() {
       String(row.reason || '').toLowerCase().includes(search) ||
       String(row.affected_service || '').toLowerCase().includes(search);
       
+    const rowYear = row.start_date ? new Date(row.start_date).getFullYear().toString() : '';
+    const matchesYear = yearFilter === 'All' || rowYear === yearFilter;
     const matchesMonth = monthFilter === 'All' || String(row.month || '').toUpperCase() === monthFilter;
     const matchesDept = deptFilter === 'All' || row.responsible_department === deptFilter;
     const matchesApproval = approvalFilter === 'All' || row.maintenance_approval === approvalFilter;
     
-    return matchesSearch && matchesMonth && matchesDept && matchesApproval;
+    return matchesSearch && matchesYear && matchesMonth && matchesDept && matchesApproval;
   });
 
   const totalIncidents = filteredData.length;
@@ -120,6 +134,13 @@ export default function IncidentsPage() {
               className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
+          <button
+            onClick={() => setReportOpen(true)}
+            className="flex items-center gap-2 bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
+          >
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Monthly Report</span>
+          </button>
           <Link
             to="/incidents/new"
             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
@@ -131,7 +152,18 @@ export default function IncidentsPage() {
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 shrink-0">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-6 shrink-0">
+        <select
+          className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          value={yearFilter}
+          onChange={(e) => setYearFilter(e.target.value)}
+        >
+          <option value="All">All Years</option>
+          {uniqueYears.map(year => (
+            <option key={year as string} value={year as string}>{year}</option>
+          ))}
+        </select>
+
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={monthFilter}
@@ -200,6 +232,7 @@ export default function IncidentsPage() {
                 <th className="p-3 w-10"></th>
                 <th className="p-3 text-xs font-semibold text-muted-foreground uppercase whitespace-nowrap">Date</th>
                 <th className="p-3 text-xs font-semibold text-muted-foreground uppercase whitespace-nowrap">Scope</th>
+                <th className="p-3 text-xs font-semibold text-muted-foreground uppercase whitespace-nowrap">Reason</th>
                 <th className="p-3 text-xs font-semibold text-muted-foreground uppercase whitespace-nowrap">Department</th>
                 <th className="p-3 text-xs font-semibold text-muted-foreground uppercase whitespace-nowrap">Duration</th>
                 <th className="p-3 text-xs font-semibold text-muted-foreground uppercase whitespace-nowrap">Approval</th>
@@ -209,7 +242,7 @@ export default function IncidentsPage() {
             <tbody className="divide-y divide-border">
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={8} className="p-8 text-center text-muted-foreground">
                     No incidents found matching your criteria.
                   </td>
                 </tr>
@@ -234,6 +267,9 @@ export default function IncidentsPage() {
                         </td>
                         <td className="p-3 text-sm font-medium whitespace-nowrap">
                           {row.issue_scope}
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground max-w-[200px] truncate" title={row.reason}>
+                          {row.reason || '-'}
                         </td>
                         <td className="p-3 text-sm whitespace-nowrap">
                           {row.responsible_department}
@@ -272,7 +308,7 @@ export default function IncidentsPage() {
                       
                       {isExpanded && (
                         <tr className="bg-muted/10 border-b border-border">
-                          <td colSpan={7} className="p-4">
+                          <td colSpan={8} className="p-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 text-sm pl-10">
                               <div>
                                 <h4 className="font-semibold text-muted-foreground mb-1 text-xs uppercase">Time Details</h4>
@@ -343,6 +379,13 @@ export default function IncidentsPage() {
           </div>
         </div>
       )}
+
+      {/* Report Modal */}
+      <IncidentReportModal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        data={data}
+      />
     </div>
   );
 }
