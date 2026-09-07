@@ -1,0 +1,271 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------------
+// LOOKUP TABLES
+// ----------------------------------------------------------------------
+
+model User {
+  id    Int     @id @default(autoincrement())
+  name  String?
+}
+
+model SlaTechnicalArea {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+}
+
+model SlaReason {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+}
+
+model SlaDepartment {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+}
+
+model PowerSource {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+}
+
+model FiberCutReason {
+  id               Int     @id @default(autoincrement())
+  fibercut_reasons String  @unique
+}
+
+model FiberCutLocation {
+  id                 Int     @id @default(autoincrement())
+  fibercut_locations String  @unique
+}
+
+model City {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+}
+
+// ----------------------------------------------------------------------
+// MAIN TABLES
+// ----------------------------------------------------------------------
+
+model SiteLocation {
+  id         Int     @id @default(autoincrement())
+  name       String  @unique // Maps to Site Code
+  region     String?
+  longitude  String? // Storing as String to prevent float parsing issues on import
+  latitude   String?
+  
+  site       Site?   @relation(fields: [name], references: [site_code], onDelete: Cascade)
+}
+
+model Site {
+  id                  Int     @id @default(autoincrement())
+  site_no             String?
+  region              String?
+  city                String?
+  tracking_area       String?
+  site_code           String  @unique
+  
+  // Band 20
+  enodb_20            String?
+  band_20_ip          String?
+  band20_sec1_cell    String?
+  band20_sec2_cell    String?
+  band20_sec3_cell    String?
+  band20_sec4_cell    String?
+  b20_xa2             String?
+  b20_xb2             String?
+  b20_xc2             String?
+  b20_xd2             String?
+  switch              String?
+  port                String?
+  sfp_b20             String?
+  sfp_core_type       String?
+  b20_on_air_date     String?
+  
+  // Band 7
+  enodb_7             String?
+  band_7_ip           String?
+  b7_xa1              String?
+  b7_xb1              String?
+  b7_xc1              String?
+  b7_xd1              String?
+  b7_xa2              String?
+  b7_xb2              String?
+  b7_xc2              String?
+  b7_xd2              String?
+  switch_b7           String?
+  port_b7             String?
+  sfp_b7              String?
+  sfp_core_type2      String?
+  b7_on_air_date      String?
+  
+  // Details
+  combined_both_bands String?
+  active_hours        String?
+  site_name           String?
+  site_zone           String?
+  power_source        String?
+  comments            String? @db.Text
+
+  // Relationships
+  SiteLocation        SiteLocation?
+  SlaTrackings        SlaTracking[]
+  Incidents           Incident[]
+  FiberCuts           FiberCut[]
+}
+
+model SlaTracking {
+  id                      Int     @id @default(autoincrement())
+  month                   String?
+  day                     String?
+  shift                   String?
+  noc_staff               String?
+  region                  String?
+  city                    String?
+  service_type            String?
+  
+  site_code_dc            String?
+  site                    Site?   @relation(fields: [site_code_dc], references: [site_code], onDelete: Cascade)
+  
+  noc_mtta                String?
+  noc_sla                 String?
+  noc_sla_status          String?
+  site_mttr               String?
+  site_sla                String?
+  site_sla_status         String?
+  band_type               String?
+  band                    String?
+  start_date              String?
+  start_time              String?
+  end_date                String?
+  end_time                String?
+  duration_time           String?
+}
+
+model Incident {
+  id                      Int     @id @default(autoincrement())
+  month                   String?
+  start_date              String?
+  start_time              String?
+  end_date                String?
+  end_time                String?
+  duration_time           String?
+  duration_hours          String?
+  duration_minutes        String?
+  issue_scope             String?
+  affected_service        String? // Likely holds the Site Code based on your headers
+  responsible_department  String?
+  reason                  String?
+  maintenance_approval    String?
+  
+  // We link affected_service directly to site_code if it matches
+  site                    Site?   @relation(fields: [affected_service], references: [site_code], onDelete: Cascade)
+}
+
+model FiberCut {
+  id                          Int     @id @default(autoincrement())
+  quarter                     String?
+  month                       String?
+  start_date                  String?
+  start_time                  String?
+  end_date                    String?
+  end_time                    String?
+  duration                    String?
+  duration_minutes            String?
+  noc_report_time             String?
+  dispatched_team_source_city String?
+  team_dispatch_date          String?
+  dispatched_time             String?
+  arival_time                 String?
+  splicing_time               String?
+  excavator_machine           String?
+  maintenance_end_time        String?
+  supervisor_name             String?
+  region_cut_type             String?
+  cut_type                    String?
+  cut_location                String?
+  lat_coordinates             String?
+  log_coordinates             String?
+  distance_source_city        String?
+  distance_km                 String?
+  protection                  String?
+  noc_cut_evaluation          String?
+  reason                      String?
+  area_reason                 String?
+  
+  impacted_lte_no             String?
+  lte1                        String?
+  lte2                        String?
+  lte3                        String?
+  lte4                        String?
+  lte5                        String?
+  lte6                        String?
+  lte7                        String?
+  lte8                        String?
+  lte9                        String?
+  lte10                       String?
+  lte11                       String?
+  lte12                       String?
+  lte13                       String?
+  lte14                       String?
+  lte15                       String?
+  lte16                       String?
+  lte17                       String?
+  lte18                       String?
+  lte19                       String?
+  lte20                       String?
+  lte21                       String?
+  lte22                       String?
+  lte23                       String?
+  
+  impacted_rxd_no             String?
+  impacted_subpoints_rxd      String?
+  impacted_rxd01              String?
+  impacted_rxd02              String?
+  
+  impacted_heh_no             String?
+  impacted_heh                String?
+  
+  impacted_z_location_no      String?
+  impacted_subpoints_z_location String?
+  impacted_z_location01       String?
+  impacted_z_location02       String?
+  
+  impacted_nodes              String?
+  
+  temporary_impacted_lte_no   String?
+  temporary_impacted_lte      String?
+  temporary_impacted_rxd_no   String?
+  temporary_impacted_rxd      String?
+  temporary_impacted_z_locatin String?
+  temporary_impacted_nodes    String?
+  duration_temporary_impacted_services String?
+  
+  comment                     String? @db.Text
+  noc_response_time           String?
+  noc_sla                     String?
+  noc_sla_status              String?
+  dispatch_difference         String?
+  dispatch_sla                String?
+  dispatch_sla_status         String?
+  travel_time                 String?
+  arrival_sla                 String?
+  arrival_sla_status          String?
+  on_site_work_duration       String?
+  troublshooting_sla          String?
+  troublshoot_sla_status      String?
+  link_recovery_duration      String?
+  link_sla                    String?
+  link_sla_status             String?
+  
+  // Link to Site if cut_location maps to site_code
+  site                        Site?   @relation(fields: [cut_location], references: [site_code], onDelete: Cascade)
+}
