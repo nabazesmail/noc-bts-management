@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { MapPin } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -137,6 +138,44 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
     });
   };
 
+  // Helper to calculate distance in km between two lat/lng coordinates (Haversine formula)
+  const getDistanceFromLatLonInKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  const actualSites = sites.filter((s) => !s.is_ticket);
+
+  const getNearestSite = (ticket: any) => {
+    if (!ticket.latitude || !ticket.longitude || actualSites.length === 0) return null;
+    const ticketLat = Number(ticket.latitude);
+    const ticketLng = Number(ticket.longitude);
+    
+    let nearestSite = null;
+    let minDistance = Infinity;
+
+    for (const site of actualSites) {
+      if (!site.latitude || !site.longitude) continue;
+      const siteLat = Number(site.latitude);
+      const siteLng = Number(site.longitude);
+      
+      const distance = getDistanceFromLatLonInKm(ticketLat, ticketLng, siteLat, siteLng);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestSite = site;
+      }
+    }
+    
+    return { site: nearestSite, distance: minDistance };
+  };
+
   return (
     <MapContainer
       center={[36.5, 41]}
@@ -176,6 +215,24 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
                         "{site.description}"
                       </p>
                     )}
+                    
+                    {(() => {
+                      const nearest = getNearestSite(site);
+                      if (!nearest || !nearest.site) return null;
+                      const distKm = nearest.distance;
+                      const distText = distKm < 1 ? `${Math.round(distKm * 1000)} meters` : `${distKm.toFixed(1)} km`;
+                      return (
+                        <div className="mt-3 p-2 bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20 rounded-md">
+                          <p className="text-[11px] font-semibold text-orange-800 dark:text-orange-400 flex items-center gap-1 mb-1">
+                            <MapPin className="w-3 h-3" /> Closest Cell Site
+                          </p>
+                          <p className="text-xs text-orange-900 dark:text-orange-300 ml-4">
+                            <span className="font-bold">{nearest.site.site_code}</span> ({distText} away)
+                          </p>
+                        </div>
+                      );
+                    })()}
+
                     <a 
                       href="/tickets"
                       className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
