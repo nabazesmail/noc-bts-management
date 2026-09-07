@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { api } from "@/lib/api";
 import { SlaTracking } from "../types";
 import { Save, ArrowLeft, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -42,28 +42,28 @@ export default function SlaForm() {
 
   const fetchLookups = async () => {
     try {
-      const { data: cityData } = await supabase.from("cities").select("name");
-      if (cityData) setCities(cityData.map(c => c.name));
+      const { data: cityData } = await api.get("/cities");
+      if (cityData) setCities(cityData.map((c: any) => c.name));
       
-      const { data: staffData } = await supabase.from("noc_staff").select("name");
+      const { data: staffData } = await api.get("/noc_staff");
       if (staffData) {
-        setNocStaffList(staffData.map(s => {
+        setNocStaffList(staffData.map((s: any) => {
           const name = String(s.name || '');
           return name.charAt(0).toUpperCase() + name.slice(1);
         }));
       }
 
-      const { data: deptData, error: deptError } = await supabase.from("sla_departments").select("name");
+      const { data: deptData, error: deptError } = await api.get("/sla_departments");
       if (deptError) console.error("Error fetching sla_departments:", deptError);
-      if (deptData) setDepartments(deptData.map(d => d.name));
+      if (deptData) setDepartments(deptData.map((d: any) => d.name));
 
-      const { data: techData, error: techError } = await supabase.from("sla_technical_areas").select("name");
+      const { data: techData, error: techError } = await api.get("/sla_technical_areas");
       if (techError) console.error("Error fetching sla_technical_areas:", techError);
-      if (techData) setTechnicalAreas(techData.map(t => t.name));
+      if (techData) setTechnicalAreas(techData.map((t: any) => t.name));
 
-      const { data: reasonData, error: reasonError } = await supabase.from("sla_reasons").select("name");
+      const { data: reasonData, error: reasonError } = await api.get("/sla_reasons");
       if (reasonError) console.error("Error fetching sla_reasons:", reasonError);
-      if (reasonData) setReasons(reasonData.map(r => r.name));
+      if (reasonData) setReasons(reasonData.map((r: any) => r.name));
     } catch (error) {
       console.error("Error fetching lookups", error);
     }
@@ -72,11 +72,7 @@ export default function SlaForm() {
   const fetchSlaRecord = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("sla_tracking")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await api.get(`/slatracking/${id}`);
       
       if (error) throw error;
       if (data) {
@@ -179,15 +175,10 @@ export default function SlaForm() {
       cleanedData.noc_staff = staffArr.length > 0 ? staffArr.join(", ") : null;
 
       if (id) {
-        const { error } = await supabase
-          .from("sla_tracking")
-          .update(cleanedData)
-          .eq("id", id);
+        const { error } = await api.put(`/slatracking/${id}`, cleanedData);
         if (error) throw error;
       } else {
-        const { error } = await supabase
-          .from("sla_tracking")
-          .insert([cleanedData]);
+        const { error } = await api.post("/slatracking", cleanedData);
         if (error) throw error;
       }
       

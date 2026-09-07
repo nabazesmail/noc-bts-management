@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Profile } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import Map from "@/components/Map";
 
 export default function SiteLocations({
@@ -18,7 +18,7 @@ export default function SiteLocations({
   const [yearFilter, setYearFilter] = useState("All");
   const [monthFilter, setMonthFilter] = useState("All");
   const [tickets, setTickets] = useState<any[]>([]);
-  const [ticketVisibility, setTicketVisibility] = useState("open"); // hidden, open, closed, all
+  const [ticketVisibility, setTicketVisibility] = useState("all"); // hidden, open, closed, all
   const [loading, setLoading] = useState(true);
 
   // Read coordinates from URL if provided (for zooming from Tickets page)
@@ -39,21 +39,17 @@ export default function SiteLocations({
 
     try {
       // 1. Fetch all sites
-      const { data: sitesData, error: sitesError } = await supabase
-        .from("sites")
-        .select("*");
+      const { data: sitesData, error: sitesError } = await api.get("/sites");
 
       if (sitesError) throw sitesError;
 
       // 2. Fetch all locations separately (bypassing the relation error)
-      const { data: locationsData, error: locationsError } = await supabase
-        .from("site_locations")
-        .select("*");
+      const { data: locationsData, error: locationsError } = await api.get("/site_locations");
 
       if (locationsError) {
         console.warn(
           "Could not fetch site_locations. Check table name.",
-          locationsError.message,
+          locationsError,
         );
       }
 
@@ -64,7 +60,7 @@ export default function SiteLocations({
             // Find matching location by site_code or site_id
             const loc = locationsData?.find(
               (l: any) =>
-                l.site_code === site.site_code || l.site_id === site.id,
+                l.name === site.site_code || l.site_code === site.site_code || l.site_id === site.id,
             );
 
             return {
@@ -76,8 +72,14 @@ export default function SiteLocations({
             };
           })
           .filter((site: any) => {
-            const lat = Number(site.latitude);
-            const lng = Number(site.longitude);
+            const cleanLat = String(site.latitude).replace(/[^0-9.-]/g, '');
+            const cleanLng = String(site.longitude).replace(/[^0-9.-]/g, '');
+            const lat = Number(cleanLat);
+            const lng = Number(cleanLng);
+            
+            if (site.latitude) site.latitude = cleanLat;
+            if (site.longitude) site.longitude = cleanLng;
+
             return (
               site.latitude && site.longitude &&
               String(site.latitude).trim() !== "" && String(site.longitude).trim() !== "" &&
@@ -90,12 +92,10 @@ export default function SiteLocations({
       }
 
       // Fetch tickets
-      const { data: ticketsData, error: ticketsError } = await supabase
-        .from("tickets")
-        .select("*");
+      const { data: ticketsData, error: ticketsError } = await api.get("/tickets");
 
       if (ticketsError) {
-        console.warn("Could not fetch tickets.", ticketsError.message);
+        console.warn("Could not fetch tickets.", ticketsError);
       } else if (ticketsData) {
         setTickets(ticketsData);
       }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { api } from "../lib/api";
 import { Profile } from "../types";
 
 interface AuditHistoryProps {
@@ -32,15 +32,16 @@ export default function AuditHistory({}: AuditHistoryProps) {
     try {
       setLoading(true);
 
-      // Fetch from the new universal global_audit_logs table
-      const { data, error } = await supabase
-        .from("global_audit_logs")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(200);
+      const { data, error } = await api.get("/global_audit_logs");
 
       if (error) throw error;
-      setLogs(data || []);
+      
+      // Sort and limit in memory since the backend doesn't support complex queries out of the box yet
+      const sortedData = (data || []).sort((a: any, b: any) => {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }).slice(0, 200);
+
+      setLogs(sortedData);
     } catch (error: any) {
       console.error("Error fetching audit logs:", error.message);
     } finally {

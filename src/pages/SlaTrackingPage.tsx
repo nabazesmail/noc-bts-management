@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { api } from "@/lib/api";
 import { SlaTracking } from "../types";
 import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2 } from "lucide-react";
-import { isToday, isThisWeek, parseISO } from "date-fns";
+import { isToday, isThisWeek } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
 import { useToast } from "../components/ToastContext";
+import { parseSiteDate } from "../lib/utils";
 
 export default function SlaTrackingPage() {
   const [data, setData] = useState<SlaTracking[]>([]);
@@ -21,6 +22,8 @@ export default function SlaTrackingPage() {
   const [deleteSlaId, setDeleteSlaId] = useState<string | null>(null);
   const toast = useToast();
   const [reportOpen, setReportOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const pageSize = 50;
 
   const uniqueRegions = ["1", "2", "3", "4", "RC"];
   const allowedMonths = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
@@ -36,10 +39,14 @@ export default function SlaTrackingPage() {
   const fetchSlaData = async () => {
     try {
       setLoading(true);
-      const { data: slaData, error } = await supabase
-        .from("sla_tracking")
-        .select("*")
-        .order("start_date", { ascending: false });
+      const { data: slaData, error } = await api.get("/slatracking");
+      if (slaData) {
+        slaData.sort((a: any, b: any) => {
+          const tA = parseSiteDate(a.start_date) || 0;
+          const tB = parseSiteDate(b.start_date) || 0;
+          return tB - tA;
+        });
+      }
 
       if (error) throw error;
       setData(slaData || []);
@@ -53,7 +60,7 @@ export default function SlaTrackingPage() {
   const confirmDelete = async () => {
     if (!deleteSlaId) return;
     try {
-      const { error } = await supabase.from("sla_tracking").delete().eq("id", deleteSlaId);
+      const { error } = await api.delete(`/slatracking/${deleteSlaId}`);
       if (error) throw error;
       setData(data.filter((item) => item.id !== deleteSlaId));
       setDeleteSlaId(null);
@@ -83,13 +90,16 @@ export default function SlaTrackingPage() {
     return s.includes('missed') || s === 'no';
   };
 
-  const calculateKPIs = () => {
+  const kpis = React.useMemo(() => {
     let nocTodayTotal = 0, nocTodayMet = 0, nocWeekTotal = 0, nocWeekMet = 0;
     let siteTodayTotal = 0, siteTodayMet = 0, siteWeekTotal = 0, siteWeekMet = 0;
 
     data.forEach(item => {
       if (!item.start_date) return;
-      const date = parseISO(item.start_date);
+      const dateMs = parseSiteDate(item.start_date);
+      if (!dateMs) return;
+      
+      const date = new Date(dateMs);
       const today = isToday(date);
       const thisWeek = isThisWeek(date, { weekStartsOn: 1 });
 
@@ -116,27 +126,31 @@ export default function SlaTrackingPage() {
       siteTodayText: `${siteTodayMet} / ${siteTodayTotal}`,
       siteWeekText: `${siteWeekMet} / ${siteWeekTotal}`,
     };
-  };
+  }, [data]);
 
-  const kpis = calculateKPIs();
+  const filteredData = React.useMemo(() => {
+    return data.filter((item) => {
+      const search = searchTerm.toLowerCase();
+      const searchMatch = 
+        String(item.site_code_dc || '').toLowerCase().includes(search) ||
+        String(item.region || '').toLowerCase().includes(search) ||
+        String(item.noc_staff || '').toLowerCase().includes(search) ||
+        String(item.responsible_department || '').toLowerCase().includes(search);
 
-  const filteredData = data.filter((item) => {
-    const search = searchTerm.toLowerCase();
-    const searchMatch = 
-      String(item.site_code_dc || '').toLowerCase().includes(search) ||
-      String(item.region || '').toLowerCase().includes(search) ||
-      String(item.noc_staff || '').toLowerCase().includes(search) ||
-      String(item.responsible_department || '').toLowerCase().includes(search);
+      const regionMatch = regionFilter === "All" || String(item.region || '') === regionFilter;
+      const monthMatch = monthFilter === "All" || String(item.month || '') === monthFilter;
+      const statusMatch = statusFilter === "All" || String(item.status || '') === statusFilter;
+      const serviceTypeMatch = serviceTypeFilter === "All" || String(item.service_type || '') === serviceTypeFilter;
+      const nocMatch = nocSlaFilter === "All" || String(item.noc_sla_status || '') === nocSlaFilter;
+      const siteMatch = siteSlaFilter === "All" || String(item.site_sla_status || '') === siteSlaFilter;
 
-    const regionMatch = regionFilter === "All" || String(item.region || '') === regionFilter;
-    const monthMatch = monthFilter === "All" || String(item.month || '') === monthFilter;
-    const statusMatch = statusFilter === "All" || String(item.status || '') === statusFilter;
-    const serviceTypeMatch = serviceTypeFilter === "All" || String(item.service_type || '') === serviceTypeFilter;
-    const nocMatch = nocSlaFilter === "All" || String(item.noc_sla_status || '') === nocSlaFilter;
-    const siteMatch = siteSlaFilter === "All" || String(item.site_sla_status || '') === siteSlaFilter;
+      return searchMatch && regionMatch && monthMatch && statusMatch && serviceTypeMatch && nocMatch && siteMatch;
+    });
+  }, [data, searchTerm, regionFilter, monthFilter, statusFilter, serviceTypeFilter, nocSlaFilter, siteSlaFilter]);
 
-    return searchMatch && regionMatch && monthMatch && statusMatch && serviceTypeMatch && nocMatch && siteMatch;
-  });
+  const paginatedData = React.useMemo(() => {
+    return filteredData.slice(page * pageSize, (page + 1) * pageSize);
+  }, [filteredData, page, pageSize]);
 
   return (
     <div className="p-6 h-full flex flex-col bg-background text-foreground transition-colors overflow-hidden">
@@ -155,7 +169,7 @@ export default function SlaTrackingPage() {
                 type="text"
                 placeholder="Search by site, region, staff..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(0); }}
                 className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -186,7 +200,7 @@ export default function SlaTrackingPage() {
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={regionFilter}
-          onChange={(e) => setRegionFilter(e.target.value)}
+          onChange={(e) => { setRegionFilter(e.target.value); setPage(0); }}
         >
           <option value="All">All Regions</option>
           {uniqueRegions.map(r => <option key={r} value={r}>{r}</option>)}
@@ -195,7 +209,7 @@ export default function SlaTrackingPage() {
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={monthFilter}
-          onChange={(e) => setMonthFilter(e.target.value)}
+          onChange={(e) => { setMonthFilter(e.target.value); setPage(0); }}
         >
           <option value="All">All Months</option>
           {allowedMonths.map(m => <option key={m} value={m}>{m}</option>)}
@@ -204,7 +218,7 @@ export default function SlaTrackingPage() {
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
         >
           <option value="All">All Statuses</option>
           {allowedStatuses.map(s => <option key={s} value={s}>{s}</option>)}
@@ -213,7 +227,7 @@ export default function SlaTrackingPage() {
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={serviceTypeFilter}
-          onChange={(e) => setServiceTypeFilter(e.target.value)}
+          onChange={(e) => { setServiceTypeFilter(e.target.value); setPage(0); }}
         >
           <option value="All">All Service Types</option>
           {allowedServiceTypes.map(s => <option key={s} value={s}>{s}</option>)}
@@ -222,7 +236,7 @@ export default function SlaTrackingPage() {
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={nocSlaFilter}
-          onChange={(e) => setNocSlaFilter(e.target.value)}
+          onChange={(e) => { setNocSlaFilter(e.target.value); setPage(0); }}
         >
           <option value="All">All NOC SLA</option>
           {uniqueNocSla.map(s => <option key={s} value={s}>{s}</option>)}
@@ -231,7 +245,7 @@ export default function SlaTrackingPage() {
         <select
           className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           value={siteSlaFilter}
-          onChange={(e) => setSiteSlaFilter(e.target.value)}
+          onChange={(e) => { setSiteSlaFilter(e.target.value); setPage(0); }}
         >
           <option value="All">All Site SLA</option>
           {uniqueSiteSla.map(s => <option key={s} value={s}>{s}</option>)}
@@ -312,14 +326,14 @@ export default function SlaTrackingPage() {
                     Loading SLA Data...
                   </td>
                 </tr>
-              ) : filteredData.length === 0 ? (
+              ) : paginatedData.length === 0 ? (
                 <tr>
                   <td colSpan={12} className="p-8 text-center text-muted-foreground">
                     No SLA records found.
                   </td>
                 </tr>
               ) : (
-                filteredData.map((item) => {
+                paginatedData.map((item) => {
                   const nocStatus = String(item.noc_sla_status || item.noc_sla || '');
                   const siteStatus = String(item.site_sla_status || item.site_sla || '');
                   const rowId = String(item.id);
@@ -474,6 +488,27 @@ export default function SlaTrackingPage() {
             </tbody>
           </table>
         </div>
+        {!loading && filteredData.length > 0 && (
+          <div className="flex justify-between items-center p-4 border-t border-border sticky bottom-0 bg-card z-10">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className="px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-muted disabled:opacity-50 transition-colors"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-muted-foreground">
+              Page {page + 1} of {Math.ceil(filteredData.length / pageSize) || 1}
+            </span>
+            <button
+              disabled={(page + 1) * pageSize >= filteredData.length}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-muted disabled:opacity-50 transition-colors"
+            >
+              Next
+            </button>
+          </div>
+        )}
         {deleteSlaId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 border border-gray-200 dark:border-gray-800">

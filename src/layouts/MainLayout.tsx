@@ -17,7 +17,7 @@ import {
   Ticket,
   Flame
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+
 import { useTheme } from "@/components/ThemeProvider";
 import { useState } from "react";
 
@@ -27,7 +27,9 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem("localUser");
+    window.dispatchEvent(new Event("storage"));
+    window.location.href = "/login";
   };
 
   const allNavItems = [

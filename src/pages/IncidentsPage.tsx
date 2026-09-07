@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Loader2, Calendar, ChevronDown, ChevronUp, AlertTriangle, Activity, Trash2, Edit2, Plus, Flame, FileText } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
 import { useToast } from '../components/ToastContext';
 import IncidentReportModal from '../components/IncidentReportModal';
@@ -28,10 +28,15 @@ export default function IncidentsPage() {
   const fetchIncidents = async () => {
     try {
       setLoading(true);
-      const { data: incidents, error } = await supabase
-        .from('incidents')
-        .select('*')
-        .order('start_date', { ascending: false });
+      const { data: incidents, error } = await api.get('/incidents');
+      
+      if (incidents) {
+        incidents.sort((a: any, b: any) => {
+          const tA = a.start_date ? new Date(a.start_date).getTime() : 0;
+          const tB = b.start_date ? new Date(b.start_date).getTime() : 0;
+          return tB - tA;
+        });
+      }
 
       if (error) throw error;
       setData(incidents || []);
@@ -45,7 +50,7 @@ export default function IncidentsPage() {
   const confirmDelete = async () => {
     if (!deleteRecordId) return;
     try {
-      const { error } = await supabase.from('incidents').delete().eq('id', deleteRecordId);
+      const { error } = await api.delete(`/incidents/${deleteRecordId}`);
       if (error) throw error;
       setData(data.filter(item => item.id !== deleteRecordId));
       setDeleteRecordId(null);

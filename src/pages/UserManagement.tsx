@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import { createClient } from "@supabase/supabase-js";
+import { api } from "@/lib/api";
 import { useToast } from "@/components/ToastContext";
 import { Profile } from "@/types";
 import { Search, UserCog, Check, X, ShieldAlert, Plus, Trash2, AlertTriangle } from "lucide-react";
@@ -41,7 +40,7 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
 
   const fetchUsers = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from("profiles").select("*");
+    const { data, error } = await api.get("/profiles");
     if (error) {
       console.error("Error fetching users:", error);
     } else if (data) {
@@ -69,13 +68,10 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
     setSaving(true);
     
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
+      const { error } = await api.put(`/profiles/${editingUser.id}`, {
           role: editRole,
           permissions: editPermissions
-        })
-        .eq("id", editingUser.id);
+      });
         
       if (error) throw error;
       
@@ -93,7 +89,7 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
     if (!deleteUserId) return;
     
     try {
-      const { error } = await supabase.from("profiles").delete().eq("id", deleteUserId);
+      const { error } = await api.delete(`/profiles/${deleteUserId}`);
       if (error) throw error;
       toast.success("User deleted successfully");
       await fetchUsers();
@@ -108,26 +104,11 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
     
     setSaving(true);
     try {
-      const tempClient = createClient(
-        import.meta.env.VITE_SUPABASE_URL,
-        import.meta.env.VITE_SUPABASE_ANON_KEY,
-        {
-          auth: {
-            persistSession: false,
-            autoRefreshToken: false,
-            detectSessionInUrl: false,
-          }
-        }
-      );
-
-      const { error } = await tempClient.auth.signUp({
+      const { error } = await api.post("/profiles", {
         email: newEmail.trim(),
-        password: newPassword,
-        options: {
-          data: {
-            name: newName,
-          }
-        }
+        name: newName,
+        role: "user",
+        permissions: []
       });
       
       if (error) throw error;
@@ -456,7 +437,7 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
                 Are you sure you want to delete this profile? This removes their access entirely.
               </p>
               <p className="text-xs text-muted-foreground/70 mb-6">
-                Note: Their base authentication account may still exist in Supabase Auth but they won't have a profile or any access.
+                Note: This action is permanent and will completely remove their account and access from the local database.
               </p>
               <div className="flex justify-end gap-3">
                 <button

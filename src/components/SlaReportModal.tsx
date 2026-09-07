@@ -3,6 +3,7 @@ import { X, Calendar, Download, Target, Activity, CheckCircle2, XCircle, AlertCi
 import { SlaTracking } from '../types';
 import { parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay, format } from 'date-fns';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
+import { parseSiteDate } from '../lib/utils';
 interface SlaReportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -32,7 +33,10 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
       if (!statusValue || statusValue === 'NA' || statusValue === 'na' || statusValue === 'N/A') return false;
 
       try {
-        const rowDate = parseISO(row.start_date);
+        const rowDateMs = parseSiteDate(row.start_date);
+        if (!rowDateMs) return false;
+        
+        const rowDate = new Date(rowDateMs);
         const inRange = (isAfter(rowDate, start) || isEqual(rowDate, start)) &&
           (isBefore(rowDate, end) || isEqual(rowDate, end));
 
@@ -53,7 +57,9 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
     const groupedArea = new Map();
     filtered.forEach(row => {
       try {
-        const date = parseISO(row.start_date);
+        const rowDateMs = parseSiteDate(row.start_date);
+        if (!rowDateMs) return;
+        const date = new Date(rowDateMs);
         const day = format(date, 'EEEE');
         const staff = row.noc_staff || '(Blank)';
         const key = `${day}_${staff}`;

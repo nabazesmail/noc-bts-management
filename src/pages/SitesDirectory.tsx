@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { Profile, Site } from "@/types";
 import { useToast } from "@/components/ToastContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Edit2, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { parseSiteDate } from "@/lib/utils";
 
 export default function SitesDirectory({}: { profile: Profile | null }) {
   const [allSites, setAllSites] = useState<Site[]>([]);
@@ -31,7 +32,11 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   }, []);
 
   const fetchSites = async () => {
-    const { data } = await supabase.from("sites").select("*");
+    const { data, error } = await api.get("/sites");
+    if (error) {
+      console.error("Failed to fetch sites", error);
+      return;
+    }
     if (data) {
       const sortedData = data.sort((a: any, b: any) => {
         const numA = parseInt(a.site_no, 10) || 0;
@@ -55,7 +60,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
 
   const confirmDelete = async () => {
     if (!deleteSiteId) return;
-    const { error } = await supabase.from("sites").delete().eq("id", deleteSiteId);
+    const { error } = await api.delete(`/sites/${deleteSiteId}`);
     if (error) {
       toast.error("Failed to delete site");
     } else {
@@ -97,10 +102,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     }
 
     try {
-      const { error } = await supabase
-        .from('sites')
-        .update({ comments: newComment })
-        .eq('id', site.id);
+      const { error } = await api.put(`/sites/${site.id}`, { comments: newComment });
       
       if (error) throw error;
       toast.success("Site status updated successfully.");
@@ -136,23 +138,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     return "-";
   };
 
-  const parseSiteDate = (dateStr: string | null) => {
-    if (!dateStr) return null;
-    const s = dateStr.trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-      const [y, m, d] = s.split('-');
-      return new Date(parseInt(y), parseInt(m)-1, parseInt(d)).getTime();
-    }
-    const parts = s.split('/');
-    if (parts.length === 3) {
-      const d = parseInt(parts[0], 10);
-      const m = parseInt(parts[1], 10) - 1;
-      const y = parseInt(parts[2], 10);
-      if (!isNaN(d) && !isNaN(m) && !isNaN(y)) return new Date(y, m, d).getTime();
-    }
-    if (/^\d{4}$/.test(s)) return new Date(parseInt(s, 10), 0, 1).getTime();
-    return null;
-  };
+
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) =>

@@ -117,9 +117,6 @@ model Site {
 
   // Relationships
   SiteLocation        SiteLocation?
-  SlaTrackings        SlaTracking[]
-  Incidents           Incident[]
-  FiberCuts           FiberCut[]
 }
 
 model SlaTracking {
@@ -133,7 +130,6 @@ model SlaTracking {
   service_type            String?
   
   site_code_dc            String?
-  site                    Site?   @relation(fields: [site_code_dc], references: [site_code], onDelete: Cascade)
   
   noc_mtta                String?
   noc_sla                 String?
@@ -148,6 +144,14 @@ model SlaTracking {
   end_date                String?
   end_time                String?
   duration_time           String?
+  duration_hours          String?
+  duration_minutes        String?
+  responsible_department  String?
+  issue_technical_area    String?
+  reason                  String?
+  comment                 String? @db.Text
+  status                  String?
+  peak_none_peak          String?
 }
 
 model Incident {
@@ -165,9 +169,6 @@ model Incident {
   responsible_department  String?
   reason                  String?
   maintenance_approval    String?
-  
-  // We link affected_service directly to site_code if it matches
-  site                    Site?   @relation(fields: [affected_service], references: [site_code], onDelete: Cascade)
 }
 
 model FiberCut {
@@ -265,7 +266,38 @@ model FiberCut {
   link_recovery_duration      String?
   link_sla                    String?
   link_sla_status             String?
-  
-  // Link to Site if cut_location maps to site_code
-  site                        Site?   @relation(fields: [cut_location], references: [site_code], onDelete: Cascade)
+}
+
+model GlobalAuditLog {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  user_email  String?
+  record_type String?
+  record_id   String?
+  record_name String?
+  action      String?
+  field_name  String?
+  old_value   String?  @db.Text
+  new_value   String?  @db.Text
+}
+
+model Ticket {
+  id          Int      @id @default(autoincrement())
+  created_at  DateTime @default(now())
+  region      String?
+  city        String?
+  latitude    Float?
+  longitude   Float?
+  description String?  @db.Text
+  status      String?  @default("open")
+  tracking_id String?
+}
+
+model Profile {
+  id          String   @id @default(uuid())
+  created_at  DateTime @default(now())
+  name        String?
+  email       String?  @unique
+  role        String   @default("user")
+  permissions Json?
 }

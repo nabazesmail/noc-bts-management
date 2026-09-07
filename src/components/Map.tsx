@@ -3,6 +3,7 @@ import { MapPin } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+import { Link } from "react-router-dom";
 
 // Fix for default marker icons in React-Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -233,12 +234,12 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
                       );
                     })()}
 
-                    <a 
-                      href="/tickets"
+                    <Link 
+                      to="/tickets"
                       className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
                     >
                       View Tickets &rarr;
-                    </a>
+                    </Link>
                   </>
                 ) : (
                   <>
@@ -253,12 +254,12 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
                         ? "On-Air"
                         : "Off-Air"}
                     </p>
-                    <a 
-                      href={`/sites/${site.id}`}
+                    <Link 
+                      to={`/sites/${site.id}`}
                       className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
                     >
                       View Details &rarr;
-                    </a>
+                    </Link>
                   </>
                 )}
               </div>

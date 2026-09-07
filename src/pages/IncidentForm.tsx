@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { api } from "@/lib/api";
 import { Save, ArrowLeft, Loader2, Flame, Clock, Calendar, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "../components/ToastContext";
@@ -44,11 +44,7 @@ export default function IncidentForm() {
   const fetchRecord = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("incidents")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await api.get(`/incidents/${id}`);
       
       if (error) throw error;
       if (data) {
@@ -92,24 +88,11 @@ export default function IncidentForm() {
 
       if (id) {
         // Update existing record
-        const { error } = await supabase
-          .from("incidents")
-          .update(submissionData)
-          .eq("id", id);
-        
+        const { error } = await api.put(`/incidents/${id}`, submissionData);
         if (error) throw error;
       } else {
-        // Ensure user is attached
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          submissionData.created_by = session.user.id;
-        }
-
         // Insert new record
-        const { error } = await supabase
-          .from("incidents")
-          .insert([submissionData]);
-          
+        const { error } = await api.post("/incidents", submissionData);
         if (error) throw error;
       }
       

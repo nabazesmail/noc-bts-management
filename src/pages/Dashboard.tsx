@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { Profile, Site } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle } from "lucide-react";
@@ -19,6 +19,7 @@ import {
   Cell
 } from "recharts";
 import { useTheme } from "@/components/ThemeProvider";
+import { parseSiteDate } from "@/lib/utils";
 
 export default function Dashboard({ profile }: { profile: Profile | null }) {
   const { theme } = useTheme();
@@ -31,12 +32,16 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
   }, []);
 
   const fetchData = async () => {
-    const [sitesRes, fiberCutsRes] = await Promise.all([
-      supabase.from("sites").select("*"),
-      supabase.from("fiber_cuts").select("*")
-    ]);
-    if (sitesRes.data) setSites(sitesRes.data);
-    if (fiberCutsRes.data) setFiberCuts(fiberCutsRes.data);
+    try {
+      const [sitesRes, fiberCutsRes] = await Promise.all([
+        api.get("/sites"),
+        api.get("/fiber_cuts")
+      ]);
+      if (sitesRes.data) setSites(sitesRes.data);
+      if (fiberCutsRes.data) setFiberCuts(fiberCutsRes.data);
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+    }
     setLoading(false);
   };
 
@@ -109,23 +114,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
 
   const totalUpgraded = dualBandSites.length;
 
-  const parseSiteDate = (dateStr: string | null) => {
-    if (!dateStr) return null;
-    const s = dateStr.trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-      const [y, m, d] = s.split('-');
-      return new Date(parseInt(y), parseInt(m)-1, parseInt(d)).getTime();
-    }
-    const parts = s.split('/');
-    if (parts.length === 3) {
-      const d = parseInt(parts[0], 10);
-      const m = parseInt(parts[1], 10) - 1;
-      const y = parseInt(parts[2], 10);
-      if (!isNaN(d) && !isNaN(m) && !isNaN(y)) return new Date(y, m, d).getTime();
-    }
-    if (/^\d{4}$/.test(s)) return new Date(parseInt(s, 10), 0, 1).getTime();
-    return null;
-  };
+
 
   // 1. Growth Timeline Data
   const yearCounts: Record<string, number> = {};

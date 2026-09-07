@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,27 @@ export default function Login() {
     setLoading(true);
     setError('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      setError(error.message);
+    try {
+      const { data, error } = await api.get("/profiles");
+      if (error) throw error;
+      
+      const user = (data || []).find((u: any) => u.email === email);
+      
+      if (user) {
+        // For local development, we skip checking the password 
+        // since we are mocking auth and password isn't stored securely yet.
+        localStorage.setItem("localUser", JSON.stringify(user));
+        
+        // Trigger storage event for same-tab updates (some browsers don't do it)
+        window.dispatchEvent(new Event("storage"));
+        
+        // Navigate
+        window.location.href = "/";
+      } else {
+        setError("Invalid login credentials (user not found in local db)");
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to login");
     }
     setLoading(false);
   };

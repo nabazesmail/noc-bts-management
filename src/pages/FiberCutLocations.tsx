@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Profile } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import Map from "@/components/Map";
+import { Link } from "react-router-dom";
 
 export default function FiberCutLocations({
   profile,
@@ -25,10 +26,7 @@ export default function FiberCutLocations({
   const fetchCuts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("fiber_cuts")
-        .select("*");
-
+      const { data, error } = await api.get("/fiber_cuts");
       if (error) throw error;
 
       if (data) {
@@ -97,12 +95,12 @@ export default function FiberCutLocations({
       <p className="text-[10px] text-gray-500 mt-2">
         Coordinates: {cut.latitude}, {cut.longitude}
       </p>
-      <a 
-        href={`/fiber-cuts/${cut.id}`}
+      <Link 
+        to={`/fiber-cuts/${cut.id}`}
         className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"
       >
-        View / Edit Record &rarr;
-      </a>
+        View Details &rarr;
+      </Link>
     </div>
   );
 

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { supabase } from "./lib/supabase";
+
 import { Profile } from "./types";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -26,40 +26,34 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
-        setLoading(false);
-      }
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session?.user) {
-        fetchProfile(session.user.id);
-      } else {
+    const localUser = localStorage.getItem("localUser");
+    if (localUser) {
+      try {
+        const user = JSON.parse(localUser);
+        setSession({ user });
+        setProfile(user);
+      } catch (e) {
+        localStorage.removeItem("localUser");
+        setSession(null);
         setProfile(null);
-        setLoading(false);
       }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
-
-    if (data) setProfile(data);
+    } else {
+      setSession(null);
+      setProfile(null);
+    }
     setLoading(false);
-  };
+
+    // Listen for logout events
+    const handleStorage = () => {
+      const u = localStorage.getItem("localUser");
+      if (!u) {
+        setSession(null);
+        setProfile(null);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   const hasPermission = (path: string) => {
     if (profile?.role === "admin") return true;

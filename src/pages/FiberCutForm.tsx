@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { supabase } from "../lib/supabase";
+import { api } from "@/lib/api";
 import { Save, ArrowLeft, Loader2, MapPin, Clock, AlertTriangle, Activity } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "../components/ToastContext";
@@ -40,10 +40,10 @@ export default function FiberCutForm() {
   useEffect(() => {
     const fetchLookups = async () => {
       try {
-        const { data: locData } = await supabase.from('fiber_cut_locations').select('location_name');
+        const { data: locData } = await api.get('/fiber_cut_locations');
         if (locData) setLocations(locData.map((d: any) => d.location_name));
 
-        const { data: reasonData } = await supabase.from('fiber_cut_reasons').select('reason_text');
+        const { data: reasonData } = await api.get('/fiber_cut_reasons');
         if (reasonData) setReasons(reasonData.map((d: any) => d.reason_text));
       } catch (err) {
         console.error("Error fetching lookups", err);
@@ -74,11 +74,7 @@ export default function FiberCutForm() {
   const fetchRecord = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from("fiber_cuts")
-        .select("*")
-        .eq("id", id)
-        .single();
+      const { data, error } = await api.get(`/fiber_cuts/${id}`);
       
       if (error) throw error;
       if (data) {
@@ -110,11 +106,11 @@ export default function FiberCutForm() {
       
       // Clean up empty strings for UUIDs or other non-text if needed, though they are all TEXT in DB right now
       if (id) {
-        result = await supabase.from("fiber_cuts").update(dataToSave).eq("id", id);
+        result = await api.put(`/fiber_cuts/${id}`, dataToSave);
       } else {
         delete dataToSave.id;
         delete dataToSave.created_at;
-        result = await supabase.from("fiber_cuts").insert([dataToSave]);
+        result = await api.post("/fiber_cuts", dataToSave);
       }
 
       if (result.error) throw result.error;

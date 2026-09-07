@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { Profile } from "@/types";
 import { useToast } from "@/components/ToastContext";
 import { Plus, X, Search, Ticket, MapPin, Map, Clock, CheckCircle2, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 export default function TicketsPage({ profile }: { profile: Profile | null }) {
   const [tickets, setTickets] = useState<any[]>([]);
@@ -34,23 +35,20 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
   }, []);
 
   const fetchCities = async () => {
-    const { data } = await supabase.from("cities").select("name");
+    const { data } = await api.get("/cities");
     if (data) {
-      setCitiesList(data.map(c => c.name).sort());
+      setCitiesList(data.map((c: any) => c.name).sort());
     }
   };
 
   const fetchTickets = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("tickets")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const { data, error } = await api.get("/tickets");
       
     if (error) {
       console.error("Error fetching tickets:", error);
     } else if (data) {
-      setTickets(data);
+      setTickets(data.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()));
     }
     setLoading(false);
   };
@@ -60,7 +58,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
     setSaving(true);
     
     try {
-      const { error } = await supabase.from("tickets").insert([{
+      const { error } = await api.post("/tickets", {
         region: formData.region,
         city: formData.city,
         latitude: Number(formData.latitude),
@@ -68,7 +66,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
         description: formData.description,
         status: formData.status,
         tracking_id: formData.tracking_id
-      }]);
+      });
       
       if (error) throw error;
       
@@ -93,10 +91,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
     if (!confirmTicket) return;
     const newStatus = confirmTicket.status === "open" ? "closed" : "open";
     try {
-      const { error } = await supabase
-        .from("tickets")
-        .update({ status: newStatus })
-        .eq("id", confirmTicket.id);
+      const { error } = await api.put(`/tickets/${confirmTicket.id}`, { status: newStatus });
         
       if (error) throw error;
       toast.success("Ticket status updated");
@@ -216,13 +211,13 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                   <MapPin className="h-4 w-4" />
                   <span>Lat: {ticket.latitude}, Lng: {ticket.longitude}</span>
-                  <a 
-                    href={`/locations?lat=${ticket.latitude}&lng=${ticket.longitude}&zoom=14`}
+                  <Link 
+                    to={`/locations?lat=${ticket.latitude}&lng=${ticket.longitude}&zoom=14`}
                     className="ml-auto flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded transition-colors"
                   >
                     <Map className="h-3 w-3" />
                     View on Map
-                  </a>
+                  </Link>
                 </div>
                 {ticket.description && (
                   <div className="mt-3 text-sm bg-muted/50 p-3 rounded-md border border-border/50">

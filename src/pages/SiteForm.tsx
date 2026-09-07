@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/lib/supabase";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "../components/ToastContext";
+import { formatDateForInput } from "@/lib/utils";
 
 type FieldConfig = {
   name: string;
@@ -50,27 +51,25 @@ export default function SiteForm() {
 
   const fetchLookups = async () => {
     try {
-      const { data: cityData } = await supabase.from("cities").select("name");
-      if (cityData) setCities(cityData.map(c => formatLookup(c.name)));
+      const { data: cityData } = await api.get("/cities");
+      if (cityData) setCities(cityData.map((c: any) => formatLookup(c.name)));
 
-      const { data: powerData } = await supabase.from("power_sources").select("name");
-      if (powerData) setPowerSources(powerData.map(p => formatLookup(p.name)));
+      const { data: powerData } = await api.get("/power_sources");
+      if (powerData) setPowerSources(powerData.map((p: any) => formatLookup(p.name)));
     } catch (e) {
       console.error("Error fetching lookups. Please ensure cities and power_sources tables exist.");
     }
   };
 
   const fetchSite = async () => {
-    const { data } = await supabase
-      .from("sites")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const { data } = await api.get(`/sites/${id}`);
     if (data) {
       setFormData({
         ...data,
         city: formatLookup(data.city),
-        power_source: formatLookup(data.power_source)
+        power_source: formatLookup(data.power_source),
+        b20_on_air_date: formatDateForInput(data.b20_on_air_date),
+        b7_on_air_date: formatDateForInput(data.b7_on_air_date)
       });
     }
   };
@@ -202,9 +201,9 @@ export default function SiteForm() {
 
     try {
       if (id) {
-        await supabase.from("sites").update(cleanedData).eq("id", id);
+        await api.put(`/sites/${id}`, cleanedData);
       } else {
-        await supabase.from("sites").insert(cleanedData);
+        await api.post("/sites", cleanedData);
       }
       navigate("/sites");
     } catch (err: any) {

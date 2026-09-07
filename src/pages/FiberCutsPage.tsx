@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Loader2, Scissors, Calendar, ChevronDown, ChevronUp, MapPin, Clock, AlertTriangle, Activity, Plus, Edit2, Trash2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
 import FiberCutReportModal from '../components/FiberCutReportModal';
 import { useToast } from '../components/ToastContext';
@@ -28,10 +28,15 @@ export default function FiberCutsPage() {
   const fetchFiberCuts = async () => {
     try {
       setLoading(true);
-      const { data: fiberCuts, error } = await supabase
-        .from('fiber_cuts')
-        .select('*')
-        .order('start_date', { ascending: false });
+      const { data: fiberCuts, error } = await api.get('/fiber_cuts');
+      
+      if (fiberCuts) {
+        fiberCuts.sort((a: any, b: any) => {
+          const tA = a.start_date ? new Date(a.start_date).getTime() : 0;
+          const tB = b.start_date ? new Date(b.start_date).getTime() : 0;
+          return tB - tA;
+        });
+      }
 
       if (error) throw error;
       setData(fiberCuts || []);
@@ -45,7 +50,7 @@ export default function FiberCutsPage() {
   const confirmDelete = async () => {
     if (!deleteRecordId) return;
     try {
-      const { error } = await supabase.from('fiber_cuts').delete().eq('id', deleteRecordId);
+      const { error } = await api.delete(`/fiber_cuts/${deleteRecordId}`);
       if (error) throw error;
       setData(data.filter(item => item.id !== deleteRecordId));
       setDeleteRecordId(null);
