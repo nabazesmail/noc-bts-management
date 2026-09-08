@@ -3,7 +3,7 @@ import { X, Calendar, Download, Target, Activity, CheckCircle2, XCircle, AlertCi
 import { SlaTracking } from '../types';
 import { parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay, format } from 'date-fns';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
-import { parseSiteDate } from '../lib/utils';
+import { parseSiteDate, formatDisplayDate } from '../lib/utils';
 interface SlaReportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -98,35 +98,13 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
   };
 
   const executeDownload = () => {
-    const wrapper = document.getElementById('pdf-wrapper');
     const element = document.getElementById('pdf-content');
-    if (!wrapper || !element) {
+    if (!element) {
       setIsDownloading(false);
       return;
     }
 
-    // Save original styles
-    const originalPosition = wrapper.style.position;
-    const originalAlignItems = wrapper.style.alignItems;
-    const originalMaxHeight = element.style.maxHeight;
-    const originalWidth = element.style.width;
-
-    const scrollAreas = element.querySelectorAll('.overflow-auto');
-    const originalOverflows: string[] = [];
-
-    // Apply temporary styles for full, unconstrained capture
-    wrapper.style.position = 'absolute';
-    wrapper.style.alignItems = 'flex-start'; // Prevent growing out of top bounds
-
-    element.style.maxHeight = 'none';
-    element.style.width = '1200px'; // Force a wide enough width for the grid layout
-
-    scrollAreas.forEach((area, index) => {
-      originalOverflows[index] = (area as HTMLElement).style.overflow;
-      (area as HTMLElement).style.overflow = 'visible';
-    });
-
-    // Actually hide ignored elements so they don't take up vertical space (preventing blank pages)
+    // Hide elements that shouldn't be in the PDF (like the massive Raw Data table)
     const ignoreElements = element.querySelectorAll('[data-html2canvas-ignore="true"]');
     const originalDisplays: string[] = [];
     ignoreElements.forEach((el, index) => {
@@ -134,35 +112,47 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
       (el as HTMLElement).style.display = 'none';
     });
 
+    // Temporarily remove fixed heights and scrollbars from the Missed SLAs table so it fully expands
+    const tableEl = element.querySelector('#missed-slas-container');
+    if (tableEl) {
+      tableEl.classList.remove('lg:h-[400px]', 'overflow-y-auto');
+    }
+
+    // To prevent the side-by-side pie chart from stretching to the expanded table's massive height
+    // (which would center it vertically and look weird), we force it to align to the top.
+    const gridEl = element.querySelector('#chart-and-missed-grid');
+    if (gridEl) {
+      gridEl.classList.add('items-start');
+    }
+
+    // Calculate required dimensions for 1 continuous page PDF
     const opt = {
-      margin: [0.5, 0.5, 0.5, 0.5],
+      margin: 0.25, // in inches
       filename: `SLA_Report_${slaType}_${startDate}_to_${endDate}.pdf`,
       image: { type: 'jpeg', quality: 1 },
       html2canvas: {
         scale: 2,
         useCORS: true,
         backgroundColor: '#020817',
-        scrollY: -window.scrollY // Fix offset issues if the page was scrolled
+        logging: false
       },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' }
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' },
+      pagebreak: { mode: ['css', 'legacy'], avoid: 'tr' }
     };
 
     // @ts-ignore
     window.html2pdf().set(opt).from(element).save().then(() => {
-      // Revert styles
-      wrapper.style.position = originalPosition;
-      wrapper.style.alignItems = originalAlignItems;
-      element.style.maxHeight = originalMaxHeight;
-      element.style.width = originalWidth;
-
-      scrollAreas.forEach((area, index) => {
-        (area as HTMLElement).style.overflow = originalOverflows[index];
-      });
-
+      // Revert styles back for UI
       ignoreElements.forEach((el, index) => {
         (el as HTMLElement).style.display = originalDisplays[index];
       });
 
+      if (gridEl) {
+        gridEl.classList.remove('items-start');
+      }
+      if (tableEl) {
+        tableEl.classList.add('lg:h-[400px]', 'overflow-y-auto');
+      }
       setIsDownloading(false);
     });
   };
@@ -172,8 +162,8 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
   if (!isOpen) return null;
 
   return (
-    <div id="pdf-wrapper" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-auto">
-      <div id="pdf-content" className="bg-background border border-border rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-auto">
+      <div className="bg-background border border-border rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-500" />
@@ -246,7 +236,13 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
               No applicable SLA records found in this date range. (NA records are excluded)
             </div>
           ) : (
-            <div className="space-y-6 print:space-y-4">
+            <div id="pdf-content" className="space-y-6 p-4 rounded-xl bg-background">
+              
+              {/* Header for PDF and UI */}
+              <div className="flex flex-col items-center justify-center text-center pb-4 pt-2 border-b border-border">
+                <h1 className="text-2xl font-bold">SLA Compliance Report ({slaType})</h1>
+                <p className="text-muted-foreground mt-1">Period: <span className="font-semibold text-foreground">{startDate}</span> to <span className="font-semibold text-foreground">{endDate}</span></p>
+              </div>
 
               {/* Report Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -274,7 +270,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                     Met SLA (Yes)
                   </div>
                   <div className="text-2xl font-bold">{stats.yes}</div>
-                  <div className="text-xs text-muted-foreground mt-1">out of {stats.total} total tickets</div>
+                  <div className="text-xs text-muted-foreground mt-1">out of {stats.total} total records</div>
                 </div>
 
                 <div className="bg-background border border-border rounded-lg p-4 shadow-sm flex flex-col justify-center">
@@ -288,13 +284,13 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
               </div>
 
               {/* Chart & Missed SLA Details */}
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+              <div id="chart-and-missed-grid" className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                 {/* Pie Chart */}
-                <div className="bg-background border border-border rounded-lg p-4 shadow-sm flex flex-col items-center justify-center min-h-[300px] lg:col-span-2">
+                <div id="pie-chart-container" className="bg-background border border-border rounded-lg p-4 shadow-sm flex flex-col items-center justify-center lg:h-[400px] min-h-[300px] lg:col-span-2">
                   <h3 className="font-semibold text-muted-foreground mb-4">Compliance Breakdown</h3>
                   <div className="w-full flex-1 min-h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
-                      <PieChart margin={{ top: 0, right: 20, bottom: 0, left: 20 }}>
+                      <PieChart margin={{ top: 0, right: 50, bottom: 0, left: 50 }}>
                         <Pie
                           data={[
                             { name: 'Met SLA (Yes)', value: stats.yes },
@@ -302,8 +298,8 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                           ].filter(d => d.value > 0)}
                           cx="50%"
                           cy="50%"
-                          innerRadius="55%"
-                          outerRadius="75%"
+                          innerRadius="45%"
+                          outerRadius="65%"
                           paddingAngle={2}
                           dataKey="value"
                           stroke="transparent"
@@ -316,7 +312,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                               textAnchor={x > cx ? 'start' : 'end'}
                               dominantBaseline="central"
                             >
-                              {value} tickets
+                              {value} records
                             </text>
                           )}
                           labelLine={{ stroke: 'currentColor', className: 'text-muted-foreground', strokeWidth: 1 }}
@@ -337,12 +333,12 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
 
                 {/* Missed SLA Details */}
                 {stats.no > 0 ? (
-                  <div className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 h-full flex flex-col lg:col-span-3">
+                  <div id="missed-slas-container" className="bg-red-500/5 border border-red-500/20 rounded-lg p-4 flex flex-col lg:h-[400px] lg:col-span-3">
                     <h3 className="font-semibold text-red-600 mb-3 flex items-center gap-2">
                       <XCircle className="w-4 h-4" />
                       Missed SLAs Details
                     </h3>
-                    <div className="overflow-x-auto flex-1">
+                    <div className="overflow-y-auto overflow-x-auto flex-1 styled-scrollbar">
                       <table className="w-full text-sm text-left">
                         <thead className="bg-red-500/10 text-red-700">
                           <tr>
@@ -364,10 +360,11 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                         <tbody className="divide-y divide-red-500/10">
                           {filteredRecords
                             .filter(r => (slaType === 'NOC' ? r.noc_sla_status : r.site_sla_status) === 'No')
+                            .slice(0, 150)
                             .map((row, i) => (
                               <tr key={i} className="hover:bg-red-500/5 transition-colors">
                                 <td className="px-3 py-2 font-medium whitespace-nowrap">{row.site_code_dc}</td>
-                                <td className="px-3 py-2 whitespace-nowrap">{row.start_date}</td>
+                                <td className="px-3 py-2 whitespace-nowrap">{formatDisplayDate(row.start_date)}</td>
                                 {slaType === 'NOC' ? (
                                   <>
                                     <td className="px-3 py-2 whitespace-nowrap">{row.noc_staff || '-'} (Shift {row.shift || '-'})</td>
@@ -383,6 +380,11 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                             ))}
                         </tbody>
                       </table>
+                      {stats.no > 150 && (
+                        <div className="p-3 text-center text-sm text-red-600/80 font-medium italic border-t border-red-500/10">
+                          * Showing first 150 missed SLAs to prevent PDF layout issues. Please use the CSV export below to view all {stats.no} records.
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -398,7 +400,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
               <div className="mt-8" data-html2canvas-ignore="true">
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 text-muted-foreground" />
-                  Raw Data Details (Tickets in Period)
+                  Raw Data Details (Records in Period)
                 </h3>
                 <div className="border border-border rounded-lg overflow-hidden">
                   <table className="w-full text-sm text-left">
@@ -417,7 +419,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                         return (
                           <tr key={i} className="hover:bg-muted/50 transition-colors bg-background">
                             <td className="px-4 py-3 font-medium">{row.site_code_dc}</td>
-                            <td className="px-4 py-3 whitespace-nowrap">{row.start_date}</td>
+                            <td className="px-4 py-3 whitespace-nowrap">{formatDisplayDate(row.start_date)}</td>
                             <td className="px-4 py-3">{row.responsible_department}</td>
                             <td className="px-4 py-3 text-center">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${status?.toLowerCase() === 'yes' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
@@ -430,11 +432,11 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                         );
                       })}
                       {filteredRecords.length === 0 && (
-                        <tr className="bg-background">
-                          <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                            No tickets found for this period.
-                          </td>
-                        </tr>
+                          <tr>
+                            <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                              No records found for this period.
+                            </td>
+                          </tr>
                       )}
                     </tbody>
                   </table>

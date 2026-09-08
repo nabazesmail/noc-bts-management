@@ -5,6 +5,7 @@ import { useToast } from "@/components/ToastContext";
 import { Plus, X, Search, Ticket, MapPin, Map, Clock, CheckCircle2, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
+import { formatDisplayDate } from "@/lib/utils";
 
 export default function TicketsPage({ profile }: { profile: Profile | null }) {
   const [tickets, setTickets] = useState<any[]>([]);
@@ -229,7 +230,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
               <div className="mt-4 pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  {new Date(ticket.created_at).toLocaleDateString()}
+                  {formatDisplayDate(ticket.created_at)}
                 </div>
                 {ticket.status === 'closed' && (
                   <div className="flex items-center gap-1 text-green-600">

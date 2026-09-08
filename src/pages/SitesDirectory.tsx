@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Edit2, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { parseSiteDate } from "@/lib/utils";
+import { parseSiteDate, formatDisplayDate } from "@/lib/utils";
 
 export default function SitesDirectory({}: { profile: Profile | null }) {
   const [allSites, setAllSites] = useState<Site[]>([]);
@@ -41,7 +41,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
       const sortedData = data.sort((a: any, b: any) => {
         const numA = parseInt(a.site_no, 10) || 0;
         const numB = parseInt(b.site_no, 10) || 0;
-        return numA - numB;
+        return numB - numA;
       });
       
       setAllSites(sortedData);
@@ -419,7 +419,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
                               <span className="font-medium text-gray-900 dark:text-gray-300">IP Address:</span>
                               <span className="font-mono text-xs">{site.band_20_ip || '-'}</span>
                               <span className="font-medium text-gray-900 dark:text-gray-300">On Air Date:</span>
-                              <span>{site.b20_on_air_date || '-'}</span>
+                              <span>{formatDisplayDate(site.b20_on_air_date)}</span>
                             </div>
                           </div>
                           {/* Band 7 Summary */}
@@ -431,7 +431,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
                               <span className="font-medium text-gray-900 dark:text-gray-300">IP Address:</span>
                               <span className="font-mono text-xs">{site.band_7_ip || '-'}</span>
                               <span className="font-medium text-gray-900 dark:text-gray-300">On Air Date:</span>
-                              <span>{site.b7_on_air_date || '-'}</span>
+                              <span>{formatDisplayDate(site.b7_on_air_date)}</span>
                             </div>
                           </div>
                         </div>

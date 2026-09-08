@@ -1,28 +1,41 @@
 const API_BASE_URL = 'http://localhost:4000/api';
 
 const getHeaders = () => {
-  let email = 'System';
+  let token = '';
   try {
-    const userStr = localStorage.getItem('localUser');
-    if (userStr) {
-      const user = JSON.parse(userStr);
-      if (user.email) email = user.email;
-    }
+    token = localStorage.getItem('jwt_token') || '';
   } catch (e) {}
   
   return {
     'Content-Type': 'application/json',
-    'X-User-Email': email
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
   };
+};
+
+const handleResponse = async (res: Response, endpoint: string) => {
+  if (res.status === 401 || res.status === 403) {
+    localStorage.removeItem("localUser");
+    localStorage.removeItem("jwt_token");
+    window.dispatchEvent(new Event("storage"));
+    window.location.href = "/login";
+    throw new Error(`Authentication failed (${res.status})`);
+  }
+  if (!res.ok) throw new Error(`${res.status} ${endpoint} failed`);
+  
+  // DELETE requests might not return JSON
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return { data: null, error: null };
+  }
+  
+  return { data: await res.json(), error: null };
 };
 
 export const api = {
   get: async (endpoint: string) => {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: { 'X-User-Email': getHeaders()['X-User-Email'] }
+      headers: getHeaders()
     });
-    if (!res.ok) throw new Error(`GET ${endpoint} failed`);
-    return { data: await res.json(), error: null };
+    return handleResponse(res, `GET ${endpoint}`);
   },
 
   post: async (endpoint: string, data: any) => {
@@ -31,8 +44,7 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error(`POST ${endpoint} failed`);
-    return { data: await res.json(), error: null };
+    return handleResponse(res, `POST ${endpoint}`);
   },
 
   put: async (endpoint: string, data: any) => {
@@ -41,16 +53,15 @@ export const api = {
       headers: getHeaders(),
       body: JSON.stringify(data),
     });
-    if (!res.ok) throw new Error(`PUT ${endpoint} failed`);
-    return { data: await res.json(), error: null };
+    return handleResponse(res, `PUT ${endpoint}`);
   },
 
   delete: async (endpoint: string) => {
     const res = await fetch(`${API_BASE_URL}${endpoint}`, {
       method: 'DELETE',
-      headers: { 'X-User-Email': getHeaders()['X-User-Email'] }
+      headers: getHeaders()
     });
-    if (!res.ok) throw new Error(`DELETE ${endpoint} failed`);
+    const result = await handleResponse(res, `DELETE ${endpoint}`);
     return { error: null };
   },
 };

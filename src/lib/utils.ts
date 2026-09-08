@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -65,4 +66,11 @@ export function formatDateForInput(dateStr: string | null): string {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${y}-${m}-${day}`;
+}
+
+export function formatDisplayDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return "-";
+  const timestamp = parseSiteDate(dateStr);
+  if (!timestamp) return dateStr; 
+  return format(new Date(timestamp), "d MMM, yyyy");
 }

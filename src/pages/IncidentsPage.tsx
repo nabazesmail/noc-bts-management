@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
 import { useToast } from '../components/ToastContext';
 import IncidentReportModal from '../components/IncidentReportModal';
+import { formatDisplayDate } from "@/lib/utils";
 
 export default function IncidentsPage() {
   const [data, setData] = useState<any[]>([]);
@@ -268,7 +269,7 @@ export default function IncidentsPage() {
                           </button>
                         </td>
                         <td className="p-3 text-sm font-medium whitespace-nowrap">
-                          {row.start_date}
+                          {formatDisplayDate(row.start_date)}
                         </td>
                         <td className="p-3 text-sm font-medium whitespace-nowrap">
                           {row.issue_scope}
@@ -324,7 +325,7 @@ export default function IncidentsPage() {
                                   </div>
                                   <div className="grid grid-cols-2 gap-2">
                                     <span className="text-muted-foreground">End:</span>
-                                    <span className="font-medium">{row.end_date} {row.end_time}</span>
+                                    <span className="font-medium">{formatDisplayDate(row.end_date)} {row.end_time}</span>
                                   </div>
                                   <div className="grid grid-cols-2 gap-2">
                                     <span className="text-muted-foreground">Hours / Mins:</span>

@@ -51,17 +51,14 @@ export default function AuditHistory({}: AuditHistoryProps) {
 
   const filteredLogs = logs.filter(
     (log) => {
-      // Ignore phantom empty logs coming from the old undeleted database trigger
-      if (log.action === "UPDATE" && !log.field_name) {
-        return false;
-      }
-      return (
-        log.user_email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.action?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.record_type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.record_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.field_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      // Display manual database updates (which lack a field_name) as System changes
+      const isManualDbUpdate = log.action === "UPDATE" && !log.field_name;
+      
+      const searchTarget = isManualDbUpdate 
+        ? "system manual update"
+        : `${log.user_email || ''} ${log.action || ''} ${log.record_type || ''} ${log.record_name || ''} ${log.field_name || ''}`.toLowerCase();
+
+      return searchTarget.includes(searchTerm.toLowerCase());
     }
   );
 
@@ -142,7 +139,11 @@ export default function AuditHistory({}: AuditHistoryProps) {
                     </span>
                   </td>
                   <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                    {log.field_name || "-"}
+                    {(!log.field_name && log.action === 'UPDATE') ? (
+                      <span className="italic text-gray-400">Manual DB Update</span>
+                    ) : (
+                      log.field_name || "-"
+                    )}
                   </td>
                   <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
                     {log.old_value || "-"}

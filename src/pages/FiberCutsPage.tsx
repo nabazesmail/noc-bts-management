@@ -4,6 +4,7 @@ import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
 import FiberCutReportModal from '../components/FiberCutReportModal';
 import { useToast } from '../components/ToastContext';
+import { formatDisplayDate } from '@/lib/utils';
 
 export default function FiberCutsPage() {
   const [data, setData] = useState<any[]>([]);
@@ -287,7 +288,7 @@ export default function FiberCutsPage() {
                         <td className="p-3 text-sm font-bold text-foreground whitespace-nowrap">{item.cut_location || "-"}</td>
                         <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.region_cut_type || "-"}</td>
                         <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.cut_type || "-"}</td>
-                        <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.start_date || "-"} {item.start_time}</td>
+                        <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{formatDisplayDate(item.start_date)} {item.start_time}</td>
                         <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.duration || "-"}</td>
                         <td className="p-3 text-sm text-muted-foreground max-w-[200px] truncate" title={item.reason}>{item.reason || "-"}</td>
                         <td className="p-3 text-sm">
@@ -366,7 +367,7 @@ export default function FiberCutsPage() {
                                   </div>
                                   <div className="grid grid-cols-2 gap-2">
                                     <span className="text-muted-foreground">End Time:</span>
-                                    <span className="font-medium text-foreground">{item.end_date || '-'} {item.end_time || '-'}</span>
+                                    <span className="font-medium text-foreground">{formatDisplayDate(item.end_date)} {item.end_time || '-'}</span>
                                   </div>
                                 </div>
                               </div>

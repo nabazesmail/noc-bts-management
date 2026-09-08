@@ -28,6 +28,7 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
 
   const handleLogout = async () => {
     localStorage.removeItem("localUser");
+    localStorage.removeItem("jwt_token");
     window.dispatchEvent(new Event("storage"));
     window.location.href = "/login";
   };

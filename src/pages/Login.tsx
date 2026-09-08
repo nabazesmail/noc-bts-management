@@ -17,15 +17,22 @@ export default function Login() {
     setError('');
 
     try {
-      const { data, error } = await api.get("/profiles");
-      if (error) throw error;
+      // Use standard fetch since api.post expects the token to already exist
+      const res = await fetch('http://localhost:4000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
       
-      const user = (data || []).find((u: any) => u.email === email);
+      const data = await res.json();
       
-      if (user) {
-        // For local development, we skip checking the password 
-        // since we are mocking auth and password isn't stored securely yet.
-        localStorage.setItem("localUser", JSON.stringify(user));
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to login');
+      }
+      
+      if (data.token && data.user) {
+        localStorage.setItem("jwt_token", data.token);
+        localStorage.setItem("localUser", JSON.stringify(data.user));
         
         // Trigger storage event for same-tab updates (some browsers don't do it)
         window.dispatchEvent(new Event("storage"));
@@ -33,7 +40,7 @@ export default function Login() {
         // Navigate
         window.location.href = "/";
       } else {
-        setError("Invalid login credentials (user not found in local db)");
+        setError("Invalid response from server");
       }
     } catch (err: any) {
       setError(err.message || "Failed to login");

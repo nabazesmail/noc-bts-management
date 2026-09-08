@@ -6,7 +6,7 @@ import { isToday, isThisWeek } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
 import { useToast } from "../components/ToastContext";
-import { parseSiteDate } from "../lib/utils";
+import { parseSiteDate, formatDisplayDate } from "../lib/utils";
 
 export default function SlaTrackingPage() {
   const [data, setData] = useState<SlaTracking[]>([]);
@@ -350,7 +350,7 @@ export default function SlaTrackingPage() {
                         <td className="p-3 text-sm font-bold text-foreground whitespace-nowrap">{item.site_code_dc || "-"}</td>
                         <td className="p-3 text-sm text-foreground whitespace-nowrap">{item.noc_staff || "-"}</td>
                         <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.region || "-"}</td>
-                        <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.start_date || "-"} {item.start_time}</td>
+                        <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{formatDisplayDate(item.start_date)} {item.start_time}</td>
                         <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.duration_time || "-"}</td>
                         <td className="p-3 text-sm text-muted-foreground max-w-[150px] truncate" title={item.reason}>{item.reason || "-"}</td>
                         <td className="p-3 text-sm text-muted-foreground whitespace-nowrap">{item.responsible_department || "-"}</td>

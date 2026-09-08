@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { api } from "@/lib/api";
 import Map from "@/components/Map";
 import { Link } from "react-router-dom";
+import { formatDisplayDate } from "@/lib/utils";
 
 export default function FiberCutLocations({
   profile,
@@ -85,9 +86,9 @@ export default function FiberCutLocations({
       <h3 className="font-bold text-sm mb-1 text-orange-600">
         Fiber Cut: {cut.cut_location || "Unknown Location"}
       </h3>
-      <p className="text-xs text-gray-600"><strong>Region:</strong> {cut.region_cut_type}</p>
-      <p className="text-xs text-gray-600"><strong>Date:</strong> {cut.start_date || "-"} {cut.start_time || ""}</p>
-      <p className="text-xs text-gray-600"><strong>Type:</strong> {cut.cut_type}</p>
+      <p className="text-xs text-gray-600"><strong>Location:</strong> {cut.cut_location}</p>
+      <p className="text-xs text-gray-600"><strong>Date:</strong> {formatDisplayDate(cut.start_date)} {cut.start_time || ""}</p>
+      <p className="text-xs text-gray-600"><strong>Duration:</strong> {cut.duration || "-"}</p>
       <div className="mt-2 text-xs text-gray-700 bg-gray-50 p-2 rounded border border-gray-200">
         <span className="font-semibold block mb-1">Reason:</span>
         {cut.reason || "No reason provided."}
