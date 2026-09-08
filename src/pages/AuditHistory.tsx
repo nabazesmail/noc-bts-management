@@ -62,6 +62,33 @@ export default function AuditHistory({}: AuditHistoryProps) {
     }
   );
 
+  const formatAuditDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = date.getFullYear();
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${day} ${month}, ${year} at ${hours}:${minutes} ${ampm}`;
+  };
+
+  const formatAuditValue = (val: string | null | undefined, field: string | undefined, otherVal: string | null | undefined) => {
+    if (field === 'comments') {
+      const v = (val || '').trim();
+      const o = (otherVal || '').trim();
+      
+      // If this value is empty, but the opposite value contains "Off Air", 
+      // logically this empty state represents "[On Air]" for the site's status.
+      if (v === '' && o.toLowerCase().includes('off air')) {
+        return '[On Air]';
+      }
+    }
+    return val || "-";
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Audit History</h1>
@@ -106,8 +133,8 @@ export default function AuditHistory({}: AuditHistoryProps) {
             ) : (
               filteredLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                  <td className="p-4 text-sm text-gray-900 dark:text-gray-100">
-                    {new Date(log.created_at).toLocaleString()}
+                  <td className="p-4 text-sm text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                    {formatAuditDate(log.created_at)}
                   </td>
                   <td className="p-4 text-sm text-gray-700 dark:text-gray-300">
                     {log.user_email ? (
@@ -146,10 +173,10 @@ export default function AuditHistory({}: AuditHistoryProps) {
                     )}
                   </td>
                   <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                    {log.old_value || "-"}
+                    {formatAuditValue(log.old_value, log.field_name, log.new_value)}
                   </td>
                   <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
-                    {log.new_value || "-"}
+                    {formatAuditValue(log.new_value, log.field_name, log.old_value)}
                   </td>
                 </tr>
               ))

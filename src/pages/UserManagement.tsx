@@ -137,10 +137,22 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
     );
   }
 
-  const filteredUsers = users.filter(u => 
-    u.name?.toLowerCase().includes(search.toLowerCase()) || 
-    u.email?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter(u => 
+      u.name?.toLowerCase().includes(search.toLowerCase()) || 
+      u.email?.toLowerCase().includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      // 1. Admins always at the top
+      if (a.role === 'admin' && b.role !== 'admin') return -1;
+      if (b.role === 'admin' && a.role !== 'admin') return 1;
+      
+      // 2. Ascending based on the date created (older first)
+      const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      
+      return dateA - dateB;
+    });
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">

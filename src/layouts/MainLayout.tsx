@@ -63,9 +63,9 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
       <aside 
         className={`${isCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 bg-card border-r border-border flex flex-col transition-all duration-300 ease-in-out`}
       >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-border">
+        <div className="h-16 flex items-center justify-between px-6 border-b border-border">
           {!isCollapsed && (
-            <span className="font-bold text-xl text-primary truncate">
+            <span className="font-extrabold text-xl text-primary tracking-tight truncate">
               NOC MS
             </span>
           )}
