@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { SlaTracking } from "../types";
 import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2 } from "lucide-react";
-import { isToday, isThisWeek } from "date-fns";
+import { isToday, isThisWeek, format, startOfWeek, endOfWeek } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
 import { useToast } from "../components/ToastContext";
@@ -28,8 +28,8 @@ export default function SlaTrackingPage() {
   const uniqueRegions = ["1", "2", "3", "4", "RC"];
   const allowedMonths = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
   const allowedStatuses = ["Open", "Follow", "Resolved", "Done", "Closed"];
-  const uniqueNocSla = Array.from(new Set(data.map((d) => String(d.noc_sla_status || '')).filter(s => s !== ''))).sort();
-  const uniqueSiteSla = Array.from(new Set(data.map((d) => String(d.site_sla_status || '')).filter(s => s !== ''))).sort();
+  const uniqueNocSla = Array.from(new Set(data.map((d) => String(d.noc_sla_status || '').trim()).filter(s => s !== '' && s !== '0' && s !== '-'))).sort();
+  const uniqueSiteSla = Array.from(new Set(data.map((d) => String(d.site_sla_status || '').trim()).filter(s => s !== '' && s !== '0' && s !== '-'))).sort();
   const allowedServiceTypes = ["LTE", "RXD_Clients", "Z_LOCATION", "Node.Input.AC.power", "TV_Clients"];
 
   useEffect(() => {
@@ -253,50 +253,62 @@ export default function SlaTrackingPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 shrink-0">
-        <div className="bg-card border-t-4 border-t-blue-500 rounded-lg p-4 shadow-sm border border-border">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase">NOC SLA (Today)</h3>
-            <Clock className="h-4 w-4 text-blue-500" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black">{kpis.nocTodayPercent}%</span>
-            <span className="text-xs font-semibold text-muted-foreground">MET</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.nocTodayText} Sites Compliant</p>
-        </div>
-        <div className="bg-card border-t-4 border-t-amber-500 rounded-lg p-4 shadow-sm border border-border">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase">Site SLA (Today)</h3>
-            <HardDrive className="h-4 w-4 text-amber-500" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black">{kpis.siteTodayPercent}%</span>
-            <span className="text-xs font-semibold text-muted-foreground">MET</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.siteTodayText} Sites Compliant</p>
-        </div>
-        <div className="bg-card border-t-4 border-t-blue-400 rounded-lg p-4 shadow-sm border border-border">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase">NOC SLA (Week)</h3>
-            <Calendar className="h-4 w-4 text-blue-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black">{kpis.nocWeekPercent}%</span>
-            <span className="text-xs font-semibold text-muted-foreground">MET</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.nocWeekText} Sites Compliant</p>
-        </div>
-        <div className="bg-card border-t-4 border-t-amber-400 rounded-lg p-4 shadow-sm border border-border">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase">Site SLA (Week)</h3>
-            <Calendar className="h-4 w-4 text-amber-400" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black">{kpis.siteWeekPercent}%</span>
-            <span className="text-xs font-semibold text-muted-foreground">MET</span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.siteWeekText} Sites Compliant</p>
-        </div>
+        {/* Helper values for dynamic dates */}
+        {(() => {
+          const now = new Date();
+          const todayStr = format(now, 'd MMM');
+          const weekStart = format(startOfWeek(now, { weekStartsOn: 1 }), 'd MMM');
+          const weekEnd = format(endOfWeek(now, { weekStartsOn: 1 }), 'd MMM');
+
+          return (
+            <>
+              <div className="bg-card border-t-4 border-t-blue-500 rounded-lg p-4 shadow-sm border border-border">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase">NOC SLA (TODAY: {todayStr})</h3>
+                  <Clock className="h-4 w-4 text-blue-500" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black">{kpis.nocTodayPercent}%</span>
+                  <span className="text-xs font-semibold text-muted-foreground">MET</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.nocTodayText} Sites Compliant</p>
+              </div>
+              <div className="bg-card border-t-4 border-t-amber-500 rounded-lg p-4 shadow-sm border border-border">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase">SITE SLA (TODAY: {todayStr})</h3>
+                  <HardDrive className="h-4 w-4 text-amber-500" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black">{kpis.siteTodayPercent}%</span>
+                  <span className="text-xs font-semibold text-muted-foreground">MET</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.siteTodayText} Sites Compliant</p>
+              </div>
+              <div className="bg-card border-t-4 border-t-blue-400 rounded-lg p-4 shadow-sm border border-border">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase">NOC SLA (WEEK: {weekStart} - {weekEnd})</h3>
+                  <Calendar className="h-4 w-4 text-blue-400" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black">{kpis.nocWeekPercent}%</span>
+                  <span className="text-xs font-semibold text-muted-foreground">MET</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.nocWeekText} Sites Compliant</p>
+              </div>
+              <div className="bg-card border-t-4 border-t-amber-400 rounded-lg p-4 shadow-sm border border-border">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-[11px] font-bold text-muted-foreground uppercase">SITE SLA (WEEK: {weekStart} - {weekEnd})</h3>
+                  <Calendar className="h-4 w-4 text-amber-400" />
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-black">{kpis.siteWeekPercent}%</span>
+                  <span className="text-xs font-semibold text-muted-foreground">MET</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">{kpis.siteWeekText} Sites Compliant</p>
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       <div className="flex-1 overflow-auto bg-card rounded-lg border border-border shadow-sm relative min-h-0">
