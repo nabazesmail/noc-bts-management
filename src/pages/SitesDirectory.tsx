@@ -6,8 +6,11 @@ import { useToast } from "@/components/ToastContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Edit2, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { parseSiteDate, formatDisplayDate } from "@/lib/utils";
+import ExportDataModal from "../components/ExportDataModal";
+import { downloadCSV } from "../lib/exportUtils";
+import { parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay } from 'date-fns';
 
 export default function SitesDirectory({}: { profile: Profile | null }) {
   const [allSites, setAllSites] = useState<Site[]>([]);
@@ -23,6 +26,8 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   const [availableRegions, setAvailableRegions] = useState<string[]>([]);
   const [availablePowerSources, setAvailablePowerSources] = useState<string[]>([]);
   const [deleteSiteId, setDeleteSiteId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [exportOpen, setExportOpen] = useState(false);
   const [toggleSiteTarget, setToggleSiteTarget] = useState<Site | null>(null);
   const toast = useToast();
   const pageSize = 50;
@@ -222,6 +227,47 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     "July", "August", "September", "October", "November", "December"
   ];
 
+  const handleExportData = (startDate: string, endDate: string) => {
+    let recordsToExport = allSites;
+
+    if (startDate && endDate) {
+      const start = startOfDay(parseISO(startDate));
+      const end = endOfDay(parseISO(endDate));
+
+      recordsToExport = allSites.filter(site => {
+        const checkTime = (dateStr: string | null | undefined) => {
+          if (!dateStr) return false;
+          try {
+            const ms = parseSiteDate(dateStr);
+            if (!ms) return false;
+            const d = new Date(ms);
+            return (isAfter(d, start) || isEqual(d, start)) &&
+                   (isBefore(d, end) || isEqual(d, end));
+          } catch {
+            return false;
+          }
+        };
+
+        return checkTime(site.b20_on_air_date) || checkTime(site.b7_on_air_date);
+      });
+    }
+
+    // Flatten any nested structures if necessary or just export directly
+    const flattenedData = recordsToExport.map(site => {
+      // Create a clean object for CSV
+      const cleanSite: any = { ...site };
+      // Convert nested Location into distinct fields for CSV 
+      if (cleanSite.SiteLocation) {
+        cleanSite.longitude = cleanSite.SiteLocation.longitude;
+        cleanSite.latitude = cleanSite.SiteLocation.latitude;
+        delete cleanSite.SiteLocation;
+      }
+      return cleanSite;
+    });
+
+    downloadCSV(flattenedData, `Sites_Directory${startDate && endDate ? `_${startDate}_to_${endDate}` : '_All'}`);
+  };
+
   const paginatedSites = filteredSites.slice(page * pageSize, (page + 1) * pageSize);
 
   return (
@@ -229,14 +275,30 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Site Data</h2>
-        <Link 
-          to="/sites/new"
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
-        >
-          <Plus className="h-4 w-4" />
-          <span className="hidden sm:inline">Add Site</span>
-        </Link>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setExportOpen(true)}
+            className="flex items-center gap-2 bg-green-600/10 hover:bg-green-600/20 text-green-600 border border-green-600/20 px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export Excel</span>
+          </button>
+          <Link 
+            to="/sites/new"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">Add Site</span>
+          </Link>
+        </div>
       </div>
+
+      <ExportDataModal
+        isOpen={exportOpen}
+        onClose={() => setExportOpen(false)}
+        onExport={handleExportData}
+        title="Export Site Directory Data"
+      />
 
       <div className="flex flex-col sm:flex-row flex-wrap gap-4">
         <div className="relative w-full max-w-md">

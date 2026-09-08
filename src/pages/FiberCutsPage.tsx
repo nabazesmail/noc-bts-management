@@ -1,15 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Search, Loader2, Scissors, Calendar, ChevronDown, ChevronUp, MapPin, Clock, AlertTriangle, Activity, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Search, Loader2, Scissors, TrendingDown, Clock, Activity, Calendar, MapPin, Navigation, Plus, Trash2, Edit2, Edit, AlertCircle, Download, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
 import { api } from '@/lib/api';
 import { Link } from 'react-router-dom';
 import FiberCutReportModal from '../components/FiberCutReportModal';
+import ExportDataModal from "../components/ExportDataModal";
 import { useToast } from '../components/ToastContext';
-import { formatDisplayDate } from '@/lib/utils';
+import { formatDisplayDate, parseSiteDate } from '@/lib/utils';
+import { downloadCSV } from "../lib/exportUtils";
+import { parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay } from 'date-fns';
 
 export default function FiberCutsPage() {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
   
   // Basic filters
   const [regionFilter, setRegionFilter] = useState('All');
@@ -19,6 +24,7 @@ export default function FiberCutsPage() {
 
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [reportOpen, setReportOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [deleteRecordId, setDeleteRecordId] = useState<string | null>(null);
   const toast = useToast();
 
@@ -110,6 +116,34 @@ export default function FiberCutsPage() {
     return matchesSearch && matchesRegion && matchesYear && matchesMonth && matchesType;
   });
 
+  const paginatedData = React.useMemo(() => {
+    return filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [filteredData, currentPage]);
+
+  const handleExportData = (startDate: string, endDate: string) => {
+    let recordsToExport = data;
+
+    if (startDate && endDate) {
+      const start = startOfDay(parseISO(startDate));
+      const end = endOfDay(parseISO(endDate));
+
+      recordsToExport = data.filter(row => {
+        if (!row.start_date) return false;
+        try {
+          const rowDateMs = parseSiteDate(row.start_date);
+          if (!rowDateMs) return false;
+          const rowDate = new Date(rowDateMs);
+          return (isAfter(rowDate, start) || isEqual(rowDate, start)) &&
+                 (isBefore(rowDate, end) || isEqual(rowDate, end));
+        } catch (e) {
+          return false;
+        }
+      });
+    }
+
+    downloadCSV(recordsToExport, `Fiber_Cuts_Data${startDate && endDate ? `_${startDate}_to_${endDate}` : '_All'}`);
+  };
+
   // KPIs
   const totalCuts = filteredData.length;
   const backboneCuts = filteredData.filter(d => String(d.cut_type).toLowerCase().includes('backbone')).length;
@@ -146,6 +180,13 @@ export default function FiberCutsPage() {
             <Calendar className="h-4 w-4 text-orange-500" />
             Monthly Report
           </button>
+          <button
+            onClick={() => setExportOpen(true)}
+            className="flex items-center gap-2 bg-green-600/10 hover:bg-green-600/20 text-green-600 border border-green-600/20 px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
+          >
+            <Download className="h-4 w-4" />
+            <span className="hidden sm:inline">Export Excel</span>
+          </button>
           <Link
             to="/fiber-cuts/new"
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
@@ -160,6 +201,13 @@ export default function FiberCutsPage() {
         isOpen={reportOpen}
         onClose={() => setReportOpen(false)}
         data={data}
+      />
+
+      <ExportDataModal
+        isOpen={exportOpen}
+        onClose={() => setExportOpen(false)}
+        onExport={handleExportData}
+        title="Export Fiber Cuts Data"
       />
 
       {/* Filters */}

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { SlaTracking } from "../types";
-import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2 } from "lucide-react";
-import { isToday, isThisWeek, format, startOfWeek, endOfWeek } from "date-fns";
+import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2, Download } from "lucide-react";
+import { isToday, isThisWeek, format, startOfWeek, endOfWeek, parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
+import ExportDataModal from "../components/ExportDataModal";
 import { useToast } from "../components/ToastContext";
 import { parseSiteDate, formatDisplayDate } from "../lib/utils";
+import { downloadCSV } from "../lib/exportUtils";
 
 export default function SlaTrackingPage() {
   const [data, setData] = useState<SlaTracking[]>([]);
@@ -22,6 +24,7 @@ export default function SlaTrackingPage() {
   const [deleteSlaId, setDeleteSlaId] = useState<string | null>(null);
   const toast = useToast();
   const [reportOpen, setReportOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [page, setPage] = useState(0);
   const pageSize = 50;
 
@@ -152,6 +155,30 @@ export default function SlaTrackingPage() {
     return filteredData.slice(page * pageSize, (page + 1) * pageSize);
   }, [filteredData, page, pageSize]);
 
+  const handleExportData = (startDate: string, endDate: string) => {
+    let recordsToExport = data;
+
+    if (startDate && endDate) {
+      const start = startOfDay(parseISO(startDate));
+      const end = endOfDay(parseISO(endDate));
+
+      recordsToExport = data.filter(row => {
+        if (!row.start_date) return false;
+        try {
+          const rowDateMs = parseSiteDate(row.start_date);
+          if (!rowDateMs) return false;
+          const rowDate = new Date(rowDateMs);
+          return (isAfter(rowDate, start) || isEqual(rowDate, start)) &&
+                 (isBefore(rowDate, end) || isEqual(rowDate, end));
+        } catch (e) {
+          return false;
+        }
+      });
+    }
+
+    downloadCSV(recordsToExport, `Sla_Tracking_Data${startDate && endDate ? `_${startDate}_to_${endDate}` : '_All'}`);
+  };
+
   return (
     <div className="p-6 h-full flex flex-col bg-background text-foreground transition-colors overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 shrink-0">
@@ -180,6 +207,13 @@ export default function SlaTrackingPage() {
               <Calendar className="h-4 w-4 text-blue-500" />
               Weekly Report
             </button>
+            <button
+              onClick={() => setExportOpen(true)}
+              className="flex items-center gap-2 bg-green-600/10 hover:bg-green-600/20 text-green-600 border border-green-600/20 px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
+            >
+              <Download className="h-4 w-4" />
+              <span className="hidden sm:inline">Export Excel</span>
+            </button>
             <Link
               to="/sla-tracking/new"
               className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors whitespace-nowrap"
@@ -194,6 +228,13 @@ export default function SlaTrackingPage() {
           isOpen={reportOpen} 
           onClose={() => setReportOpen(false)} 
           data={data} 
+        />
+        
+        <ExportDataModal
+          isOpen={exportOpen}
+          onClose={() => setExportOpen(false)}
+          onExport={handleExportData}
+          title="Export SLA Tracking Data"
         />
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6 shrink-0">

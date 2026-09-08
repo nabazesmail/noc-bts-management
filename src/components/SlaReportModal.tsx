@@ -16,14 +16,19 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
   const [slaType, setSlaType] = useState('NOC'); // NOC or SITE
   const [isDownloading, setIsDownloading] = useState(false);
 
+  const [dayOfWeek, setDayOfWeek] = useState('All');
+  const [shiftFilter, setShiftFilter] = useState('All');
+  const [peakFilter, setPeakFilter] = useState('All');
+
   const { filteredRecords, stats } = useMemo(() => {
-    if (!startDate || !endDate) return { filteredRecords: [], stats: { total: 0, yes: 0, no: 0, compliance: 0 }, areaChartData: [] };
+    if (!startDate || !endDate) return { filteredRecords: [], stats: { total: 0, yes: 0, no: 0, compliance: 0, totalPeak: 0 }, areaChartData: [] };
 
     const start = startOfDay(parseISO(startDate));
     const end = endOfDay(parseISO(endDate));
 
     let yesCount = 0;
     let noCount = 0;
+    let totalPeakCount = 0;
 
     const filtered = data.filter(row => {
       if (!row.start_date) return false;
@@ -40,12 +45,41 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
         const inRange = (isAfter(rowDate, start) || isEqual(rowDate, start)) &&
           (isBefore(rowDate, end) || isEqual(rowDate, end));
 
-        if (inRange) {
-          if (statusValue.toLowerCase() === 'yes') yesCount++;
-          if (statusValue.toLowerCase() === 'no') noCount++;
-          return true;
+        if (!inRange) return false;
+
+        if (dayOfWeek !== 'All') {
+          const dayName = format(rowDate, 'EEEE');
+          if (dayName !== dayOfWeek) return false;
         }
-        return false;
+
+        if (slaType === 'NOC') {
+          if (shiftFilter !== 'All' && row.shift !== shiftFilter) return false;
+        }
+
+        let isPeak = false;
+        if (row.peak_none_peak) {
+          isPeak = !row.peak_none_peak.toLowerCase().includes('non');
+        } else if (row.start_time) {
+           const timeMatch = row.start_time.match(/(\d+):(\d+).*?(AM|PM)/i);
+           if (timeMatch) {
+             let hr = parseInt(timeMatch[1]);
+             const isPm = timeMatch[3].toUpperCase() === 'PM';
+             if (isPm && hr < 12) hr += 12;
+             if (!isPm && hr === 12) hr = 0;
+             isPeak = (hr >= 8 || hr < 2);
+           }
+        }
+
+        if (slaType === 'SITE') {
+          if (peakFilter === 'Peak' && !isPeak) return false;
+          if (peakFilter === 'Non-Peak' && isPeak) return false;
+        }
+
+        if (statusValue.toLowerCase() === 'yes') yesCount++;
+        if (statusValue.toLowerCase() === 'no') noCount++;
+        if (isPeak) totalPeakCount++;
+
+        return true;
       } catch (e) {
         return false;
       }
@@ -75,9 +109,9 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
 
     return {
       filteredRecords: filtered,
-      stats: { total, yes: yesCount, no: noCount, compliance }
+      stats: { total, yes: yesCount, no: noCount, compliance, totalPeak: totalPeakCount }
     };
-  }, [data, startDate, endDate, slaType]);
+  }, [data, startDate, endDate, slaType, dayOfWeek, shiftFilter, peakFilter]);
 
   const handleDownloadPDF = () => {
     setIsDownloading(true);
@@ -209,6 +243,55 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">Day of Week</label>
+            <select
+              value={dayOfWeek}
+              onChange={(e) => setDayOfWeek(e.target.value)}
+              className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="All">All Days</option>
+              <option value="Monday">Monday</option>
+              <option value="Tuesday">Tuesday</option>
+              <option value="Wednesday">Wednesday</option>
+              <option value="Thursday">Thursday</option>
+              <option value="Friday">Friday</option>
+              <option value="Saturday">Saturday</option>
+              <option value="Sunday">Sunday</option>
+            </select>
+          </div>
+
+          {slaType === 'NOC' && (
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Shift</label>
+              <select
+                value={shiftFilter}
+                onChange={(e) => setShiftFilter(e.target.value)}
+                className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="All">All Shifts</option>
+                <option value="1">Shift 1</option>
+                <option value="2">Shift 2</option>
+                <option value="3">Shift 3</option>
+              </select>
+            </div>
+          )}
+
+          {slaType === 'SITE' && (
+            <div>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Peak / Non-Peak</label>
+              <select
+                value={peakFilter}
+                onChange={(e) => setPeakFilter(e.target.value)}
+                className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="All">All Records</option>
+                <option value="Peak">Peak</option>
+                <option value="Non-Peak">Non-Peak</option>
+              </select>
+            </div>
+          )}
+
           <button
             data-html2canvas-ignore="true"
             onClick={handleDownloadPDF}
@@ -279,7 +362,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                     Missed SLA (No)
                   </div>
                   <div className="text-2xl font-bold">{stats.no}</div>
-                  <div className="text-xs text-muted-foreground mt-1">{((stats.no / stats.total) * 100).toFixed(2)}% of total</div>
+                  <div className="text-xs text-muted-foreground mt-1">{stats.total > 0 ? ((stats.no / stats.total) * 100).toFixed(2) : '0'}% of total</div>
                 </div>
               </div>
 
@@ -373,7 +456,9 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                                 ) : (
                                   <>
                                     <td className="px-3 py-2 whitespace-nowrap">{row.responsible_department || '-'}</td>
-                                    <td className="px-3 py-2 font-mono text-red-600 font-medium whitespace-nowrap">{row.site_mttr} min</td>
+                                    <td className="px-3 py-2 font-mono text-red-600 font-medium whitespace-nowrap">
+                                      {row.site_mttr} min <span className="opacity-75 text-xs ml-1">({(parseFloat(row.site_mttr) / 60).toFixed(1)} hrs)</span>
+                                    </td>
                                   </>
                                 )}
                               </tr>
@@ -408,6 +493,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                       <tr>
                         <th className="px-4 py-3 font-medium">Site</th>
                         <th className="px-4 py-3 font-medium">Date</th>
+                        <th className="px-4 py-3 font-medium">Reason</th>
                         <th className="px-4 py-3 font-medium">Dept</th>
                         <th className="px-4 py-3 font-medium text-center">Status</th>
                         <th className="px-4 py-3 font-medium text-right">Duration</th>
@@ -420,6 +506,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                           <tr key={i} className="hover:bg-muted/50 transition-colors bg-background">
                             <td className="px-4 py-3 font-medium">{row.site_code_dc}</td>
                             <td className="px-4 py-3 whitespace-nowrap">{formatDisplayDate(row.start_date)}</td>
+                            <td className="px-4 py-3 text-muted-foreground max-w-[200px] truncate" title={row.reason || ''}>{row.reason || '-'}</td>
                             <td className="px-4 py-3">{row.responsible_department}</td>
                             <td className="px-4 py-3 text-center">
                               <span className={`px-2 py-1 rounded-full text-xs font-medium ${status?.toLowerCase() === 'yes' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
@@ -433,7 +520,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                       })}
                       {filteredRecords.length === 0 && (
                           <tr>
-                            <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                            <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                               No records found for this period.
                             </td>
                           </tr>
