@@ -20,6 +20,7 @@ import {
 } from "recharts";
 import { useTheme } from "@/components/ThemeProvider";
 import { parseSiteDate } from "@/lib/utils";
+import { TowerHeroCard } from "@/components/TowerHeroCard";
 
 export default function Dashboard({ profile }: { profile: Profile | null }) {
   const { theme } = useTheme();
@@ -181,7 +182,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
     <div className="space-y-3">
       
       {/* Top Header Section */}
-      <div className="border-b border-border pb-3 mb-2">
+      <div className="border-b border-border pb-3 mb-2 animate-fade-in-up">
         <h1 className="text-2xl font-bold tracking-tight text-blue-500 uppercase flex items-center gap-2">
           <Activity className="h-6 w-6 text-blue-400" />
           NOC Management System
@@ -191,168 +192,134 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
         </p>
       </div>
 
-      {/* Main KPI Cards */}
-      <div className="grid gap-3 md:grid-cols-4">
-        
-        <Card className="border-t-4 border-t-blue-500 bg-card border-border shadow-sm">
-          <CardHeader className="pb-0 pt-3 items-center">
-            <CardTitle className="text-[11px] font-bold text-muted-foreground uppercase text-center">Total Sites</CardTitle>
-            <Radio className="h-7 w-7 text-blue-600 dark:text-blue-500 mt-1" />
-          </CardHeader>
-          <CardContent className="text-center pb-3 pt-1">
-            <div className="text-[40px] leading-tight font-black text-foreground">{totalSites}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-t-4 border-t-green-500 bg-card border-border shadow-sm">
-          <CardHeader className="pb-0 pt-3 items-center">
-            <CardTitle className="text-[11px] font-bold text-green-700 dark:text-green-500 uppercase text-center">Dual-Band Sites</CardTitle>
-            <SignalHigh className="h-7 w-7 text-green-600 dark:text-green-400 mt-1" />
-          </CardHeader>
-          <CardContent className="text-center pb-3 pt-1">
-            <div className="text-[40px] leading-tight font-black text-foreground">{dualBandSites.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-t-4 border-t-blue-400 bg-card border-border shadow-sm">
-          <CardHeader className="pb-0 pt-3 items-center">
-            <CardTitle className="text-[11px] font-bold text-blue-700 dark:text-blue-400 uppercase text-center">Single-Band Sites</CardTitle>
-            <SignalLow className="h-7 w-7 text-blue-600 dark:text-blue-400 mt-1" />
-          </CardHeader>
-          <CardContent className="text-center pb-3 pt-1">
-            <div className="text-[40px] leading-tight font-black text-foreground">{singleBandSites.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-t-4 border-t-red-500 bg-card border-border shadow-sm">
-          <CardHeader className="pb-0 pt-3 items-center">
-            <CardTitle className="text-[11px] font-bold text-red-700 dark:text-red-500 uppercase text-center leading-tight">
-              Total Sites Down
-            </CardTitle>
-            <AlertCircle className="h-7 w-7 text-red-600 dark:text-red-500 mt-1" />
-          </CardHeader>
-          <CardContent className="text-center pb-3 pt-1">
-            <div className="text-[40px] leading-tight font-black text-red-600 dark:text-red-500">{turnedOffSites.length}</div>
-          </CardContent>
-        </Card>
-
+      {/* 3D Tower Hero */}
+      <div className="animate-fade-in-up stagger-1">
+        <TowerHeroCard 
+          totalSites={totalSites} 
+          dualBandSites={dualBandSites.length} 
+          singleBandSites={singleBandSites.length} 
+          sitesDown={turnedOffSites.length} 
+        />
       </div>
 
       {/* Second Carrier Deployment Progress */}
-      <Card className="border-border bg-card shadow-sm">
-        <CardHeader className="text-center pb-0 pt-4">
-          <CardTitle className="text-sm font-bold text-blue-800 dark:text-blue-400 uppercase tracking-widest">
-            Second Carrier Deployment Progress
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-3 pb-3">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-4">
-            <div className="flex items-center gap-3 bg-blue-50 dark:bg-muted px-4 py-2 rounded-xl border border-blue-100 dark:border-border">
-              <div className="bg-blue-600 p-2 rounded-full text-white">
-                <Wifi className="h-5 w-5" />
-              </div>
+      <div className="flex flex-col space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs font-black tracking-widest text-muted-foreground uppercase">Carrier Deployment Progress</h2>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 animate-fade-in-up stagger-5">
+          {/* Total Card */}
+          <Card className="md:col-span-1 bg-gradient-to-br from-blue-600 to-blue-900 border-none text-white relative overflow-hidden modern-card shadow-lg shadow-blue-900/20">
+            <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
+            <CardContent className="p-4 flex flex-col justify-between h-full relative z-10 min-h-[120px]">
               <div>
-                <p className="text-xs font-bold text-muted-foreground uppercase leading-tight">Total Upgraded Sites</p>
-                <div className="text-3xl font-black text-foreground flex items-baseline gap-2">
-                  {totalUpgraded} <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400 uppercase">Across all regions</span>
-                </div>
+                 <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center mb-2 backdrop-blur-md border border-white/10 shadow-inner">
+                   <Wifi className="text-white h-4 w-4" />
+                 </div>
+                 <p className="text-white/80 font-bold text-[9px] uppercase tracking-widest mb-1">Total Upgraded</p>
               </div>
-            </div>
-          </div>
+              <div className="mt-2">
+                 <div className="text-4xl font-black tracking-tighter leading-none">{totalUpgraded}</div>
+                 <p className="text-white/60 text-[8px] font-semibold uppercase mt-1.5 tracking-widest">Across all regions</p>
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
-            {regionProgress.map((rp, index) => {
-              const colors = [
-                'bg-blue-500', 'bg-green-500', 'bg-sky-500', 'bg-purple-500', 'bg-orange-500', 'bg-teal-500', 'bg-rose-500'
-              ];
-              const colorClass = colors[index % colors.length];
-
-              return (
-                <div key={rp.region} className="relative flex flex-col items-center">
-                  <div className={`px-3 py-0.5 rounded-t-md text-white font-bold text-xs mb-1.5 ${colorClass}`}>
-                    {rp.region === 'RC' ? 'RC' : (rp.region ? `R${rp.region}` : 'Unknown')}
-                  </div>
-                  <div className="text-xl font-bold text-foreground">
-                    {rp.upgraded} <span className="text-xs text-muted-foreground font-normal">/ {rp.total}</span>
-                  </div>
-                  <div className="text-[10px] text-muted-foreground font-bold mb-2 uppercase tracking-wider">Sites</div>
-                  
-                  {/* Progress Bar */}
-                  <div className="w-full bg-muted h-2.5 rounded-full overflow-hidden mb-1.5">
-                    <div 
-                      className={`h-full ${colorClass} transition-all duration-1000`} 
-                      style={{ width: `${rp.percentage}%` }}
-                    />
-                  </div>
-                  <div className={`font-bold text-xs ${colorClass.replace('bg-', 'text-')}`}>
-                    {rp.percentage.toFixed(1)}%
-                  </div>
-
-                  {/* Arrow connector between regions (hide on last) */}
-                  {index < regionProgress.length - 1 && (
-                    <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <ArrowRight className="h-5 w-5" />
+          {/* Region Cards */}
+          {regionProgress.map((rp, index) => {
+            const colors = ['blue', 'green', 'sky', 'purple', 'orange', 'teal', 'rose'];
+            const cName = colors[index % colors.length];
+            const colorClass = `bg-${cName}-500`;
+            const textColorClass = `text-${cName}-500`;
+            
+            return (
+             <Card key={rp.region} className="bg-card border-border relative overflow-hidden modern-card group hover:border-muted-foreground/30 transition-colors">
+               {/* Subtle watermark */}
+               <div className="absolute -right-4 -bottom-4 text-6xl font-black text-muted/5 group-hover:text-muted/10 transition-colors pointer-events-none select-none">
+                 {rp.region === 'RC' ? 'RC' : (rp.region ? `R${rp.region}` : '?')}
+               </div>
+               
+               <CardContent className="p-4 flex flex-col h-full justify-between relative z-10 min-h-[120px]">
+                  <div>
+                    <div className="flex justify-between items-start mb-2">
+                       <div className={`px-2 py-0.5 rounded-md text-[9px] font-black text-white shadow-sm tracking-wider ${colorClass}`}>
+                         REGION {rp.region === 'RC' ? 'RC' : (rp.region ? `${rp.region}` : 'Unknown')}
+                       </div>
+                       <div className="text-right">
+                          <div className="text-sm font-black text-foreground leading-none">{rp.upgraded} <span className="text-muted-foreground font-medium text-[10px]">/ {rp.total}</span></div>
+                       </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 text-center text-[10px] font-bold text-blue-600 dark:text-blue-500 tracking-[0.2em] uppercase">
-            Deploying Today, Connecting Tomorrow
-          </div>
-        </CardContent>
-      </Card>
+                  </div>
+                  
+                  <div className="mt-3">
+                    <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5 tracking-wider">
+                      <span>Progress</span>
+                      <span className={textColorClass}>{rp.percentage.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
+                       <div className={`h-full ${colorClass} transition-all duration-1000 relative shadow-[0_0_8px_rgba(0,0,0,0.5)]`} style={{ width: `${rp.percentage}%` }}>
+                          <div className="absolute right-0 top-0 bottom-0 w-4 bg-white/50 blur-[2px]"></div>
+                       </div>
+                    </div>
+                  </div>
+               </CardContent>
+             </Card>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Charts Section */}
       <div className="grid gap-3 md:grid-cols-2">
-        <Card className="bg-card border-border">
-          <CardHeader className="py-3">
-            <CardTitle className="text-[11px] font-bold text-muted-foreground uppercase">Network Growth</CardTitle>
+        <Card className="bg-card border-border modern-card animate-fade-in-up stagger-6">
+          <CardHeader className="py-2">
+            <CardTitle className="text-[10px] font-bold text-muted-foreground uppercase">Network Growth</CardTitle>
           </CardHeader>
-          <CardContent className="h-56 pb-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={timelineData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorSites" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
-                <XAxis dataKey="year" axisLine={false} tickLine={false} stroke={axisColor} tick={{fontSize: 11}} />
-                <YAxis axisLine={false} tickLine={false} stroke={axisColor} tick={{fontSize: 11}} />
-                <RechartsTooltip cursor={{stroke: cursorColor, strokeWidth: 1}} contentStyle={tooltipStyle} />
-                <Area type="monotone" dataKey="totalSites" name="Total Sites" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSites)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <CardContent className="pb-2 pt-0">
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={timelineData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorSites" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                  <XAxis dataKey="year" axisLine={false} tickLine={false} stroke={axisColor} tick={{fontSize: 11}} />
+                  <YAxis axisLine={false} tickLine={false} stroke={axisColor} tick={{fontSize: 11}} />
+                  <RechartsTooltip cursor={{stroke: cursorColor, strokeWidth: 1}} contentStyle={tooltipStyle} />
+                  <Area type="monotone" dataKey="totalSites" name="Total Sites" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSites)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-card border-border flex flex-col h-full">
-          <CardHeader className="py-3">
-            <CardTitle className="text-[11px] font-bold text-muted-foreground uppercase flex items-center gap-2">
-              <Activity className="h-4 w-4 text-red-500" />
+        <Card className="bg-card border-border flex flex-col h-full modern-card animate-fade-in-up stagger-7">
+          <CardHeader className="py-2">
+            <CardTitle className="text-[10px] font-bold text-muted-foreground uppercase flex items-center gap-2">
+              <Activity className="h-3 w-3 text-red-500" />
               Fiber Cuts Overview
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex-1 pb-4 flex flex-col justify-center gap-4">
+          <CardContent className="flex-1 flex flex-col justify-center gap-2 pb-3">
             <div className="grid grid-cols-2 gap-4">
               
               {/* Total Cuts */}
-              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Total Cuts</div>
-                <div className="text-3xl font-black text-foreground flex items-center justify-center gap-2">
-                  <Scissors className="h-5 w-5 text-red-500" />
+              <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
+                <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Total Cuts</div>
+                <div className="text-xl font-black text-foreground flex items-center gap-2">
+                  <Scissors className="h-3 w-3 text-red-500" />
                   {fiberCuts.length}
                 </div>
               </div>
-
-              {/* Top Region */}
-              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Top Region</div>
-                <div className="text-2xl font-black text-foreground flex items-center justify-center gap-2 truncate">
-                  <MapPin className="h-4 w-4 text-orange-500" />
+              <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
+                <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Top Region</div>
+                <div className="text-lg font-black text-foreground flex items-center gap-1.5 truncate">
+                  <MapPin className="h-3 w-3 text-orange-500" />
                   {(() => {
                     if (fiberCuts.length === 0) return "-";
                     const regionCounts = fiberCuts.reduce((acc, cut) => {
@@ -366,21 +333,20 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                 </div>
               </div>
 
-              {/* Backbone Cuts */}
-              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Backbone Cuts</div>
-                <div className="text-2xl font-black text-foreground flex items-center justify-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}
+              <div className="grid grid-cols-4 gap-2 col-span-2">
+                <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
+                  <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Backbone Cuts</div>
+                  <div className="text-lg font-black text-foreground flex items-center gap-1.5">
+                    <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                    {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}
+                  </div>
                 </div>
-              </div>
-
-              {/* Backhaul Cuts */}
-              <div className="bg-muted/30 p-3 rounded-lg border border-border text-center flex flex-col justify-center">
-                <div className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Backhaul Cuts</div>
-                <div className="text-2xl font-black text-foreground flex items-center justify-center gap-2">
-                  <Activity className="h-4 w-4 text-blue-500" />
-                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}
+                <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
+                  <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Backhaul Cuts</div>
+                  <div className="text-lg font-black text-foreground flex items-center gap-1.5">
+                    <Activity className="h-3 w-3 text-blue-500" />
+                    {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}
+                  </div>
                 </div>
               </div>
 

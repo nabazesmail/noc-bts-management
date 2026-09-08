@@ -88,10 +88,10 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
                 key={item.path}
                 to={item.path}
                 title={isCollapsed ? item.name : undefined}
-                className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ease-out ${
                   isActive
                     ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted"
+                    : "text-muted-foreground hover:bg-muted hover:scale-105 hover:shadow-sm"
                 }`}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />
@@ -147,9 +147,11 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 h-full overflow-y-auto bg-background transition-colors">
-        <div className="p-6 max-w-[1600px] mx-auto">
-          <Outlet />
+      <main className="flex-1 h-full overflow-y-auto bg-background transition-colors relative">
+        <div className="p-6 max-w-[1600px] mx-auto min-h-full">
+          <div key={location.pathname} className="animate-fade-in-up h-full">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>
