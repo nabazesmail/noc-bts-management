@@ -15,6 +15,7 @@ export default function FiberCutLocations({
   const [cuts, setCuts] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("All");
+  const [yearFilter, setYearFilter] = useState("All");
   const [monthFilter, setMonthFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
   const [strictGeography, setStrictGeography] = useState(true);
@@ -58,6 +59,11 @@ export default function FiberCutLocations({
   };
 
   const uniqueRegions = Array.from(new Set(cuts.map(item => item.region_cut_type).filter(Boolean))).sort();
+  const uniqueYears = Array.from(new Set(cuts.map(item => {
+    if (!item.start_date) return null;
+    const yearMatch = String(item.start_date).match(/\b(20\d{2})\b/);
+    return yearMatch ? yearMatch[1] : null;
+  }).filter(Boolean))).sort();
   const uniqueMonths = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
   const uniqueTypes = Array.from(new Set(cuts.map(item => item.cut_type).filter(Boolean))).sort();
 
@@ -70,6 +76,10 @@ export default function FiberCutLocations({
       (cut.supervisors_name && cut.supervisors_name.toLowerCase().includes(query));
       
     const matchesRegion = regionFilter === 'All' || cut.region_cut_type === regionFilter;
+    
+    const cutYear = cut.start_date ? String(cut.start_date).match(/\b(20\d{2})\b/)?.[1] : null;
+    const matchesYear = yearFilter === 'All' || cutYear === yearFilter;
+    
     const matchesMonth = monthFilter === 'All' || String(cut.month || '').toUpperCase().startsWith(monthFilter);
     const matchesType = typeFilter === 'All' || cut.cut_type === typeFilter;
     
@@ -78,7 +88,7 @@ export default function FiberCutLocations({
     const isStrictlySyria = lat >= 32.0 && lat <= 37.25 && lng >= 35.7 && lng <= 42.4;
     const matchesGeography = strictGeography ? isStrictlySyria : true;
 
-    return matchesSearch && matchesRegion && matchesMonth && matchesType && matchesGeography;
+    return matchesSearch && matchesRegion && matchesYear && matchesMonth && matchesType && matchesGeography;
   });
 
   const renderPopup = (cut: any) => (
@@ -138,6 +148,15 @@ export default function FiberCutLocations({
           >
             <option value="All">All Regions</option>
             {uniqueRegions.map(r => <option key={r} value={r}>{r}</option>)}
+          </select>
+          
+          <select
+            className="flex h-9 items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+          >
+            <option value="All">All Years</option>
+            {uniqueYears.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
           
           <select

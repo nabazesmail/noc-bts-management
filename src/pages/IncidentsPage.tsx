@@ -73,14 +73,17 @@ export default function IncidentsPage() {
 
   const uniqueYears = Array.from(new Set(data.map(item => {
     if (!item.start_date) return null;
-    try {
-      return new Date(item.start_date).getFullYear().toString();
-    } catch {
-      return null;
-    }
+    const yearMatch = String(item.start_date).match(/\b(20\d{2})\b/);
+    return yearMatch ? yearMatch[1] : null;
   }).filter(Boolean))).sort((a, b) => Number(b) - Number(a));
 
-  const uniqueMonths = Array.from(new Set(data.map(item => String(item.month || '').toUpperCase()).filter(Boolean))).sort();
+  const monthOrder: Record<string, number> = {
+    'JANUARY': 1, 'FEBRUARY': 2, 'MARCH': 3, 'APRIL': 4, 'MAY': 5, 'JUNE': 6,
+    'JULY': 7, 'AUGUST': 8, 'SEPTEMBER': 9, 'OCTOBER': 10, 'NOVEMBER': 11, 'DECEMBER': 12,
+    'JAN': 1, 'FEB': 2, 'MAR': 3, 'APR': 4, 'JUN': 6, 'JUL': 7, 'AUG': 8, 'SEP': 9, 'OCT': 10, 'NOV': 11, 'DEC': 12
+  };
+  const uniqueMonths = Array.from(new Set(data.map(item => String(item.month || '').toUpperCase()).filter(Boolean)))
+    .sort((a, b) => (monthOrder[a] || 99) - (monthOrder[b] || 99));
   const uniqueDepts = Array.from(new Set(data.map(item => item.responsible_department).filter(Boolean))).sort();
   const uniqueApprovals = Array.from(new Set(data.map(item => item.maintenance_approval).filter(Boolean))).sort();
 

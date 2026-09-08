@@ -100,29 +100,36 @@ export default function SlaForm() {
     try {
       const { data: cityData } = await api.get("/cities");
       if (cityData) setCities(cityData.map((c: any) => c.name));
-      
-      const { data: staffData } = await api.get("/noc_staff");
+    } catch (e) { console.error("Error fetching cities", e); }
+
+    try {
+      const { data: staffData } = await api.get("/users");
       if (staffData) {
-        setNocStaffList(staffData.map((s: any) => {
-          const name = String(s.name || '');
-          return name.charAt(0).toUpperCase() + name.slice(1);
-        }));
+        const excludedNames = ['nabaz', 'redost', 'mohammed.osama', 'mohammed osama', 'noc.hq1', 'noc.hq2', 'noc.hq', 'nochq1', 'nochq2', 'nochq'];
+        
+        const filteredStaff = staffData
+          .map((s: any) => String(s.name || ''))
+          .filter(name => !excludedNames.includes(name.toLowerCase()))
+          .map(name => name.charAt(0).toUpperCase() + name.slice(1));
+          
+        setNocStaffList(filteredStaff);
       }
+    } catch (e) { console.error("Error fetching noc_staff (users)", e); }
 
-      const { data: deptData, error: deptError } = await api.get("/sla_departments");
-      if (deptError) console.error("Error fetching sla_departments:", deptError);
+    try {
+      const { data: deptData } = await api.get("/sla_departments");
       if (deptData) setDepartments(deptData.map((d: any) => d.name));
+    } catch (e) { console.error("Error fetching sla_departments", e); }
 
-      const { data: techData, error: techError } = await api.get("/sla_technical_areas");
-      if (techError) console.error("Error fetching sla_technical_areas:", techError);
+    try {
+      const { data: techData } = await api.get("/sla_technical_areas");
       if (techData) setTechnicalAreas(techData.map((t: any) => t.name));
+    } catch (e) { console.error("Error fetching sla_technical_areas", e); }
 
-      const { data: reasonData, error: reasonError } = await api.get("/sla_reasons");
-      if (reasonError) console.error("Error fetching sla_reasons:", reasonError);
+    try {
+      const { data: reasonData } = await api.get("/sla_reasons");
       if (reasonData) setReasons(reasonData.map((r: any) => r.name));
-    } catch (error) {
-      console.error("Error fetching lookups", error);
-    }
+    } catch (e) { console.error("Error fetching sla_reasons", e); }
   };
 
   const fetchSlaRecord = async () => {

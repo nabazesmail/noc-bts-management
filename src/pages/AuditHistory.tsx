@@ -76,6 +76,8 @@ export default function AuditHistory({}: AuditHistoryProps) {
   };
 
   const formatAuditValue = (val: string | null | undefined, field: string | undefined, otherVal: string | null | undefined) => {
+    let result = val || "-";
+
     if (field === 'comments') {
       const v = (val || '').trim();
       const o = (otherVal || '').trim();
@@ -83,10 +85,19 @@ export default function AuditHistory({}: AuditHistoryProps) {
       // If this value is empty, but the opposite value contains "Off Air", 
       // logically this empty state represents "[On Air]" for the site's status.
       if (v === '' && o.toLowerCase().includes('off air')) {
-        return '[On Air]';
+        result = '[On Air]';
       }
     }
-    return val || "-";
+
+    if (result.length > 30) {
+      return (
+        <span title={result} className="cursor-help border-b border-dashed border-gray-400 dark:border-gray-600 pb-0.5">
+          {result.substring(0, 30)}...
+        </span>
+      );
+    }
+
+    return result;
   };
 
   return (
@@ -172,10 +183,10 @@ export default function AuditHistory({}: AuditHistoryProps) {
                       log.field_name || "-"
                     )}
                   </td>
-                  <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                  <td className="p-4 text-sm text-gray-500 dark:text-gray-400 max-w-[200px] xl:max-w-[300px] truncate">
                     {formatAuditValue(log.old_value, log.field_name, log.new_value)}
                   </td>
-                  <td className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                  <td className="p-4 text-sm text-gray-500 dark:text-gray-400 max-w-[200px] xl:max-w-[300px] truncate">
                     {formatAuditValue(log.new_value, log.field_name, log.old_value)}
                   </td>
                 </tr>

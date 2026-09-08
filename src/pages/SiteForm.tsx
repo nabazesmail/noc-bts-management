@@ -30,8 +30,8 @@ export default function SiteForm() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<any>({
     site_no: "", region: "", city: "", site_code: "", site_name: "", site_zone: "", 
-    power_source: "", comments: "", enodb_20: "", band_20_ip: "", band20_sec_1_cell: "", 
-    band20_sec_2_cell: "", band20_sec_3_cell: "", band20_sec_4_cell: "", b20_xa2: "", 
+    power_source: "", comments: "", enodb_20: "", band_20_ip: "", band20_sec1_cell: "", 
+    band20_sec2_cell: "", band20_sec3_cell: "", band20_sec4_cell: "", b20_xa2: "", 
     b20_xb2: "", b20_xc2: "", b20_xd2: "", switch: "", port: "", sfp_b20: "", 
     sfp_core_type: "", b20_on_air_date: "", enodb_7: "", band_7_ip: "", b7_xa1: "", 
     b7_xb1: "", b7_xc1: "", b7_xd1: "", b7_xa2: "", b7_xb2: "", b7_xc2: "", b7_xd2: "", 
@@ -83,6 +83,9 @@ export default function SiteForm() {
     if (e.target.name === 'enodb_20' || e.target.name === 'enodb_7') {
       if (errors["band"]) setErrors({ ...errors, band: "" });
     }
+    if (e.target.name === 'b20_on_air_date' || e.target.name === 'b7_on_air_date') {
+      if (errors["band_date"]) setErrors({ ...errors, band_date: "" });
+    }
   };
 
   const generalFields: FieldConfig[] = [
@@ -99,10 +102,10 @@ export default function SiteForm() {
   const band20Fields: FieldConfig[] = [
     { name: "enodb_20", label: "ENODEB 20" },
     { name: "band_20_ip", label: "Band 20 IP", pattern: "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$", title: "Must be a valid IPv4 address (e.g. 192.168.1.1)" },
-    { name: "band20_sec_1_cell", label: "Sec 1 Cell" },
-    { name: "band20_sec_2_cell", label: "Sec 2 Cell" },
-    { name: "band20_sec_3_cell", label: "Sec 3 Cell" },
-    { name: "band20_sec_4_cell", label: "Sec 4 Cell" },
+    { name: "band20_sec1_cell", label: "Sec 1 Cell" },
+    { name: "band20_sec2_cell", label: "Sec 2 Cell" },
+    { name: "band20_sec3_cell", label: "Sec 3 Cell" },
+    { name: "band20_sec4_cell", label: "Sec 4 Cell" },
     { name: "b20_xa2", label: "XA2" },
     { name: "b20_xb2", label: "XB2" },
     { name: "b20_xc2", label: "XC2" },
@@ -159,6 +162,10 @@ export default function SiteForm() {
       newErrors["band"] = "You must provide data for at least one band (ENODEB 20 or ENODEB 7)";
     }
 
+    if (!formData.b20_on_air_date && !formData.b7_on_air_date) {
+      newErrors["band_date"] = "You must provide an On-Air Date for at least one band";
+    }
+
     setErrors(newErrors);
 
     const hasErrors = Object.keys(newErrors).length > 0;
@@ -174,8 +181,8 @@ export default function SiteForm() {
             el.focus();
           }
         }, 100);
-      } else if (newErrors.band) {
-        // If it's just the band error, scroll to the bottom
+      } else if (newErrors.band || newErrors.band_date) {
+        // If it's just a band/date error, scroll to the bottom
         setTimeout(() => {
           window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         }, 100);
@@ -313,6 +320,12 @@ export default function SiteForm() {
         {errors.band && (
           <div className="p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-900/30 dark:border-red-900/50 dark:text-red-400 text-sm font-medium text-center shadow-sm">
             {errors.band}
+          </div>
+        )}
+
+        {errors.band_date && (
+          <div className="p-4 bg-red-100 border border-red-200 text-red-700 rounded-lg dark:bg-red-900/30 dark:border-red-900/50 dark:text-red-400 text-sm font-medium text-center shadow-sm">
+            {errors.band_date}
           </div>
         )}
 

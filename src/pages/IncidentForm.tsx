@@ -138,7 +138,8 @@ export default function IncidentForm() {
           </div>
           
           <button 
-            onClick={handleSubmit}
+            type="submit"
+            form="incident-form"
             disabled={saving}
             className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-md font-medium transition-colors shadow-sm disabled:opacity-50"
           >
@@ -147,7 +148,7 @@ export default function IncidentForm() {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form id="incident-form" onSubmit={handleSubmit} className="space-y-6">
           
           {/* Section 1: Temporal Data */}
           <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
@@ -158,7 +159,7 @@ export default function IncidentForm() {
             <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
               
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase">Month</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase">Month *</label>
                 <select 
                   name="month" 
                   value={formData.month || ''} 
@@ -174,7 +175,7 @@ export default function IncidentForm() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase">Start Date</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase">Start Date *</label>
                 <Input 
                   type="date" 
                   name="start_date" 
@@ -203,7 +204,6 @@ export default function IncidentForm() {
                   name="end_date" 
                   value={formData.end_date || ''} 
                   onChange={handleChange} 
-                  required
                   onClick={(e) => 'showPicker' in HTMLInputElement.prototype && (e.target as HTMLInputElement).showPicker()}
                   onKeyDown={(e) => e.preventDefault()}
                 />
@@ -220,7 +220,7 @@ export default function IncidentForm() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase">Duration Time (HH:MM:SS)</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase">Duration Time (HH:MM:SS) *</label>
                 <Input type="text" placeholder="e.g. 0:30:00" name="duration_time" value={formData.duration_time || ''} onChange={handleChange} required />
               </div>
 
@@ -247,7 +247,7 @@ export default function IncidentForm() {
               
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase">Issue Scope</label>
-                <Input type="text" name="issue_scope" value={formData.issue_scope || ''} onChange={handleChange} placeholder="e.g. RAQ#11 LTE site" required />
+                <Input type="text" name="issue_scope" value={formData.issue_scope || ''} onChange={handleChange} placeholder="e.g. RAQ#11 LTE site" />
               </div>
               
               <div className="space-y-2">
@@ -261,7 +261,6 @@ export default function IncidentForm() {
                   name="responsible_department" 
                   value={formData.responsible_department || ''} 
                   onChange={handleChange}
-                  required
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
                   <option value="">Select Department</option>
@@ -292,7 +291,7 @@ export default function IncidentForm() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase">Reason for Incident</label>
+                <label className="text-xs font-semibold text-muted-foreground uppercase">Reason for Incident *</label>
                 <textarea 
                   name="reason" 
                   value={formData.reason || ''} 

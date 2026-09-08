@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Profile } from "@/types";
 import { useToast } from "@/components/ToastContext";
-import { Plus, X, Search, Ticket, MapPin, Map, Clock, CheckCircle2, Copy } from "lucide-react";
+import { Plus, X, Search, Ticket, MapPin, Map, Clock, CheckCircle2, Copy, Edit2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import { formatDisplayDate } from "@/lib/utils";
@@ -16,7 +16,9 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
   const toast = useToast();
   
   const [isAdding, setIsAdding] = useState(false);
+  const [editTicketId, setEditTicketId] = useState<string | null>(null);
   const [confirmTicket, setConfirmTicket] = useState<any>(null);
+  const [deleteTicket, setDeleteTicket] = useState<any>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [citiesList, setCitiesList] = useState<string[]>([]);
   const [formData, setFormData] = useState({
@@ -59,7 +61,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
     setSaving(true);
     
     try {
-      const { error } = await api.post("/tickets", {
+      const payload = {
         region: formData.region,
         city: formData.city,
         latitude: Number(formData.latitude),
@@ -67,18 +69,53 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
         description: formData.description,
         status: formData.status,
         tracking_id: formData.tracking_id
-      });
-      
-      if (error) throw error;
+      };
+
+      if (editTicketId) {
+        const { error } = await api.put(`/tickets/${editTicketId}`, payload);
+        if (error) throw error;
+        toast.success("Ticket updated successfully");
+      } else {
+        const { error } = await api.post("/tickets", payload);
+        if (error) throw error;
+        toast.success("Ticket saved successfully");
+      }
       
       setIsAdding(false);
+      setEditTicketId(null);
       setFormData({ region: "", city: "", latitude: "", longitude: "", description: "", status: "open", tracking_id: "" });
-      toast.success("Ticket saved successfully");
       await fetchTickets();
     } catch (err: any) {
       toast.error("Error saving ticket: " + err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const startEdit = (ticket: any) => {
+    setFormData({
+      region: ticket.region || "",
+      city: ticket.city || "",
+      latitude: ticket.latitude ? String(ticket.latitude) : "",
+      longitude: ticket.longitude ? String(ticket.longitude) : "",
+      description: ticket.description || "",
+      status: ticket.status || "open",
+      tracking_id: ticket.tracking_id || ""
+    });
+    setEditTicketId(ticket.id);
+    setIsAdding(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTicket) return;
+    try {
+      const { error } = await api.delete(`/tickets/${deleteTicket.id}`);
+      if (error) throw error;
+      toast.success("Ticket deleted successfully");
+      setDeleteTicket(null);
+      await fetchTickets();
+    } catch (err: any) {
+      toast.error("Error deleting ticket: " + err.message);
     }
   };
 
@@ -156,7 +193,11 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
             />
           </div>
           <button 
-            onClick={() => setIsAdding(true)}
+            onClick={() => {
+              setEditTicketId(null);
+              setFormData({ region: "", city: "", latitude: "", longitude: "", description: "", status: "open", tracking_id: "" });
+              setIsAdding(true);
+            }}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
           >
             <Plus className="h-4 w-4" />
@@ -232,12 +273,28 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
                   <Clock className="h-3 w-3" />
                   {formatDisplayDate(ticket.created_at)}
                 </div>
-                {ticket.status === 'closed' && (
-                  <div className="flex items-center gap-1 text-green-600">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Resolved
-                  </div>
-                )}
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => startEdit(ticket)}
+                    className="p-1 hover:bg-muted text-gray-500 hover:text-blue-600 rounded transition-colors"
+                    title="Edit Ticket"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
+                  <button 
+                    onClick={() => setDeleteTicket(ticket)}
+                    className="p-1 hover:bg-muted text-gray-500 hover:text-red-600 rounded transition-colors"
+                    title="Delete Ticket"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  {ticket.status === 'closed' && (
+                    <div className="flex items-center gap-1 text-green-600 ml-2 border-l pl-3 border-border">
+                      <CheckCircle2 className="h-3 w-3" />
+                      Resolved
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))
@@ -248,8 +305,8 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-card w-full max-w-lg rounded-xl shadow-2xl overflow-hidden border border-border">
             <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
-              <h3 className="font-bold text-lg">Create New Ticket</h3>
-              <button onClick={() => setIsAdding(false)} className="p-1 hover:bg-muted rounded-full transition-colors">
+              <h3 className="font-bold text-lg">{editTicketId ? "Edit Ticket" : "Create New Ticket"}</h3>
+              <button onClick={() => { setIsAdding(false); setEditTicketId(null); }} className="p-1 hover:bg-muted rounded-full transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -343,7 +400,7 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
               <div className="pt-4 flex justify-end gap-2">
                 <button 
                   type="button" 
-                  onClick={() => setIsAdding(false)}
+                  onClick={() => { setIsAdding(false); setEditTicketId(null); }}
                   className="px-4 py-2 rounded-md hover:bg-muted font-medium transition-colors"
                 >
                   Cancel
@@ -382,6 +439,33 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
                 onClick={confirmStatusToggle}
               >
                 Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTicket && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100 dark:border-gray-700 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Delete Ticket?</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Are you sure you want to permanently delete this ticket for <span className="font-bold text-gray-700 dark:text-gray-300">{deleteTicket.city}</span>? This action cannot be undone.
+              </p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-800/50 px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                onClick={() => setDeleteTicket(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+                onClick={confirmDelete}
+              >
+                Delete Ticket
               </button>
             </div>
           </div>

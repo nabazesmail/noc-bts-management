@@ -1,0 +1,1 @@
+fetch('http://localhost:4000/api/fiber_cuts', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({quarter: 'Q1'}) }).then(r=>r.text()).then(console.log).catch(console.error)

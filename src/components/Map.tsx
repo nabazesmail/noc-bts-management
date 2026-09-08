@@ -193,7 +193,7 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
 
       {sites.map((site) => (
         <Marker
-          key={site.id}
+          key={site.is_ticket ? `ticket-${site.id}` : `site-${site.id}`}
           position={[Number(site.latitude), Number(site.longitude)]}
           icon={getMarkerIcon(site)}
         >

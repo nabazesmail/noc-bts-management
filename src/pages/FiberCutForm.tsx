@@ -9,7 +9,7 @@ const defaultFormData = {
   quarter: "", month: "", start_date: "", start_time: "", end_date: "", end_time: "",
   duration: "", duration_minutes: "", noc_report_time: "", dispatched_team_source_city: "",
   team_dispatch_date: "", dispatched_time: "", arival_time: "", splicing_time: "",
-  excavator_machine: "", maintenance_end_time: "", supervisors_name: "", region_cut_type: "",
+  excavator_machine: "", maintenance_end_time: "", supervisor_name: "", region_cut_type: "",
   cut_type: "", cut_location: "", lat_coordinates: "", log_coordinates: "", distance_source_city: "",
   distance_km: "", protection: "", noc_cut_evaluation: "", reason: "", area_reason: "",
   impacted_lte_no: "", lte1: "", lte2: "", lte3: "", lte4: "", lte5: "", lte6: "", lte7: "", lte8: "",
@@ -24,7 +24,7 @@ const defaultFormData = {
   noc_sla_status: "", dispatch_difference: "", dispatch_sla: "", dispatch_sla_status: "",
   travel_time: "", arrival_sla: "", arrival_sla_status: "", on_site_work_duration: "",
   troublshooting_sla: "", troublshoot_sla_status: "", link_recovery_duration: "", link_sla: "",
-  link_sla_status2: ""
+  link_sla_status: ""
 };
 
 export default function FiberCutForm() {
@@ -41,10 +41,10 @@ export default function FiberCutForm() {
     const fetchLookups = async () => {
       try {
         const { data: locData } = await api.get('/fiber_cut_locations');
-        if (locData) setLocations(locData.map((d: any) => d.location_name));
+        if (locData) setLocations(locData.map((d: any) => d.fibercut_locations));
 
         const { data: reasonData } = await api.get('/fiber_cut_reasons');
-        if (reasonData) setReasons(reasonData.map((d: any) => d.reason_text));
+        if (reasonData) setReasons(reasonData.map((d: any) => d.fibercut_reasons));
       } catch (err) {
         console.error("Error fetching lookups", err);
       }
@@ -170,14 +170,14 @@ export default function FiberCutForm() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Location *</label>
-                <select name="cut_location" value={formData.cut_location} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="cut_location" value={formData.cut_location || ""} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select Location...</option>
-                  {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                  {locations.map((loc, i) => <option key={`${loc}-${i}`} value={loc}>{loc}</option>)}
                 </select>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Region *</label>
-                <select name="region_cut_type" value={formData.region_cut_type} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="region_cut_type" value={formData.region_cut_type || ""} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select Region...</option>
                   <option value="Region 1">Region 1</option>
                   <option value="Region 2">Region 2</option>
@@ -191,7 +191,7 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Quarter *</label>
-                <select name="quarter" value={formData.quarter} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="quarter" value={formData.quarter || ""} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select Quarter...</option>
                   <option value="Q1">Q1</option>
                   <option value="Q2">Q2</option>
@@ -201,7 +201,7 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Month *</label>
-                <select name="month" value={formData.month} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="month" value={formData.month || ""} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select Month...</option>
                   {Array.from({ length: 12 }, (_, i) => (
                     <option key={i + 1} value={String(i + 1)}>{i + 1}</option>
@@ -210,7 +210,7 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Cut Type *</label>
-                <select name="cut_type" value={formData.cut_type} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="cut_type" value={formData.cut_type || ""} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select Type...</option>
                   <option value="Backbone">Backbone</option>
                   <option value="Backhaul">Backhaul</option>
@@ -218,34 +218,34 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Reason *</label>
-                <select name="reason" value={formData.reason} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="reason" value={formData.reason || ""} onChange={handleChange} required className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select Reason...</option>
-                  {reasons.map(r => <option key={r} value={r}>{r}</option>)}
+                  {reasons.map((r, i) => <option key={`${r}-${i}`} value={r}>{r}</option>)}
                 </select>
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Area Reason</label>
-                <Input name="area_reason" value={formData.area_reason} onChange={handleChange} />
+                <Input name="area_reason" value={formData.area_reason || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Evaluation</label>
-                <Input name="noc_cut_evaluation" value={formData.noc_cut_evaluation} onChange={handleChange} />
+                <Input name="noc_cut_evaluation" value={formData.noc_cut_evaluation || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Lat Coordinates *</label>
-                <Input name="lat_coordinates" value={formData.lat_coordinates} onChange={handleChange} required />
+                <Input name="lat_coordinates" value={formData.lat_coordinates || ""} onChange={handleChange} required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Log Coordinates *</label>
-                <Input name="log_coordinates" value={formData.log_coordinates} onChange={handleChange} required />
+                <Input name="log_coordinates" value={formData.log_coordinates || ""} onChange={handleChange} required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Distance Source City</label>
-                <Input name="distance_source_city" value={formData.distance_source_city} onChange={handleChange} />
+                <Input name="distance_source_city" value={formData.distance_source_city || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Distance (KM)</label>
-                <Input name="distance_km" value={formData.distance_km} onChange={handleChange} />
+                <Input name="distance_km" value={formData.distance_km || ""} onChange={handleChange} />
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function FiberCutForm() {
                 <Input 
                   type="date" 
                   name="start_date" 
-                  value={formData.start_date} 
+                  value={formData.start_date || ""} 
                   onChange={handleChange} 
                   onClick={(e) => 'showPicker' in e.target && (e.target as any).showPicker()}
                   onKeyDown={(e) => e.preventDefault()}
@@ -267,14 +267,14 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Start Time *</label>
-                <Input type="time" name="start_time" value={formData.start_time} onChange={handleChange} required />
+                <Input type="text" placeholder="HH:mm" name="start_time" value={formData.start_time || ""} onChange={handleChange} required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">End Date</label>
                 <Input 
                   type="date" 
                   name="end_date" 
-                  value={formData.end_date} 
+                  value={formData.end_date || ""} 
                   onChange={handleChange} 
                   onClick={(e) => 'showPicker' in e.target && (e.target as any).showPicker()}
                   onKeyDown={(e) => e.preventDefault()}
@@ -282,27 +282,27 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">End Time</label>
-                <Input type="time" name="end_time" value={formData.end_time} onChange={handleChange} />
+                <Input type="text" placeholder="HH:mm" name="end_time" value={formData.end_time || ""} onChange={handleChange} />
               </div>
               
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Duration</label>
-                <Input name="duration" value={formData.duration} onChange={handleChange} />
+                <Input name="duration" value={formData.duration || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Duration Mins</label>
-                <Input name="duration_minutes" value={formData.duration_minutes} onChange={handleChange} />
+                <Input name="duration_minutes" value={formData.duration_minutes || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">NOC Report Time</label>
-                <Input type="time" name="noc_report_time" value={formData.noc_report_time} onChange={handleChange} />
+                <Input type="text" placeholder="HH:mm" name="noc_report_time" value={formData.noc_report_time || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Team Dispatch Date</label>
                 <Input 
                   type="date" 
                   name="team_dispatch_date" 
-                  value={formData.team_dispatch_date} 
+                  value={formData.team_dispatch_date || ""} 
                   onChange={handleChange} 
                   onClick={(e) => 'showPicker' in e.target && (e.target as any).showPicker()}
                   onKeyDown={(e) => e.preventDefault()}
@@ -311,36 +311,36 @@ export default function FiberCutForm() {
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Dispatched Team City</label>
-                <Input name="dispatched_team_source_city" value={formData.dispatched_team_source_city} onChange={handleChange} />
+                <Input name="dispatched_team_source_city" value={formData.dispatched_team_source_city || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Supervisor Name *</label>
-                <Input name="supervisors_name" value={formData.supervisors_name} onChange={handleChange} placeholder="e.g. Jasem + Ayman" required />
+                <Input name="supervisor_name" value={formData.supervisor_name || ""} onChange={handleChange} placeholder="e.g. Jasem + Ayman" required />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Excavator Machine</label>
-                <Input name="excavator_machine" value={formData.excavator_machine} onChange={handleChange} />
+                <Input name="excavator_machine" value={formData.excavator_machine || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Dispatched Time</label>
-                <Input type="time" name="dispatched_time" value={formData.dispatched_time} onChange={handleChange} />
+                <Input type="text" placeholder="HH:mm" name="dispatched_time" value={formData.dispatched_time || ""} onChange={handleChange} />
               </div>
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Arrival Time</label>
-                <Input type="time" name="arival_time" value={formData.arival_time} onChange={handleChange} />
+                <Input type="text" placeholder="HH:mm" name="arival_time" value={formData.arival_time || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Splicing Time</label>
-                <Input type="time" name="splicing_time" value={formData.splicing_time} onChange={handleChange} />
+                <Input type="text" placeholder="HH:mm" name="splicing_time" value={formData.splicing_time || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Maintenance End Time</label>
-                <Input type="time" name="maintenance_end_time" value={formData.maintenance_end_time} onChange={handleChange} />
+                <Input type="text" placeholder="HH:mm" name="maintenance_end_time" value={formData.maintenance_end_time || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">On-Site Work Duration</label>
-                <Input name="on_site_work_duration" value={formData.on_site_work_duration} onChange={handleChange} />
+                <Input name="on_site_work_duration" value={formData.on_site_work_duration || ""} onChange={handleChange} />
               </div>
             </div>
           </div>
@@ -350,19 +350,19 @@ export default function FiberCutForm() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Total Impacted Nodes</label>
-                <Input name="impacted_nodes" value={formData.impacted_nodes} onChange={handleChange} />
+                <Input name="impacted_nodes" value={formData.impacted_nodes || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Impacted LTE No</label>
-                <Input name="impacted_lte_no" value={formData.impacted_lte_no} onChange={handleChange} />
+                <Input name="impacted_lte_no" value={formData.impacted_lte_no || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Impacted RXD No</label>
-                <Input name="impacted_rxd_no" value={formData.impacted_rxd_no} onChange={handleChange} />
+                <Input name="impacted_rxd_no" value={formData.impacted_rxd_no || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Impacted Z-Location No</label>
-                <Input name="impacted_z_location_no" value={formData.impacted_z_location_no} onChange={handleChange} />
+                <Input name="impacted_z_location_no" value={formData.impacted_z_location_no || ""} onChange={handleChange} />
               </div>
             </div>
             
@@ -383,19 +383,19 @@ export default function FiberCutForm() {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Temp Impacted LTE No</label>
-                  <Input name="temporary_impacted_lte_no" value={formData.temporary_impacted_lte_no} onChange={handleChange} />
+                  <Input name="temporary_impacted_lte_no" value={formData.temporary_impacted_lte_no || ""} onChange={handleChange} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Temp Impacted LTE</label>
-                  <Input name="temporary_impacted_lte" value={formData.temporary_impacted_lte} onChange={handleChange} />
+                  <Input name="temporary_impacted_lte" value={formData.temporary_impacted_lte || ""} onChange={handleChange} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Temp Impacted Nodes</label>
-                  <Input name="temporary_impacted_nodes" value={formData.temporary_impacted_nodes} onChange={handleChange} />
+                  <Input name="temporary_impacted_nodes" value={formData.temporary_impacted_nodes || ""} onChange={handleChange} />
                 </div>
                 <div className="space-y-1">
                   <label className="text-xs font-medium text-muted-foreground">Duration Temp Services</label>
-                  <Input name="duration_temporary_impacted_services" value={formData.duration_temporary_impacted_services} onChange={handleChange} />
+                  <Input name="duration_temporary_impacted_services" value={formData.duration_temporary_impacted_services || ""} onChange={handleChange} />
                 </div>
               </div>
             </details>
@@ -406,15 +406,15 @@ export default function FiberCutForm() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">NOC Response Time</label>
-                <Input name="noc_response_time" value={formData.noc_response_time} onChange={handleChange} />
+                <Input name="noc_response_time" value={formData.noc_response_time || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">NOC SLA</label>
-                <Input name="noc_sla" value={formData.noc_sla} onChange={handleChange} />
+                <Input name="noc_sla" value={formData.noc_sla || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">NOC SLA Status</label>
-                <select name="noc_sla_status" value={formData.noc_sla_status} onChange={handleChange} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <select name="noc_sla_status" value={formData.noc_sla_status || ""} onChange={handleChange} className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
                   <option value="">Select...</option>
                   <option value="Yes">Yes</option>
                   <option value="No">No</option>
@@ -423,19 +423,19 @@ export default function FiberCutForm() {
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Dispatch SLA Status</label>
-                <Input name="dispatch_sla_status" value={formData.dispatch_sla_status} onChange={handleChange} />
+                <Input name="dispatch_sla_status" value={formData.dispatch_sla_status || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Arrival SLA Status</label>
-                <Input name="arrival_sla_status" value={formData.arrival_sla_status} onChange={handleChange} />
+                <Input name="arrival_sla_status" value={formData.arrival_sla_status || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-muted-foreground">Link SLA Status</label>
-                <Input name="link_sla_status2" value={formData.link_sla_status2} onChange={handleChange} />
+                <Input name="link_sla_status" value={formData.link_sla_status || ""} onChange={handleChange} />
               </div>
               <div className="space-y-1 md:col-span-2">
                 <label className="text-xs font-semibold text-muted-foreground">Comment</label>
-                <Input name="comment" value={formData.comment} onChange={handleChange} />
+                <Input name="comment" value={formData.comment || ""} onChange={handleChange} />
               </div>
             </div>
           </div>

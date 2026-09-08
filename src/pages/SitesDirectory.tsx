@@ -396,19 +396,19 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
         </div>
       </div>
 
-      <div className="rounded-md border border-border bg-card overflow-hidden shadow-sm">
-        <table className="w-full text-sm text-left">
+      <div className="rounded-md border border-border bg-card overflow-x-auto shadow-sm styled-scrollbar">
+        <table className="w-full text-sm text-left min-w-[1000px]">
           <thead className="bg-muted/50 border-b border-border text-muted-foreground">
             <tr>
               <th className="p-4 font-medium w-10"></th>
-              <th className="p-4 font-medium">Site No</th>
-              <th className="p-4 font-medium">Site Code</th>
-              <th className="p-4 font-medium">Site Name</th>
-              <th className="p-4 font-medium">Region</th>
-              <th className="p-4 font-medium">Status</th>
-              <th className="p-4 font-medium">Band Type</th>
-              <th className="p-4 font-medium">Power Source</th>
-              <th className="p-4 font-medium text-right">Actions</th>
+              <th className="p-4 font-medium whitespace-nowrap">Site No</th>
+              <th className="p-4 font-medium whitespace-nowrap">Site Code</th>
+              <th className="p-4 font-medium whitespace-nowrap">Site Name</th>
+              <th className="p-4 font-medium whitespace-nowrap">Region</th>
+              <th className="p-4 font-medium whitespace-nowrap">Status</th>
+              <th className="p-4 font-medium whitespace-nowrap">Band Type</th>
+              <th className="p-4 font-medium whitespace-nowrap">Power Source</th>
+              <th className="p-4 font-medium text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
@@ -443,7 +443,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
                     </td>
                     <td className="p-4">
                       {bandType !== "-" && (
-                        <Badge variant="outline" className={bandType === "Dual-Band" ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800" : "text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700"}>
+                        <Badge variant="outline" className={`whitespace-nowrap ${bandType === "Dual-Band" ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800" : "text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700"}`}>
                           {bandType}
                         </Badge>
                       )}
