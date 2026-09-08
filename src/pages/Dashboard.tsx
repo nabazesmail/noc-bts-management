@@ -118,6 +118,8 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
 
   // 1. Growth Timeline Data
   const yearCounts: Record<string, number> = {};
+  let sitesWithDates = 0;
+  
   sites.forEach(site => {
     const t20 = parseSiteDate(site.b20_on_air_date);
     const t7 = parseSiteDate(site.b7_on_air_date);
@@ -129,10 +131,13 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
     
     if (year) {
       yearCounts[year] = (yearCounts[year] || 0) + 1;
+      sitesWithDates++;
     }
   });
 
-  let cumulative = 0;
+  // Start cumulative with sites that are missing dates, so the final total perfectly matches sites.length
+  let cumulative = sites.length - sitesWithDates;
+  
   const timelineData = Object.keys(yearCounts).sort().map(year => {
     cumulative += yearCounts[year];
     return {
@@ -179,7 +184,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
       <div className="border-b border-border pb-3 mb-2">
         <h1 className="text-2xl font-bold tracking-tight text-blue-500 uppercase flex items-center gap-2">
           <Activity className="h-6 w-6 text-blue-400" />
-          Operations Dashboard
+          NOC Management System
         </h1>
         <p className="text-xs font-medium text-blue-600/80 dark:text-blue-400/80 tracking-wide mt-1">
           Mission Status: Strengthening our network

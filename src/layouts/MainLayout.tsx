@@ -66,7 +66,7 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
         <div className="h-16 flex items-center justify-between px-4 border-b border-border">
           {!isCollapsed && (
             <span className="font-bold text-xl text-primary truncate">
-              NOC Ops Portal
+              NOC MS
             </span>
           )}
           <button 
