@@ -114,6 +114,33 @@ input:-webkit-autofill:active {
   animation: pulseGlow 3s ease-in-out infinite;
 }
 
+@keyframes spherePulse {
+  0% {
+    transform: scale(0.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(4.5);
+    opacity: 0;
+  }
+}
+.animate-sphere-pulse {
+  animation: spherePulse 6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+.animate-sphere-pulse-delayed {
+  animation: spherePulse 6s cubic-bezier(0, 0, 0.2, 1) infinite 3s;
+}
+
+@keyframes signalPulse {
+  0% { opacity: 0; transform: scale(0.5); }
+  20% { opacity: 1; filter: drop-shadow(0 0 4px rgba(56,189,248,0.8)); }
+  100% { opacity: 0; transform: scale(4); }
+}
+.animate-signal-1 { animation: signalPulse 2.5s ease-out infinite; transform-origin: 100px 10px; }
+.animate-signal-2 { animation: signalPulse 2.5s ease-out infinite 0.6s; transform-origin: 100px 10px; }
+.animate-signal-3 { animation: signalPulse 2.5s ease-out infinite 1.2s; transform-origin: 100px 10px; }
+.animate-signal-4 { animation: signalPulse 2.5s ease-out infinite 1.8s; transform-origin: 100px 10px; }
+
 /* Stagger utilities (optional helper) */
 .stagger-1 { animation-delay: 100ms; }
 .stagger-2 { animation-delay: 200ms; }

@@ -59,20 +59,7 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
         <div className="absolute inset-x-0 bottom-[2px] flex items-end justify-center pointer-events-none">
           
           <div className="relative flex items-end justify-center">
-            {/* Radio Waves anchored exactly at the tower head (y=40 in viewBox) */}
-            <div className="absolute top-[40px] left-1/2 -translate-x-1/2 w-0 h-0 flex items-center justify-center pointer-events-none z-0">
-              {/* Concentric rings */}
-              <div className="absolute w-[250px] h-[250px] rounded-full border-[1.5px] border-dashed border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.3)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite]" />
-              <div className="absolute w-[450px] h-[450px] rounded-full border-[1.5px] border-dotted border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite_1.5s]" />
-              <div className="absolute w-[650px] h-[650px] rounded-full border-[1.5px] border-dashed border-cyan-400/20 shadow-[0_0_25px_rgba(34,211,238,0.1)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite_3s]" />
-              <div className="absolute w-[850px] h-[850px] rounded-full border-[1.5px] border-dotted border-cyan-400/10 shadow-[0_0_30px_rgba(34,211,238,0.05)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite_4.5s]" />
-              
-              {/* Static core glows */}
-              <div className="absolute w-[100px] h-[100px] rounded-full bg-cyan-500/10 blur-xl" />
-              <div className="absolute w-[300px] h-[300px] rounded-full bg-cyan-500/5 blur-3xl" />
-            </div>
-            
-            <svg viewBox="0 0 200 242" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[240px] w-auto drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105 relative z-10">
+            <svg viewBox="0 0 200 242" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[240px] w-auto drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105 relative z-10">
             <g>
               {/* Base Platform */}
               <path d="M60 220 L140 220 L130 240 L70 240 Z" fill="#1e293b" stroke="#334155" strokeWidth="2"/>
@@ -114,6 +101,18 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
               {/* Lightning Rod / Beacon */}
               <line x1="100" y1="40" x2="100" y2="10" stroke="#94a3b8" strokeWidth="2" />
               <circle cx="100" cy="10" r="2.5" fill="#ef4444" className="animate-pulse" filter="drop-shadow(0 0 4px #ef4444)" />
+              
+              {/* 2D Radiating Signal Waves (Left & Right) */}
+              <g stroke="#38bdf8" strokeWidth="3" strokeLinecap="round" strokeDasharray="3 6" fill="none">
+                {[1, 2, 3, 4].map((i) => (
+                  <g key={i} className={`animate-signal-${i}`}>
+                    {/* Left Arc */}
+                    <path d="M 88 0 A 15 15 0 0 0 88 20" />
+                    {/* Right Arc */}
+                    <path d="M 112 0 A 15 15 0 0 1 112 20" />
+                  </g>
+                ))}
+              </g>
               
               {/* Base lights */}
               <circle cx="85" cy="225" r="1.5" fill="#3b82f6" opacity="0.6" />
