@@ -56,47 +56,71 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
         </div>
 
         {/* 3D Tower SVG Art */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-x-0 bottom-[2px] flex items-end justify-center pointer-events-none">
           
-          {/* Signal Waves */}
-          <div className="absolute inset-0 flex items-center justify-center top-[-100px] opacity-60">
-            <div className="w-56 h-20 rounded-[100%] border border-dashed border-blue-400/20 absolute animate-[ping_4s_ease-out_infinite]" />
-            <div className="w-80 h-28 rounded-[100%] border border-dashed border-blue-400/10 absolute animate-[ping_4s_ease-out_infinite_1s]" />
-            <div className="w-[26rem] h-[9rem] rounded-[100%] border border-dashed border-blue-400/5 absolute animate-[ping_4s_ease-out_infinite_2s]" />
-          </div>
-          
-          <svg viewBox="0 0 200 250" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[220px] w-auto mt-2 drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105">
+          <div className="relative flex items-end justify-center">
+            {/* Radio Waves anchored exactly at the tower head (y=40 in viewBox) */}
+            <div className="absolute top-[40px] left-1/2 -translate-x-1/2 w-0 h-0 flex items-center justify-center pointer-events-none z-0">
+              {/* Concentric rings */}
+              <div className="absolute w-[250px] h-[250px] rounded-full border-[1.5px] border-dashed border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.3)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite]" />
+              <div className="absolute w-[450px] h-[450px] rounded-full border-[1.5px] border-dotted border-cyan-400/30 shadow-[0_0_20px_rgba(34,211,238,0.2)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite_1.5s]" />
+              <div className="absolute w-[650px] h-[650px] rounded-full border-[1.5px] border-dashed border-cyan-400/20 shadow-[0_0_25px_rgba(34,211,238,0.1)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite_3s]" />
+              <div className="absolute w-[850px] h-[850px] rounded-full border-[1.5px] border-dotted border-cyan-400/10 shadow-[0_0_30px_rgba(34,211,238,0.05)] animate-[ping_6s_cubic-bezier(0,0,0.2,1)_infinite_4.5s]" />
+              
+              {/* Static core glows */}
+              <div className="absolute w-[100px] h-[100px] rounded-full bg-cyan-500/10 blur-xl" />
+              <div className="absolute w-[300px] h-[300px] rounded-full bg-cyan-500/5 blur-3xl" />
+            </div>
+            
+            <svg viewBox="0 0 200 242" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[240px] w-auto drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105 relative z-10">
             <g>
               {/* Base Platform */}
-              <path d="M50 220 L150 220 L140 240 L60 240 Z" fill="#1e293b" stroke="#334155" strokeWidth="2"/>
-              {/* Central Mast */}
-              <rect x="95" y="40" width="10" height="180" fill="#334155" />
-              <rect x="97" y="40" width="2" height="180" fill="#475569" />
+              <path d="M60 220 L140 220 L130 240 L70 240 Z" fill="#1e293b" stroke="#334155" strokeWidth="2"/>
               
-              {/* Support Beams Left */}
-              <line x1="95" y1="60" x2="60" y2="220" stroke="#1e293b" strokeWidth="4" />
-              <line x1="95" y1="120" x2="65" y2="180" stroke="#1e293b" strokeWidth="3" />
-              <line x1="95" y1="180" x2="70" y2="140" stroke="#1e293b" strokeWidth="3" />
-              
-              {/* Support Beams Right */}
-              <line x1="105" y1="60" x2="140" y2="220" stroke="#1e293b" strokeWidth="4" />
-              <line x1="105" y1="120" x2="135" y2="180" stroke="#1e293b" strokeWidth="3" />
-              <line x1="105" y1="180" x2="130" y2="140" stroke="#1e293b" strokeWidth="3" />
-              
-              {/* Antennas */}
-              <rect x="80" y="70" width="8" height="30" rx="2" fill="#0f172a" stroke="#3b82f6" strokeWidth="1.5" />
-              <rect x="112" y="70" width="8" height="30" rx="2" fill="#0f172a" stroke="#3b82f6" strokeWidth="1.5" />
-              
-              {/* Top Beacon */}
-              <rect x="98" y="25" width="4" height="15" fill="#cbd5e1" />
-              <circle cx="100" cy="20" r="3" fill="#ef4444" className="animate-pulse" filter="drop-shadow(0 0 5px #ef4444)" />
+              {/* Main Lattice Structure */}
+              {/* Legs */}
+              <line x1="85" y1="220" x2="96" y2="40" stroke="#334155" strokeWidth="3" />
+              <line x1="115" y1="220" x2="104" y2="40" stroke="#334155" strokeWidth="3" />
+              <line x1="100" y1="220" x2="100" y2="40" stroke="#1e293b" strokeWidth="2" /> {/* Center Support */}
+
+              {/* Cross Bracing */}
+              <path d="M85 220 L111 190 L88 160 L108 130 L91 100 L106 70 L94 40" stroke="#475569" strokeWidth="1.5" fill="none" />
+              <path d="M115 220 L89 190 L112 160 L92 130 L109 100 L94 70 L106 40" stroke="#1e293b" strokeWidth="1.5" fill="none" />
+
+              {/* Platforms / Mounts */}
+              <line x1="80" y1="160" x2="120" y2="160" stroke="#334155" strokeWidth="2" />
+              <line x1="84" y1="100" x2="116" y2="100" stroke="#334155" strokeWidth="2" />
+              <line x1="90" y1="50" x2="110" y2="50" stroke="#334155" strokeWidth="3" />
+
+              {/* Lower Antennas (Tier 3) */}
+              <rect x="76" y="145" width="6" height="20" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+              <rect x="118" y="145" width="6" height="20" rx="1" fill="#cbd5e1" stroke="#94a3b8" strokeWidth="1" />
+              <rect x="97" y="150" width="6" height="15" rx="1" fill="#94a3b8" /> {/* RRU */}
+
+              {/* Middle Antennas (Tier 2) */}
+              <rect x="80" y="85" width="7" height="22" rx="1" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="1" />
+              <rect x="113" y="85" width="7" height="22" rx="1" fill="#e2e8f0" stroke="#cbd5e1" strokeWidth="1" />
+              <rect x="91" y="90" width="5" height="12" rx="1" fill="#64748b" /> {/* RRU */}
+              <rect x="104" y="90" width="5" height="12" rx="1" fill="#64748b" /> {/* RRU */}
+
+              {/* Top Tier (Tier 1) - Main 3-Sector Antennas */}
+              {/* Back/Side Sector 1 */}
+              <rect x="88" y="25" width="8" height="28" rx="1" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1" transform="rotate(-5 92 39)" />
+              {/* Back/Side Sector 2 */}
+              <rect x="104" y="25" width="8" height="28" rx="1" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1" transform="rotate(5 108 39)" />
+              {/* Front Sector 3 */}
+              <rect x="95" y="28" width="10" height="30" rx="1" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />
+
+              {/* Lightning Rod / Beacon */}
+              <line x1="100" y1="40" x2="100" y2="10" stroke="#94a3b8" strokeWidth="2" />
+              <circle cx="100" cy="10" r="2.5" fill="#ef4444" className="animate-pulse" filter="drop-shadow(0 0 4px #ef4444)" />
               
               {/* Base lights */}
-              <circle cx="80" cy="230" r="1.5" fill="#3b82f6" opacity="0.5" />
-              <circle cx="100" cy="230" r="1.5" fill="#3b82f6" opacity="0.5" />
-              <circle cx="120" cy="230" r="1.5" fill="#3b82f6" opacity="0.5" />
+              <circle cx="85" cy="225" r="1.5" fill="#3b82f6" opacity="0.6" />
+              <circle cx="115" cy="225" r="1.5" fill="#3b82f6" opacity="0.6" />
             </g>
           </svg>
+         </div>
         </div>
 
         {/* Footer Metrics - Split to left and right so tower is visible */}

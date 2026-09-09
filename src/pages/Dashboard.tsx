@@ -264,9 +264,10 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                       <span>Progress</span>
                       <span className={currentColors.text}>{rp.percentage.toFixed(1)}%</span>
                     </div>
-                    <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-                       <div className={`h-full ${currentColors.bg} transition-all duration-1000 relative shadow-[0_0_8px_rgba(0,0,0,0.5)]`} style={{ width: `${rp.percentage}%` }}>
-                          <div className="absolute right-0 top-0 bottom-0 w-4 bg-white/50 blur-[2px]"></div>
+                    <div className="w-full bg-muted/40 h-1.5 rounded-full relative mt-2">
+                       <div className={`h-full ${currentColors.bg} rounded-full transition-all duration-1000 relative`} style={{ width: `${rp.percentage}%` }}>
+                          {/* Glowing Dot at tip */}
+                          <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full ${currentColors.text}`} style={{ boxShadow: '0 0 10px 2px currentColor' }}></div>
                        </div>
                     </div>
                   </div>
@@ -293,11 +294,11 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} strokeOpacity={0.2} />
                   <XAxis dataKey="year" axisLine={false} tickLine={false} stroke={axisColor} tick={{fontSize: 11}} />
                   <YAxis axisLine={false} tickLine={false} stroke={axisColor} tick={{fontSize: 11}} />
                   <RechartsTooltip cursor={{stroke: cursorColor, strokeWidth: 1}} contentStyle={tooltipStyle} />
-                  <Area type="monotone" dataKey="totalSites" name="Total Sites" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorSites)" />
+                  <Area type="monotone" dataKey="totalSites" name="Total Sites" stroke="#60a5fa" strokeWidth={4} fillOpacity={1} fill="url(#colorSites)" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
