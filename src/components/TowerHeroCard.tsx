@@ -33,7 +33,7 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
         ref={cardRef}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="relative w-full h-[280px] rounded-[1.5rem] flex flex-col justify-between overflow-hidden shadow-2xl antialiased group"
+        className="relative w-full min-h-[380px] md:min-h-[280px] rounded-[1.5rem] flex flex-col justify-between overflow-hidden shadow-2xl antialiased group"
         style={{ 
           background: "linear-gradient(145deg, rgba(30,41,59,0.8) 0%, rgba(15,23,42,0.95) 100%)",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.1)"
@@ -123,50 +123,50 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
          </div>
         </div>
 
-        {/* Footer Metrics - Split to left and right so tower is visible */}
-        <div className="absolute inset-x-0 bottom-6 z-20 px-8 flex justify-between items-end pointer-events-none">
+        {/* Footer Metrics - Split to left and right so tower is visible on desktop, wraps on mobile */}
+        <div className="absolute inset-x-0 bottom-4 md:bottom-6 z-20 px-4 md:px-8 flex flex-wrap justify-between items-end pointer-events-none gap-y-3">
           {/* Left Side Metrics */}
-          <div className="flex gap-4 pointer-events-auto">
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 border border-white/10 flex justify-between items-center shadow-lg cursor-default w-48 sm:w-64 hover:bg-white/[0.05] transition-colors group">
+          <div className="flex w-full md:w-auto gap-2 md:gap-4 pointer-events-auto">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-white/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Sites</span>
-                <span className="text-3xl font-black text-white">{totalSites}</span>
+                <span className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Sites</span>
+                <span className="text-xl md:text-3xl font-black text-white">{totalSites}</span>
               </div>
-              <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
-                <RadioTower className="w-5 h-5 text-gray-300" />
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors">
+                <RadioTower className="w-4 h-4 md:w-5 md:h-5 text-gray-300" />
               </div>
             </div>
             
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 border border-red-500/10 flex justify-between items-center shadow-lg cursor-default w-48 sm:w-64 hover:bg-white/[0.05] transition-colors group">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-red-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-red-400 uppercase tracking-wider mb-1">Sites Down</span>
-                <span className="text-3xl font-black text-red-400">{sitesDown}</span>
+                <span className="text-[9px] md:text-[11px] font-bold text-red-400 uppercase tracking-wider mb-1">Sites Down</span>
+                <span className="text-xl md:text-3xl font-black text-red-400">{sitesDown}</span>
               </div>
-              <div className="h-10 w-10 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors">
-                <AlertTriangle className="w-5 h-5 text-red-400" />
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors">
+                <AlertTriangle className="w-4 h-4 md:w-5 md:h-5 text-red-400" />
               </div>
             </div>
           </div>
           
           {/* Right Side Metrics */}
-          <div className="flex gap-4 pointer-events-auto">
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 border border-blue-500/10 flex justify-between items-center shadow-lg cursor-default w-48 sm:w-64 hover:bg-white/[0.05] transition-colors group">
+          <div className="flex w-full md:w-auto gap-2 md:gap-4 pointer-events-auto">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-blue-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-blue-400 uppercase tracking-wider mb-1">Single-Band</span>
-                <span className="text-3xl font-black text-white">{singleBandSites}</span>
+                <span className="text-[9px] md:text-[11px] font-bold text-blue-400 uppercase tracking-wider mb-1">Single-Band</span>
+                <span className="text-xl md:text-3xl font-black text-white">{singleBandSites}</span>
               </div>
-              <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
-                <Signal className="w-5 h-5 text-blue-400" />
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+                <Signal className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
               </div>
             </div>
             
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-2xl p-4 border border-green-500/10 flex justify-between items-center shadow-lg cursor-default w-48 sm:w-64 hover:bg-white/[0.05] transition-colors group">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-green-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold text-green-400 uppercase tracking-wider mb-1">Dual-Band</span>
-                <span className="text-3xl font-black text-white">{dualBandSites}</span>
+                <span className="text-[9px] md:text-[11px] font-bold text-green-400 uppercase tracking-wider mb-1">Dual-Band</span>
+                <span className="text-xl md:text-3xl font-black text-white">{dualBandSites}</span>
               </div>
-              <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
-                <Layers className="w-5 h-5 text-green-400" />
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
+                <Layers className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
               </div>
             </div>
           </div>

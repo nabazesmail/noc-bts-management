@@ -16,7 +16,8 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   const [allSites, setAllSites] = useState<Site[]>([]);
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [b20StatusFilter, setB20StatusFilter] = useState("All");
+  const [b7StatusFilter, setB7StatusFilter] = useState("All");
   const [bandFilter, setBandFilter] = useState("All");
   const [powerFilter, setPowerFilter] = useState("All");
   const [yearFilter, setYearFilter] = useState("All");
@@ -28,7 +29,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   const [deleteSiteId, setDeleteSiteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
-  const [toggleSiteTarget, setToggleSiteTarget] = useState<Site | null>(null);
+  const [toggleSiteTarget, setToggleSiteTarget] = useState<{ site: Site, band: 'B20' | 'B7' } | null>(null);
   const toast = useToast();
   const pageSize = 50;
 
@@ -75,43 +76,82 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     }
   };
 
-  const getSiteStatus = (site: Site) => {
+  const getBandStatus = (site: Site, band: 'B20' | 'B7') => {
+    const enb = (band === 'B20' ? site.enodb_20 : site.enodb_7)?.toLowerCase() || '';
+    const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase() || '';
+    const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase() || '';
     const comm = site.comments?.toLowerCase() || '';
-    const enb20 = site.enodb_20?.toLowerCase() || '';
-    const enb7 = site.enodb_7?.toLowerCase() || '';
 
-    if (comm.includes('dismantled')) return "Dismantled";
-    if (comm.includes('out of service') || enb20.includes('out of service') || enb7.includes('out of service')) return "Out of Service";
-    if (comm.includes('turned off') || comm.includes('off air') || comm.includes('stolen')) return "Off-Air";
-      
+    const exists = !!(enb && enb !== '-') || !!(ip && ip !== '-') || !!(date && date !== '-');
+    if (!exists) return null;
+
+    if (comm.includes('dismantled')) return "Off-Air (Dismantled)";
+    if (comm.includes('out of service') || enb.includes('out of service')) return "Off-Air (Out of Service)";
+    if (enb.includes('not on air') || enb.includes('off air') || comm.includes('turned off') || comm.includes('off air') || comm.includes('stolen')) return "Off-Air";
+
     return "On-Air";
+  };
+
+  const getSiteStatus = (site: Site) => {
+    const b20 = getBandStatus(site, 'B20');
+    const b7 = getBandStatus(site, 'B7');
+    if (b20 === "On-Air" || b7 === "On-Air") return "On-Air";
+    if (b20) return b20;
+    if (b7) return b7;
+    return "Off-Air";
   };
 
   const confirmToggleStatus = async () => {
     if (!toggleSiteTarget) return;
-    const site = toggleSiteTarget;
-    const currentStatus = getSiteStatus(site);
-    
-    let newComment = site.comments || '';
+    const { site, band } = toggleSiteTarget;
+    const currentStatus = getBandStatus(site, band);
+    const enbKey = band === 'B20' ? 'enodb_20' : 'enodb_7';
+    let currentEnb = site[enbKey as keyof Site] as string || '';
+    let newEnb = currentEnb;
 
     if (currentStatus === "On-Air") {
-      newComment = `[Off Air] ${newComment}`.trim();
+      newEnb = `[Off Air] ${currentEnb}`.trim();
     } else {
-      newComment = newComment
+      newEnb = currentEnb
         .replace(/\[?off air\]?/gi, '')
         .replace(/\[?turned off\]?/gi, '')
-        .replace(/\[?stolen\]?/gi, '')
-        .replace(/out of service/gi, '')
-        .replace(/dismantled/gi, '')
         .trim();
+
+      const testEnb = newEnb.toLowerCase();
+      const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase() || '';
+      const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase() || '';
+      const comm = site.comments?.toLowerCase() || '';
+      
+      const exists = !!(newEnb && newEnb !== '-') || !!(ip && ip !== '-') || !!(date && date !== '-');
+      
+      if (!exists) {
+        toast.error(`Cannot turn On-Air: ${band} has no data.`);
+        setToggleSiteTarget(null);
+        return;
+      }
+      if (testEnb.includes('out of service') || testEnb.includes('not on air')) {
+        toast.error(`Cannot turn On-Air: ${band} base status is Out of Service or Not On-Air.`);
+        setToggleSiteTarget(null);
+        return;
+      }
+      if (comm.includes('dismantled')) {
+        toast.error(`Cannot turn On-Air: Site is dismantled.`);
+        setToggleSiteTarget(null);
+        return;
+      }
+      if (comm.includes('off air') || comm.includes('turned off') || comm.includes('stolen')) {
+        toast.error(`Cannot turn On-Air: Site comments globally mark it as Off-Air.`);
+        setToggleSiteTarget(null);
+        return;
+      }
     }
 
     try {
-      const { error } = await api.put(`/sites/${site.id}`, { comments: newComment });
+      const { error } = await api.put(`/sites/${site.id}`, { [enbKey]: newEnb });
       
       if (error) throw error;
-      toast.success("Site status updated successfully.");
-      setAllSites(prev => prev.map(s => s.id === site.id ? { ...s, comments: newComment } : s));
+      toast.success(`${band} status updated successfully.`);
+      setAllSites(prev => prev.map(s => s.id === site.id ? { ...s, [enbKey]: newEnb } : s));
       setToggleSiteTarget(null);
     } catch (err: any) {
       toast.error("Failed to update status: " + err.message);
@@ -119,23 +159,8 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   };
 
   const getBandType = (site: Site) => {
-    const status = getSiteStatus(site);
-    if (status !== "On-Air") return "-";
-
-    const checkBand = (enodb: string | null, ip: string | null, date: string | null) => {
-      const e = enodb?.toLowerCase().trim() || '';
-      const i = ip?.toLowerCase().trim() || '';
-      const d = date?.toLowerCase().trim() || '';
-      
-      if (e === 'not on air' || e === 'out of service' || e === '-') return false;
-      if (e) return true;
-      if (i && i !== '-') return true;
-      if (d && d !== '-') return true;
-      return false;
-    };
-
-    const hasB20 = checkBand(site.enodb_20, site.band_20_ip, site.b20_on_air_date);
-    const hasB7 = checkBand(site.enodb_7, site.band_7_ip, site.b7_on_air_date);
+    const hasB20 = !!getBandStatus(site, 'B20');
+    const hasB7 = !!getBandStatus(site, 'B7');
     
     if (hasB20 && hasB7) return "Dual-Band";
     if (hasB20) return "Single-Band (B20)";
@@ -179,10 +204,18 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     const matchesRegion = regionFilter === "All" || 
                           (regionFilter === "Road Coverage" ? isRoadCoverage : (site.region && site.region.toString() === regionFilter));
     
-    const siteStatus = getSiteStatus(site);
-    const matchesStatus = statusFilter === "All" || 
-                          (statusFilter === "Off-Air" && siteStatus !== "On-Air") || 
-                          siteStatus === statusFilter;
+    const b20Status = getBandStatus(site, 'B20');
+    const b7Status = getBandStatus(site, 'B7');
+    
+    const matchesB20Status = b20StatusFilter === "All" || 
+                          (b20StatusFilter === "Off-Air" && b20Status?.startsWith("Off-Air")) || 
+                          b20Status === b20StatusFilter;
+                          
+    const matchesB7Status = b7StatusFilter === "All" || 
+                          (b7StatusFilter === "Off-Air" && b7Status?.startsWith("Off-Air")) || 
+                          b7Status === b7StatusFilter;
+
+    const matchesStatus = matchesB20Status && matchesB7Status;
 
     const bandType = getBandType(site);
     const isCombined = bandType === "Dual-Band" && !!site.combined_both_bands && site.combined_both_bands.trim() !== '' && site.combined_both_bands.trim() !== '-';
@@ -330,14 +363,28 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
         <div className="w-full sm:w-36">
           <select
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
+            value={b20StatusFilter}
+            onChange={(e) => { setB20StatusFilter(e.target.value); setPage(0); }}
           >
-            <option value="All">All Status</option>
+            <option value="All">B20 Status</option>
             <option value="On-Air">On-Air (Working)</option>
-            <option value="Off-Air">Off-Air (Not Working)</option>
-            <option value="Out of Service">Out of Service</option>
-            <option value="Dismantled">Dismantled</option>
+            <option value="Off-Air">Off-Air (Any Reason)</option>
+            <option value="Off-Air (Dismantled)">Off-Air (Dismantled)</option>
+            <option value="Off-Air (Out of Service)">Off-Air (Out of Service)</option>
+          </select>
+        </div>
+
+        <div className="w-full sm:w-36">
+          <select
+            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
+            value={b7StatusFilter}
+            onChange={(e) => { setB7StatusFilter(e.target.value); setPage(0); }}
+          >
+            <option value="All">B7 Status</option>
+            <option value="On-Air">On-Air (Working)</option>
+            <option value="Off-Air">Off-Air (Any Reason)</option>
+            <option value="Off-Air (Dismantled)">Off-Air (Dismantled)</option>
+            <option value="Off-Air (Out of Service)">Off-Air (Out of Service)</option>
           </select>
         </div>
 
@@ -432,14 +479,33 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
                     <td className="p-4 text-gray-700 dark:text-gray-300">{site.site_name}</td>
                     <td className="p-4 text-gray-700 dark:text-gray-300">{site.region}</td>
                     <td className="p-4">
-                      <Badge
-                        onClick={() => setToggleSiteTarget(site)}
-                        variant={siteStatus === "On-Air" ? "default" : "destructive"}
-                        className={`cursor-pointer transition-transform hover:scale-105 active:scale-95 ${siteStatus === "On-Air" ? "bg-green-500 hover:bg-green-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}`}
-                        title="Click to toggle status"
-                      >
-                        {siteStatus}
-                      </Badge>
+                      <div className="flex flex-col gap-1 items-start">
+                        {getBandStatus(site, 'B20') && (
+                          <Badge
+                            onClick={() => setToggleSiteTarget({ site, band: 'B20' })}
+                            variant={getBandStatus(site, 'B20') === "On-Air" ? "default" : "destructive"}
+                            className={`cursor-pointer transition-transform hover:scale-105 active:scale-95 ${getBandStatus(site, 'B20') === "On-Air" ? "bg-green-500 hover:bg-green-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}`}
+                            title="Toggle B20 Status"
+                          >
+                            B20: {getBandStatus(site, 'B20')}
+                          </Badge>
+                        )}
+                        {getBandStatus(site, 'B7') && (
+                          <Badge
+                            onClick={() => setToggleSiteTarget({ site, band: 'B7' })}
+                            variant={getBandStatus(site, 'B7') === "On-Air" ? "default" : "destructive"}
+                            className={`cursor-pointer transition-transform hover:scale-105 active:scale-95 ${getBandStatus(site, 'B7') === "On-Air" ? "bg-green-500 hover:bg-green-600 text-white" : "bg-red-500 hover:bg-red-600 text-white"}`}
+                            title="Toggle B7 Status"
+                          >
+                            B7: {getBandStatus(site, 'B7')}
+                          </Badge>
+                        )}
+                        {!getBandStatus(site, 'B20') && !getBandStatus(site, 'B7') && (
+                          <Badge variant="outline" className="text-gray-500">
+                            Unknown
+                          </Badge>
+                        )}
+                      </div>
                     </td>
                     <td className="p-4">
                       {bandType !== "-" && (
@@ -561,9 +627,9 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
       {toggleSiteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 border border-gray-200 dark:border-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Change Site Status?</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Change {toggleSiteTarget.band} Status?</h3>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
-              Are you sure you want to mark this site as {getSiteStatus(toggleSiteTarget) === "On-Air" ? "Off-Air" : "On-Air"}?
+              Are you sure you want to mark {toggleSiteTarget.band} as {getBandStatus(toggleSiteTarget.site, toggleSiteTarget.band) === "On-Air" ? "Off-Air" : "On-Air"}?
             </p>
             <div className="flex justify-end gap-3">
               <button 
@@ -574,9 +640,9 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
               </button>
               <button 
                 onClick={confirmToggleStatus}
-                className={`px-4 py-2 text-white rounded-md text-sm font-medium transition-colors ${getSiteStatus(toggleSiteTarget) === "On-Air" ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
+                className={`px-4 py-2 text-white rounded-md text-sm font-medium transition-colors ${getBandStatus(toggleSiteTarget.site, toggleSiteTarget.band) === "On-Air" ? "bg-red-600 hover:bg-red-700" : "bg-green-600 hover:bg-green-700"}`}
               >
-                Confirm {getSiteStatus(toggleSiteTarget) === "On-Air" ? "Off-Air" : "On-Air"}
+                Confirm {getBandStatus(toggleSiteTarget.site, toggleSiteTarget.band) === "On-Air" ? "Off-Air" : "On-Air"}
               </button>
             </div>
           </div>

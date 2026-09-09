@@ -139,6 +139,22 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
     });
   };
 
+  const getBandStatus = (site: any, band: 'B20' | 'B7') => {
+    const enb = (band === 'B20' ? site.enodb_20 : site.enodb_7)?.toLowerCase() || '';
+    const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase() || '';
+    const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase() || '';
+    const comm = site.comments?.toLowerCase() || '';
+
+    const exists = !!(enb && enb !== '-') || !!(ip && ip !== '-') || !!(date && date !== '-');
+    if (!exists) return null;
+
+    if (comm.includes('dismantled')) return "Off-Air (Dismantled)";
+    if (comm.includes('out of service') || enb.includes('out of service')) return "Off-Air (Out of Service)";
+    if (enb.includes('not on air') || enb.includes('off air') || comm.includes('turned off') || comm.includes('off air') || comm.includes('stolen')) return "Off-Air";
+
+    return "On-Air";
+  };
+
   // Helper to calculate distance in km between two lat/lng coordinates (Haversine formula)
   const getDistanceFromLatLonInKm = (lat1: number, lon1: number, lat2: number, lon2: number) => {
     const R = 6371; // Radius of the earth in km
@@ -248,12 +264,21 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
                     </h3>
                     <p className="text-xs text-gray-600">Code: {site.site_code}</p>
                     <p className="text-xs text-gray-600">Region: {site.region}</p>
-                    <p className="text-xs font-semibold mt-2">
-                      Status:{" "}
-                      {site.b20_on_air_date || site.b7_on_air_date
-                        ? "On-Air"
-                        : "Off-Air"}
-                    </p>
+                    <div className="mt-2 flex flex-col gap-1">
+                      {getBandStatus(site, 'B20') && (
+                        <p className="text-xs font-semibold">
+                          B20: <span className={getBandStatus(site, 'B20') === "On-Air" ? "text-green-600" : "text-red-600"}>{getBandStatus(site, 'B20')}</span>
+                        </p>
+                      )}
+                      {getBandStatus(site, 'B7') && (
+                        <p className="text-xs font-semibold">
+                          B7: <span className={getBandStatus(site, 'B7') === "On-Air" ? "text-green-600" : "text-red-600"}>{getBandStatus(site, 'B7')}</span>
+                        </p>
+                      )}
+                      {!getBandStatus(site, 'B20') && !getBandStatus(site, 'B7') && (
+                        <p className="text-xs font-semibold text-gray-500">Status Unknown</p>
+                      )}
+                    </div>
                     <Link 
                       to={`/sites/${site.id}`}
                       className="mt-3 inline-block text-xs font-semibold text-blue-600 hover:text-blue-800 underline"

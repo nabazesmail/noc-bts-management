@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Profile } from "@/types";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Plus, X } from "lucide-react";
 import { api } from "@/lib/api";
 import Map from "@/components/Map";
 
@@ -13,13 +13,17 @@ export default function SiteLocations({
   const [sites, setSites] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [b20StatusFilter, setB20StatusFilter] = useState("All");
+  const [b7StatusFilter, setB7StatusFilter] = useState("All");
   const [bandFilter, setBandFilter] = useState("All");
   const [yearFilter, setYearFilter] = useState("All");
   const [monthFilter, setMonthFilter] = useState("All");
   const [tickets, setTickets] = useState<any[]>([]);
   const [ticketVisibility, setTicketVisibility] = useState("all"); // hidden, open, closed, all
   const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newLocation, setNewLocation] = useState({ name: "", region: "", latitude: "", longitude: "" });
 
   // Read coordinates from URL if provided (for zooming from Tickets page)
   const searchParams = new URLSearchParams(window.location.search);
@@ -107,14 +111,72 @@ export default function SiteLocations({
     }
   };
 
+  const handleAddLocation = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newLocation.name || !newLocation.latitude || !newLocation.longitude) {
+      alert("Please fill in the Site Code, Latitude, and Longitude.");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const { error } = await api.post("/site_locations", newLocation);
+      if (error) {
+        alert("Failed to add location: " + error.message);
+      } else {
+        setIsAddModalOpen(false);
+        setNewLocation({ name: "", region: "", latitude: "", longitude: "" });
+        fetchSites();
+      }
+    } catch (error: any) {
+      alert("Error: " + error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getBandStatus = (site: any, band: 'B20' | 'B7') => {
+    const siteComm = site.comments?.toLowerCase() || '';
+    if (siteComm.includes('dismantled')) return "Off-Air (Dismantled)";
+    if (siteComm.includes('out of service') || siteComm.includes('turned off') || siteComm.includes('off air') || siteComm.includes('stolen')) {
+      return "Off-Air (Site Level)";
+    }
+
+    const enodb = band === 'B20' ? (site.enodb_20 || '') : (site.enodb_7 || '');
+    const ip = band === 'B20' ? (site.band_20_ip || '') : (site.band_7_ip || '');
+    const date = band === 'B20' ? (site.b20_on_air_date || '') : (site.b7_on_air_date || '');
+    
+    const e = enodb.toLowerCase().trim();
+    if (e.includes('dismantled')) return "Off-Air (Dismantled)";
+    if (e.includes('out of service')) return "Off-Air (Out of Service)";
+    if (e.includes('not on air') || e.includes('off air') || e === '-') {
+      if ((!ip || ip === '-') && (!date || date === '-')) {
+        return "Not On-Air (Missing Data)";
+      }
+      return "Off-Air"; 
+    }
+
+    if (e || (ip && ip !== '-') || (date && date !== '-')) {
+      return "On-Air";
+    }
+
+    return "Not On-Air (Missing Data)";
+  };
+
   const getSiteStatus = (site: any) => {
     const comm = site.comments?.toLowerCase() || '';
     const enb20 = site.enodb_20?.toLowerCase() || '';
     const enb7 = site.enodb_7?.toLowerCase() || '';
 
-    if (comm.includes('dismantled')) return "Dismantled";
-    if (comm.includes('out of service') || enb20.includes('out of service') || enb7.includes('out of service')) return "Out of Service";
-    if (comm.includes('turned off') || comm.includes('off air') || comm.includes('stolen')) return "Off-Air";
+    if (comm.includes('dismantled')) {
+      return "Off-Air (Dismantled)";
+    }
+    if (comm.includes('out of service') || enb20.includes('out of service') || enb7.includes('out of service')) {
+      return "Off-Air (Out of Service)";
+    }
+    if (comm.includes('turned off') || comm.includes('off air') || comm.includes('stolen')) {
+      return "Off-Air";
+    }
       
     return "On-Air";
   };
@@ -191,10 +253,18 @@ export default function SiteLocations({
     const matchesRegion = regionFilter === "All" || 
                           (regionFilter === "Road Coverage" ? isRoadCoverage : (site.region && site.region.toString() === regionFilter));
     
-    const siteStatus = getSiteStatus(site);
-    const matchesStatus = statusFilter === "All" || 
-                          (statusFilter === "Off-Air" && siteStatus !== "On-Air") || 
-                          siteStatus === statusFilter;
+    const b20Status = getBandStatus(site, 'B20');
+    const b7Status = getBandStatus(site, 'B7');
+    
+    const matchesB20Status = b20StatusFilter === "All" || 
+                          (b20StatusFilter === "Off-Air" && b20Status?.startsWith("Off-Air")) || 
+                          b20Status === b20StatusFilter;
+                          
+    const matchesB7Status = b7StatusFilter === "All" || 
+                          (b7StatusFilter === "Off-Air" && b7Status?.startsWith("Off-Air")) || 
+                          b7Status === b7StatusFilter;
+
+    const matchesStatus = matchesB20Status && matchesB7Status;
 
     const bandType = getBandType(site);
     const isCombined = bandType === "Dual-Band" && !!site.combined_both_bands && site.combined_both_bands.trim() !== '' && site.combined_both_bands.trim() !== '-';
@@ -275,6 +345,14 @@ export default function SiteLocations({
             />
           </div>
 
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Add Location
+          </button>
+
           <select
             className="flex h-10 w-full sm:w-36 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
             value={regionFilter}
@@ -291,14 +369,26 @@ export default function SiteLocations({
 
           <select
             className="flex h-10 w-full sm:w-36 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            value={b20StatusFilter}
+            onChange={(e) => setB20StatusFilter(e.target.value)}
           >
-            <option value="All">All Status</option>
+            <option value="All">B20 Status</option>
             <option value="On-Air">On-Air (Working)</option>
-            <option value="Off-Air">Off-Air (Not Working)</option>
-            <option value="Out of Service">Out of Service</option>
-            <option value="Dismantled">Dismantled</option>
+            <option value="Off-Air">Off-Air (Any Reason)</option>
+            <option value="Off-Air (Dismantled)">Off-Air (Dismantled)</option>
+            <option value="Off-Air (Out of Service)">Off-Air (Out of Service)</option>
+          </select>
+
+          <select
+            className="flex h-10 w-full sm:w-36 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
+            value={b7StatusFilter}
+            onChange={(e) => setB7StatusFilter(e.target.value)}
+          >
+            <option value="All">B7 Status</option>
+            <option value="On-Air">On-Air (Working)</option>
+            <option value="Off-Air">Off-Air (Any Reason)</option>
+            <option value="Off-Air (Dismantled)">Off-Air (Dismantled)</option>
+            <option value="Off-Air (Out of Service)">Off-Air (Out of Service)</option>
           </select>
 
           <select
@@ -356,6 +446,85 @@ export default function SiteLocations({
       <div className="flex-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden shadow-sm relative">
         <Map sites={mapData} loading={loading} forceCenter={forceCenter} forceZoom={forceZoom} />
       </div>
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-background border border-border rounded-lg shadow-xl w-full max-w-md overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h3 className="text-lg font-semibold">Add Site Location</h3>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-1 hover:bg-muted rounded-full transition-colors text-muted-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleAddLocation} className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Site Code *</label>
+                <Input
+                  required
+                  placeholder="e.g. AM-SUL#1"
+                  value={newLocation.name}
+                  onChange={e => setNewLocation({...newLocation, name: e.target.value})}
+                />
+                <p className="text-xs text-muted-foreground mt-1">Must exactly match the Site Code in the directory</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Region</label>
+                <select
+                  className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={newLocation.region}
+                  onChange={e => setNewLocation({...newLocation, region: e.target.value})}
+                >
+                  <option value="">Select Region</option>
+                  <option value="1">Region 1</option>
+                  <option value="2">Region 2</option>
+                  <option value="3">Region 3</option>
+                  <option value="4">Region 4</option>
+                  <option value="RC">RC</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Latitude *</label>
+                  <Input
+                    required
+                    placeholder="35.xxxx"
+                    value={newLocation.latitude}
+                    onChange={e => setNewLocation({...newLocation, latitude: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Longitude *</label>
+                  <Input
+                    required
+                    placeholder="45.xxxx"
+                    value={newLocation.longitude}
+                    onChange={e => setNewLocation({...newLocation, longitude: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2 border border-border rounded-md text-sm font-medium hover:bg-muted transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  {isSubmitting ? "Adding..." : "Add Location"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

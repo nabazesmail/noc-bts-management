@@ -82,10 +82,24 @@ export default function AuditHistory({}: AuditHistoryProps) {
       const v = (val || '').trim();
       const o = (otherVal || '').trim();
       
-      // If this value is empty, but the opposite value contains "Off Air", 
-      // logically this empty state represents "[On Air]" for the site's status.
       if (v === '' && o.toLowerCase().includes('off air')) {
         result = '[On Air]';
+      }
+    }
+
+    if (field === 'enodb_20' || field === 'enodb_7') {
+      const v = (val || '').trim();
+      const o = (otherVal || '').trim();
+      
+      const vNum = v.replace(/\[?off air\]?/gi, '').trim();
+      const oNum = o.replace(/\[?off air\]?/gi, '').trim();
+
+      if (vNum === oNum && vNum !== '') {
+        if (v.toLowerCase().includes('off air')) {
+          result = "Off-Air";
+        } else {
+          result = "On-Air";
+        }
       }
     }
 
