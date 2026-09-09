@@ -473,7 +473,7 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4 h-full flex flex-col items-center justify-center text-green-600 text-center">
+                  <div className="bg-green-500/5 border border-green-500/20 rounded-lg p-4 flex flex-col items-center justify-center text-green-600 text-center lg:col-span-3 lg:h-[400px]">
                     <CheckCircle2 className="w-12 h-12 mb-3 opacity-50" />
                     <h3 className="font-semibold text-lg">Perfect Score!</h3>
                     <p className="text-sm opacity-80 mt-1">No SLAs were missed in this period.</p>
