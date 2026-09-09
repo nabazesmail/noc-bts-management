@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { SlaTracking } from "../types";
 import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2, Download } from "lucide-react";
-import { isToday, isThisWeek, format, startOfWeek, endOfWeek, parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay } from "date-fns";
+import { isToday, isThisWeek, format, startOfWeek, endOfWeek, parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay, subDays } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
 import ExportDataModal from "../components/ExportDataModal";
@@ -97,6 +97,10 @@ export default function SlaTrackingPage() {
     let nocTodayTotal = 0, nocTodayMet = 0, nocWeekTotal = 0, nocWeekMet = 0;
     let siteTodayTotal = 0, siteTodayMet = 0, siteWeekTotal = 0, siteWeekMet = 0;
 
+    const now = new Date();
+    const sevenDaysAgoStart = startOfDay(subDays(now, 6));
+    const endOfToday = endOfDay(now);
+
     data.forEach(item => {
       if (!item.start_date) return;
       const dateMs = parseSiteDate(item.start_date);
@@ -104,7 +108,7 @@ export default function SlaTrackingPage() {
       
       const date = new Date(dateMs);
       const today = isToday(date);
-      const thisWeek = isThisWeek(date, { weekStartsOn: 1 });
+      const thisWeek = (isAfter(date, sevenDaysAgoStart) || isEqual(date, sevenDaysAgoStart)) && (isBefore(date, endOfToday) || isEqual(date, endOfToday));
 
       const nocStatus = String(item.noc_sla_status || item.noc_sla || '');
       if (nocStatus && nocStatus.toLowerCase() !== 'na' && nocStatus.toLowerCase() !== 'n/a' && nocStatus !== '-') {
@@ -298,8 +302,8 @@ export default function SlaTrackingPage() {
         {(() => {
           const now = new Date();
           const todayStr = format(now, 'd MMM');
-          const weekStart = format(startOfWeek(now, { weekStartsOn: 1 }), 'd MMM');
-          const weekEnd = format(endOfWeek(now, { weekStartsOn: 1 }), 'd MMM');
+          const weekStart = format(subDays(now, 6), 'd MMM');
+          const weekEnd = format(now, 'd MMM');
 
           return (
             <>
