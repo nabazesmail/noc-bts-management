@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { X, Download, FileSpreadsheet, AlertCircle } from 'lucide-react';
 
 interface ExportDataModalProps {
@@ -20,8 +19,8 @@ export default function ExportDataModal({ isOpen, onClose, onExport, title }: Ex
     onClose();
   };
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
       <div className="bg-background border border-border rounded-xl shadow-xl w-full max-w-md overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -81,7 +80,6 @@ export default function ExportDataModal({ isOpen, onClose, onExport, title }: Ex
           </button>
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }

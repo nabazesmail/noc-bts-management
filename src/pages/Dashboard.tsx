@@ -229,10 +229,16 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
 
           {/* Region Cards */}
           {regionProgress.map((rp, index) => {
-            const colors = ['blue', 'green', 'sky', 'purple', 'orange', 'teal', 'rose'];
-            const cName = colors[index % colors.length];
-            const colorClass = `bg-${cName}-500`;
-            const textColorClass = `text-${cName}-500`;
+            const colorMaps = [
+              { bg: 'bg-blue-500', text: 'text-blue-500' },
+              { bg: 'bg-green-500', text: 'text-green-500' },
+              { bg: 'bg-sky-500', text: 'text-sky-500' },
+              { bg: 'bg-purple-500', text: 'text-purple-500' },
+              { bg: 'bg-orange-500', text: 'text-orange-500' },
+              { bg: 'bg-teal-500', text: 'text-teal-500' },
+              { bg: 'bg-rose-500', text: 'text-rose-500' }
+            ];
+            const currentColors = colorMaps[index % colorMaps.length];
             
             return (
              <Card key={rp.region} className="bg-card border-border relative overflow-hidden modern-card group hover:border-muted-foreground/30 transition-colors">
@@ -244,7 +250,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                <CardContent className="p-4 flex flex-col h-full justify-between relative z-10 min-h-[120px]">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                       <div className={`px-2 py-0.5 rounded-md text-[9px] font-black text-white shadow-sm tracking-wider ${colorClass}`}>
+                       <div className={`text-[10px] font-black tracking-widest uppercase ${currentColors.text}`}>
                          REGION {rp.region === 'RC' ? 'RC' : (rp.region ? `${rp.region}` : 'Unknown')}
                        </div>
                        <div className="text-right">
@@ -256,10 +262,10 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                   <div className="mt-3">
                     <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5 tracking-wider">
                       <span>Progress</span>
-                      <span className={textColorClass}>{rp.percentage.toFixed(1)}%</span>
+                      <span className={currentColors.text}>{rp.percentage.toFixed(1)}%</span>
                     </div>
                     <div className="w-full bg-muted h-1 rounded-full overflow-hidden">
-                       <div className={`h-full ${colorClass} transition-all duration-1000 relative shadow-[0_0_8px_rgba(0,0,0,0.5)]`} style={{ width: `${rp.percentage}%` }}>
+                       <div className={`h-full ${currentColors.bg} transition-all duration-1000 relative shadow-[0_0_8px_rgba(0,0,0,0.5)]`} style={{ width: `${rp.percentage}%` }}>
                           <div className="absolute right-0 top-0 bottom-0 w-4 bg-white/50 blur-[2px]"></div>
                        </div>
                     </div>

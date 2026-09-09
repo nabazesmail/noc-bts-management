@@ -149,7 +149,7 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
       {/* Main Content */}
       <main className="flex-1 h-full overflow-y-auto bg-background transition-colors relative">
         <div className="p-6 max-w-[1600px] mx-auto min-h-full">
-          <div key={location.pathname} className="animate-fade-in-up h-full">
+          <div key={location.pathname} className="animate-fade-in h-full">
             <Outlet />
           </div>
         </div>

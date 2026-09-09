@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import { X, Calendar, Download, Target, Activity, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { SlaTracking } from '../types';
 import { parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay, format } from 'date-fns';
@@ -196,8 +195,8 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
 
   if (!isOpen) return null;
 
-  return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-auto">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-auto">
       <div className="bg-background border border-border rounded-xl shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/20">
           <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
@@ -534,7 +533,6 @@ export default function SlaReportModal({ isOpen, onClose, data }: SlaReportModal
           )}
         </div>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 }
