@@ -20,7 +20,18 @@ const handleResponse = async (res: Response, endpoint: string) => {
     window.location.href = "/login";
     throw new Error(`Authentication failed (${res.status})`);
   }
-  if (!res.ok) throw new Error(`${res.status} ${endpoint} failed`);
+  if (!res.ok) {
+    let errorMessage = `${res.status} ${endpoint} failed`;
+    try {
+      const errorData = await res.json();
+      if (errorData && errorData.error) {
+        errorMessage = errorData.error;
+      }
+    } catch (e) {
+      // Ignore if response is not JSON
+    }
+    throw new Error(errorMessage);
+  }
   
   // DELETE requests might not return JSON
   if (res.status === 204 || res.headers.get('content-length') === '0') {

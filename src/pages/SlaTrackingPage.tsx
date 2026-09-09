@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { SlaTracking } from "../types";
-import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2, Download } from "lucide-react";
+import { Search, Loader2, Activity, HardDrive, Calendar, Clock, ChevronDown, ChevronUp, Plus, Edit2, Trash2, Download, ClipboardList } from "lucide-react";
 import { isToday, isThisWeek, format, startOfWeek, endOfWeek, parseISO, isAfter, isBefore, isEqual, startOfDay, endOfDay, subDays } from "date-fns";
 import { Link } from "react-router-dom";
 import SlaReportModal from "../components/SlaReportModal";
@@ -186,11 +186,16 @@ export default function SlaTrackingPage() {
   return (
     <div className="p-6 h-full flex flex-col bg-background text-foreground transition-colors overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 shrink-0">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Activity className="h-6 w-6 text-blue-500" /> SLA Tracking
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Daily and Weekly SLA Compliance Reports</p>
+        <div className="flex items-center gap-3">
+          <ClipboardList className="w-10 h-10 text-white drop-shadow-md" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">
+              SLA TRACKING
+            </h1>
+            <p className="text-sm font-medium text-gray-300 dark:text-gray-400 mt-1">
+              Daily and Weekly SLA Compliance Reports
+            </p>
+          </div>
         </div>
         
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">

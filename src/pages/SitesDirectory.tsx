@@ -6,7 +6,7 @@ import { useToast } from "@/components/ToastContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { Search, Plus, Edit2, Trash2, ChevronDown, ChevronUp, Download, RadioTower } from "lucide-react";
 import { parseSiteDate, formatDisplayDate } from "@/lib/utils";
 import ExportDataModal from "../components/ExportDataModal";
 import { downloadCSV } from "../lib/exportUtils";
@@ -306,8 +306,11 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   return (
   <>
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">Site Data</h2>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-3">
+          <RadioTower className="w-10 h-10 text-white drop-shadow-md" />
+          <h2 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">SITE DATA</h2>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={() => setExportOpen(true)}
@@ -333,8 +336,8 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
         title="Export Site Directory Data"
       />
 
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-        <div className="relative w-full max-w-md">
+      <div className="flex flex-row items-center gap-3 overflow-x-auto pb-2 styled-scrollbar w-full">
+        <div className="relative w-64 shrink-0">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
           <Input
             placeholder="Search by Site No, Name, IP, Date..."
@@ -344,7 +347,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
           />
         </div>
         
-        <div className="w-full sm:w-36">
+        <div className="w-32 shrink-0">
           <select
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
             value={regionFilter}
@@ -360,7 +363,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
           </select>
         </div>
 
-        <div className="w-full sm:w-36">
+        <div className="w-36 shrink-0">
           <select
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
             value={b20StatusFilter}
@@ -374,7 +377,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
           </select>
         </div>
 
-        <div className="w-full sm:w-36">
+        <div className="w-36 shrink-0">
           <select
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
             value={b7StatusFilter}
@@ -388,7 +391,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
           </select>
         </div>
 
-        <div className="w-full sm:w-44">
+        <div className="w-36 shrink-0">
           <select
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
             value={bandFilter}
@@ -403,7 +406,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
           </select>
         </div>
 
-        <div className="w-full sm:w-44">
+        <div className="w-40 shrink-0">
           <select
             className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
             value={powerFilter}
@@ -416,7 +419,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
           </select>
         </div>
 
-        <div className="flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 px-3 py-1 w-full sm:w-auto">
+        <div className="flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 px-3 py-1 shrink-0">
           <span className="text-sm font-medium text-gray-500 whitespace-nowrap">On-Air:</span>
           <select
             className="flex h-8 w-24 items-center justify-between rounded-md border border-input bg-background px-2 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"

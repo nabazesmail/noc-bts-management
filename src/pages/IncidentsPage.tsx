@@ -122,14 +122,16 @@ export default function IncidentsPage() {
     <div className="h-[calc(100vh-8rem)] flex flex-col space-y-4">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Flame className="h-8 w-8 text-red-500" />
-            Network Incidents
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm font-medium">
-            Track and analyze network issues, downtime, and maintenance scopes.
-          </p>
+        <div className="flex items-center gap-3">
+          <Flame className="w-10 h-10 text-white drop-shadow-md" />
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">
+              NETWORK INCIDENTS
+            </h1>
+            <p className="text-gray-300 dark:text-gray-400 mt-1 text-sm font-medium">
+              Track and analyze network issues, downtime, and maintenance scopes.
+            </p>
+          </div>
         </div>
         
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">

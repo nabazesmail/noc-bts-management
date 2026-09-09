@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { MapPin } from "lucide-react";
+import { MapPin, Trash2 } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -45,9 +45,10 @@ interface MapProps {
   getMarkerColor?: (site: any) => string;
   forceCenter?: [number, number];
   forceZoom?: number;
+  onDeleteLocation?: (locationId: number) => void;
 }
 
-export default function Map({ sites, loading, renderPopup, getMarkerColor, forceCenter, forceZoom }: MapProps) {
+export default function Map({ sites, loading, renderPopup, getMarkerColor, forceCenter, forceZoom, onDeleteLocation }: MapProps) {
   if (loading) {
     return (
       <div className="h-full w-full flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -259,9 +260,20 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
                   </>
                 ) : (
                   <>
-                    <h3 className="font-bold text-sm mb-1">
-                      {site.site_name || "Unknown Site"}
-                    </h3>
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-bold text-sm mb-1">
+                        {site.site_name || "Unknown Site"}
+                      </h3>
+                      {site.location_id && onDeleteLocation && (
+                        <button 
+                          onClick={() => onDeleteLocation(site.location_id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
+                          title="Delete Location"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-600">Code: {site.site_code}</p>
                     <p className="text-xs text-gray-600">Region: {site.region}</p>
                     <div className="mt-2 flex flex-col gap-1">

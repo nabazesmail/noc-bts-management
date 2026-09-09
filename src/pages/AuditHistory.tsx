@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { Profile } from "../types";
+import { History } from "lucide-react";
 
 interface AuditHistoryProps {
   profile: Profile | null;
@@ -115,17 +116,21 @@ export default function AuditHistory({}: AuditHistoryProps) {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Audit History</h1>
-
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Filter by user email or action..."
-          className="border p-2 rounded w-full max-w-md dark:bg-gray-900 dark:border-gray-800 dark:text-gray-100"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+    <div className="p-6 space-y-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <History className="w-10 h-10 text-white drop-shadow-md" />
+          <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">AUDIT HISTORY</h1>
+        </div>
+        <div className="relative w-full md:w-72">
+          <input
+            type="text"
+            placeholder="Filter by user email or action..."
+            className="border p-2 rounded w-full dark:bg-gray-900 dark:border-gray-800 dark:text-gray-100"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded shadow overflow-x-auto border dark:border-gray-800">

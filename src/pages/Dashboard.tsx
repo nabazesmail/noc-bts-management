@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Profile, Site } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle } from "lucide-react";
+import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle, LayoutDashboard } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -182,14 +182,16 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
     <div className="space-y-3">
       
       {/* Top Header Section */}
-      <div className="border-b border-border pb-3 mb-2 animate-fade-in-up">
-        <h1 className="text-2xl font-bold tracking-tight text-blue-500 uppercase flex items-center gap-2">
-          <Activity className="h-6 w-6 text-blue-400" />
-          NOC Management System
-        </h1>
-        <p className="text-xs font-medium text-blue-600/80 dark:text-blue-400/80 tracking-wide mt-1">
-          Mission Status: Strengthening our network
-        </p>
+      <div className="flex items-center gap-2 mb-4 animate-fade-in-up">
+        <LayoutDashboard className="w-8 h-8 text-white drop-shadow-md" />
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white dark:text-white uppercase">
+            NOC Management System
+          </h1>
+          <p className="text-xs font-medium text-gray-300 dark:text-gray-400 tracking-wide mt-0.5">
+            Mission Status: Strengthening our network
+          </p>
+        </div>
       </div>
 
       {/* 3D Tower Hero */}

@@ -104,7 +104,7 @@ export default function Login() {
         
         {/* Branding Content */}
         <div className="relative z-10 p-12 max-w-xl text-white">
-          <CellTowerLogo className="h-48 w-auto mb-10 filter drop-shadow-2xl" />
+          <img src="/logo-1.png" alt="NOC Logo" className="h-72 w-auto mb-10 mix-blend-screen opacity-90 drop-shadow-2xl" />
           <h1 className="text-5xl font-extrabold mb-6 tracking-tight leading-tight">
             NOC MS <br/>
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 text-3xl">
@@ -135,7 +135,7 @@ export default function Login() {
           
           {/* Mobile Header (Hidden on desktop) */}
           <div className="flex flex-col items-center justify-center lg:hidden mb-12">
-            <CellTowerLogo className="h-36 w-auto mb-6 filter drop-shadow-xl" />
+            <img src="/logo-blue-v2.png" alt="NOC Logo" className="h-48 w-auto mb-6 filter drop-shadow-xl" />
             <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight text-center">NOC MS</h2>
           </div>
 

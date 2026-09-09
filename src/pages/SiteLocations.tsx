@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Profile } from "@/types";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, X } from "lucide-react";
+import { Search, Plus, X, Map as MapIcon } from "lucide-react";
 import { api } from "@/lib/api";
 import Map from "@/components/Map";
 
@@ -24,6 +24,8 @@ export default function SiteLocations({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newLocation, setNewLocation] = useState({ name: "", region: "", latitude: "", longitude: "" });
+  const [deleteLocationId, setDeleteLocationId] = useState<number | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Read coordinates from URL if provided (for zooming from Tickets page)
   const searchParams = new URLSearchParams(window.location.search);
@@ -69,6 +71,7 @@ export default function SiteLocations({
 
             return {
               ...site,
+              location_id: loc?.id,
               // Extract coordinates safely
               latitude: loc?.latitude || loc?.lat || site.latitude || site.lat,
               longitude:
@@ -132,6 +135,28 @@ export default function SiteLocations({
       alert("Error: " + error.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const confirmDeleteLocation = (locationId: number) => {
+    setDeleteLocationId(locationId);
+  };
+
+  const executeDeleteLocation = async () => {
+    if (deleteLocationId === null) return;
+    setIsDeleting(true);
+    try {
+      const { error } = await api.delete(`/site_locations/${deleteLocationId}`);
+      if (error) {
+        alert("Failed to delete location: " + error.message);
+      } else {
+        fetchSites();
+        setDeleteLocationId(null);
+      }
+    } catch (e: any) {
+      alert("Error: " + e.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -331,30 +356,26 @@ export default function SiteLocations({
   return (
     <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <h2 className="text-3xl font-bold tracking-tight">Site Locations</h2>
+        <div className="flex items-center gap-3">
+          <MapIcon className="w-10 h-10 text-white drop-shadow-md" />
+          <h2 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">SITE LOCATIONS</h2>
+        </div>
 
-        <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full md:w-auto">
+        <div className="flex flex-row overflow-x-auto items-center gap-2.5 w-full md:w-auto custom-scrollbar pb-2 md:pb-0">
           {/* Search Bar */}
-          <div className="relative w-full sm:w-64">
+          <div className="relative w-56 sm:w-64 shrink-0">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
             <Input
               placeholder="Search by IP, Date, Name..."
-              className="pl-9 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+              className="pl-9 h-10 bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Add Location
-          </button>
 
           <select
-            className="flex h-10 w-full sm:w-36 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
+            className="flex h-10 w-36 shrink-0 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-900 dark:border-gray-800"
             value={regionFilter}
             onChange={(e) => setRegionFilter(e.target.value)}
           >
@@ -368,7 +389,7 @@ export default function SiteLocations({
           </select>
 
           <select
-            className="flex h-10 w-full sm:w-36 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
+            className="flex h-10 w-36 shrink-0 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-900 dark:border-gray-800"
             value={b20StatusFilter}
             onChange={(e) => setB20StatusFilter(e.target.value)}
           >
@@ -380,7 +401,7 @@ export default function SiteLocations({
           </select>
 
           <select
-            className="flex h-10 w-full sm:w-36 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
+            className="flex h-10 w-36 shrink-0 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-900 dark:border-gray-800"
             value={b7StatusFilter}
             onChange={(e) => setB7StatusFilter(e.target.value)}
           >
@@ -392,7 +413,7 @@ export default function SiteLocations({
           </select>
 
           <select
-            className="flex h-10 w-full sm:w-44 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
+            className="flex h-10 w-36 shrink-0 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 dark:bg-gray-900 dark:border-gray-800"
             value={bandFilter}
             onChange={(e) => setBandFilter(e.target.value)}
           >
@@ -404,34 +425,9 @@ export default function SiteLocations({
             <option value="Single-Band (B7)">Single-Band (B7)</option>
           </select>
 
-          <div className="flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 px-3 py-1 w-full sm:w-auto">
-            <span className="text-sm font-medium text-gray-500 whitespace-nowrap">On-Air:</span>
-            <select
-              className="flex h-8 w-24 items-center justify-between rounded-md border border-input bg-background px-2 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
-              value={yearFilter}
-              onChange={(e) => setYearFilter(e.target.value)}
-            >
-              <option value="All">Year</option>
-              {availableYears.map(year => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
-            
-            <select
-              className="flex h-8 w-32 items-center justify-between rounded-md border border-input bg-background px-2 py-1 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-900 dark:border-gray-800"
-              value={monthFilter}
-              onChange={(e) => setMonthFilter(e.target.value)}
-              disabled={yearFilter === "All"}
-            >
-              <option value="All">Month</option>
-              {months.map((m, i) => (
-                <option key={i} value={i}>{m}</option>
-              ))}
-            </select>
-          </div>
 
           <select
-            className="flex h-10 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-900 dark:border-gray-800"
+            className="flex h-10 shrink-0 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-900 dark:border-gray-800"
             value={ticketVisibility}
             onChange={(e) => setTicketVisibility(e.target.value)}
           >
@@ -440,11 +436,25 @@ export default function SiteLocations({
             <option value="closed">Show Closed Tickets</option>
             <option value="all">Show All Tickets</option>
           </select>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white h-10 px-4 rounded-md text-sm font-medium transition-colors shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+            Add Location
+          </button>
         </div>
       </div>
 
       <div className="flex-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 overflow-hidden shadow-sm relative">
-        <Map sites={mapData} loading={loading} forceCenter={forceCenter} forceZoom={forceZoom} />
+        <Map 
+          sites={mapData} 
+          loading={loading}
+          onDeleteLocation={confirmDeleteLocation}
+          forceCenter={forceCenter}
+          forceZoom={forceZoom}
+        />
       </div>
 
       {isAddModalOpen && (
@@ -522,6 +532,35 @@ export default function SiteLocations({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {deleteLocationId !== null && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-background border border-border rounded-lg shadow-xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold mb-2">Delete Location</h3>
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to remove this location? This action cannot be undone.
+              </p>
+            </div>
+            <div className="flex justify-end gap-3 p-4 bg-muted/40 border-t border-border">
+              <button
+                onClick={() => setDeleteLocationId(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeDeleteLocation}
+                disabled={isDeleting}
+                className="px-4 py-2 text-sm font-medium rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
         </div>
       )}

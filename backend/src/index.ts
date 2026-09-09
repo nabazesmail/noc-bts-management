@@ -116,8 +116,14 @@ const generateCrudRoutes = (modelName: string, prismaModel: any, idType: 'int' |
         });
       }
       res.json(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error creating ${modelName}:`, error);
+      if (error.code === 'P2003') {
+        return res.status(400).json({ error: `The referenced Site Code does not exist in the database.` });
+      }
+      if (error.code === 'P2002') {
+        return res.status(400).json({ error: `A record with this identifier already exists.` });
+      }
       res.status(500).json({ error: `Failed to create ${modelName}` });
     }
   });
@@ -154,8 +160,14 @@ const generateCrudRoutes = (modelName: string, prismaModel: any, idType: 'int' |
         }
       }
       res.json(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error updating ${modelName}:`, error);
+      if (error.code === 'P2003') {
+        return res.status(400).json({ error: `The referenced Site Code does not exist in the database.` });
+      }
+      if (error.code === 'P2002') {
+        return res.status(400).json({ error: `A record with this identifier already exists.` });
+      }
       res.status(500).json({ error: `Failed to update ${modelName}` });
     }
   });

@@ -79,15 +79,15 @@ export default function MainLayout({ profile }: { profile: Profile | null }) {
       <aside 
         className={`${isCollapsed ? 'w-20' : 'w-64'} flex-shrink-0 bg-[#0f172a] dark:bg-[#0f172a] border-r border-slate-800 flex flex-col transition-all duration-300 ease-in-out`}
       >
-        <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800/50">
+        <div className="h-[88px] flex items-center justify-between px-5 border-b border-slate-800/50">
           {!isCollapsed && (
             <div className="flex items-center gap-2.5 overflow-hidden">
               <img 
                 src="/logo-blue-v2.png" 
                 alt="NOC Logo"
-                className="h-11 w-11 object-contain drop-shadow-md"
+                className="h-16 w-16 object-contain drop-shadow-md -ml-1 brightness-0 invert"
               />
-              <span className="font-black text-lg tracking-wider text-blue-500 mt-2">
+              <span className="font-extrabold text-2xl tracking-widest text-white translate-y-[10px] drop-shadow-sm font-sans">
                 NOC MS
               </span>
             </div>

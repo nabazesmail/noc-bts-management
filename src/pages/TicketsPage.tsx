@@ -155,9 +155,12 @@ export default function TicketsPage({ profile }: { profile: Profile | null }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Customer Tickets</h2>
-          <p className="text-muted-foreground mt-1">Manage network complaint tickets and map them to sites.</p>
+        <div className="flex items-center gap-3">
+          <Ticket className="w-10 h-10 text-white drop-shadow-md" />
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">CUSTOMER TICKETS</h2>
+            <p className="text-gray-300 dark:text-gray-400 mt-1">Manage network complaint tickets and map them to sites.</p>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
