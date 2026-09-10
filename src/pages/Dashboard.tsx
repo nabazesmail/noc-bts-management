@@ -232,9 +232,9 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
           <h2 className="text-xs font-black tracking-widest text-muted-foreground uppercase">Region Uptime Status</h2>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 animate-fade-in-up stagger-5">
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 animate-fade-in-up stagger-5">
           {/* Total Card */}
-          <Card className="md:col-span-1 bg-gradient-to-br from-blue-600 to-blue-900 border-none text-white relative overflow-hidden modern-card shadow-lg shadow-blue-900/20">
+          <Card className="col-span-full lg:col-span-1 bg-gradient-to-br from-blue-600 to-blue-900 border-none text-white relative overflow-hidden modern-card shadow-lg shadow-blue-900/20">
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
             <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
             <CardContent className="p-4 flex flex-col justify-between h-full relative z-10 min-h-[120px]">
@@ -343,7 +343,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-center gap-2 pb-3">
-            <div className="grid grid-cols-2 gap-4 h-full">
+            <div className="grid grid-cols-2 gap-2 md:gap-4 h-full">
               
               {/* Total Cuts */}
               <div className="bg-muted/10 hover:bg-muted/20 transition-colors p-4 rounded-xl border border-border/50 flex flex-col items-center text-center justify-center gap-2 shadow-sm h-full">
@@ -373,32 +373,32 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
               </div>
 
               {/* Backbone Cuts */}
-              <div className="bg-red-500/5 hover:bg-red-500/10 transition-colors p-4 rounded-xl border border-red-500/20 flex flex-col items-center text-center justify-center gap-2 shadow-sm group h-full">
+              <div className="bg-red-500/5 hover:bg-red-500/10 transition-colors p-2 md:p-4 rounded-xl border border-red-500/20 flex flex-col items-center text-center justify-center gap-2 shadow-sm group h-full overflow-hidden">
                 <div className="text-[10px] font-bold text-red-500/80 uppercase tracking-wider group-hover:text-red-500 transition-colors">Backbone</div>
-                <div className="text-3xl font-black text-red-500 flex items-center gap-2">
-                  <div className="flex items-center justify-between w-28 bg-red-500/10 p-1.5 px-2 rounded-lg border border-red-500/20 text-red-500 opacity-90 scale-90 mr-2">
-                     <Server className="h-5 w-5 shrink-0" />
-                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
-                     <Scissors className="h-4 w-4 rotate-90 text-red-400 shrink-0" />
-                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
-                     <Server className="h-5 w-5 shrink-0" />
+                <div className="text-xl md:text-3xl font-black text-red-500 flex flex-wrap items-center justify-center gap-1.5 md:gap-2">
+                  <div className="flex items-center justify-between bg-red-500/10 p-1 md:p-1.5 px-1.5 md:px-2 rounded-lg border border-red-500/20 text-red-500 opacity-90 scale-75 md:scale-90">
+                     <Server className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                     <div className="w-1.5 md:w-3 h-[2px] bg-red-500/40 mx-0.5 md:mx-1"></div>
+                     <Scissors className="h-3 w-3 md:h-4 md:w-4 rotate-90 text-red-400 shrink-0" />
+                     <div className="w-1.5 md:w-3 h-[2px] bg-red-500/40 mx-0.5 md:mx-1"></div>
+                     <Server className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
                   </div>
-                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}
+                  <span>{fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}</span>
                 </div>
               </div>
 
               {/* Backhaul Cuts */}
-              <div className="bg-red-500/5 hover:bg-red-500/10 transition-colors p-4 rounded-xl border border-red-500/20 flex flex-col items-center text-center justify-center gap-2 shadow-sm group h-full">
+              <div className="bg-red-500/5 hover:bg-red-500/10 transition-colors p-2 md:p-4 rounded-xl border border-red-500/20 flex flex-col items-center text-center justify-center gap-2 shadow-sm group h-full overflow-hidden">
                 <div className="text-[10px] font-bold text-red-500/80 uppercase tracking-wider group-hover:text-red-500 transition-colors">Backhaul</div>
-                <div className="text-3xl font-black text-red-500 flex items-center gap-2">
-                  <div className="flex items-center justify-between w-28 bg-red-500/10 p-1.5 px-2 rounded-lg border border-red-500/20 text-red-500 opacity-90 scale-90 mr-2">
-                     <RadioTower className="h-5 w-5 shrink-0" />
-                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
-                     <Scissors className="h-4 w-4 rotate-90 text-red-400 shrink-0" />
-                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
-                     <RadioTower className="h-5 w-5 shrink-0" />
+                <div className="text-xl md:text-3xl font-black text-red-500 flex flex-wrap items-center justify-center gap-1.5 md:gap-2">
+                  <div className="flex items-center justify-between bg-red-500/10 p-1 md:p-1.5 px-1.5 md:px-2 rounded-lg border border-red-500/20 text-red-500 opacity-90 scale-75 md:scale-90">
+                     <RadioTower className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
+                     <div className="w-1.5 md:w-3 h-[2px] bg-red-500/40 mx-0.5 md:mx-1"></div>
+                     <Scissors className="h-3 w-3 md:h-4 md:w-4 rotate-90 text-red-400 shrink-0" />
+                     <div className="w-1.5 md:w-3 h-[2px] bg-red-500/40 mx-0.5 md:mx-1"></div>
+                     <RadioTower className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
                   </div>
-                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}
+                  <span>{fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}</span>
                 </div>
               </div>
 

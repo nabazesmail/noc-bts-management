@@ -60,10 +60,10 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, comb
         </div>
 
         {/* 3D Tower SVG Art */}
-        <div className="absolute inset-x-0 bottom-[2px] flex items-end justify-center pointer-events-none">
+        <div className="relative xl:absolute inset-x-0 bottom-[2px] flex-1 xl:flex-none flex items-end justify-center pointer-events-none mt-4 xl:mt-0 z-10">
           
           <div className="relative flex items-end justify-center">
-            <svg viewBox="0 0 200 242" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[240px] w-auto drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105 relative z-10">
+            <svg viewBox="0 0 200 242" overflow="visible" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-[140px] sm:h-[180px] md:h-[240px] w-auto drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-105 relative z-10">
             <g>
               {/* Base Platform */}
               <path d="M60 220 L140 220 L130 240 L70 240 Z" fill="#1e293b" stroke="#334155" strokeWidth="2"/>
@@ -127,71 +127,86 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, comb
         </div>
 
         {/* Footer Metrics - Split to left and right so tower is visible on desktop, prevents wrapping */}
-        <div className="absolute inset-x-0 bottom-4 md:bottom-6 z-20 px-2 md:px-6 flex justify-between items-end pointer-events-none">
+        <div className="relative xl:absolute inset-x-0 bottom-4 xl:bottom-6 z-20 px-2 sm:px-4 md:px-6 flex flex-col xl:flex-row items-end pointer-events-none mt-4 xl:mt-0 pb-3 xl:pb-0 w-full">
           
           {/* Left Side Metrics */}
-          <div className="grid grid-cols-3 gap-1.5 md:gap-3 w-[48.5%] pointer-events-auto">
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 md:p-3 xl:p-4 border border-white/10 flex flex-col xl:flex-row justify-between items-center xl:items-start shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group">
-              <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-                <span className="text-[8px] md:text-[9px] xl:text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Sites</span>
-                <span className="text-sm md:text-lg xl:text-3xl font-black text-white">{totalSites}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 xl:gap-3 flex-1 pointer-events-auto w-full">
+            {/* Total Sites */}
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 xl:p-3 border border-white/10 flex flex-col justify-between shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group relative overflow-hidden min-h-[64px] md:min-h-[72px] xl:min-h-[84px]">
+              <div className="flex justify-between items-start w-full mb-1">
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap truncate mr-1.5 z-10">Total Sites</span>
+                <div className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors z-10 shrink-0">
+                  <RadioTower className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-3.5 xl:h-3.5 text-gray-300" />
+                </div>
               </div>
-              <div className="h-6 w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:bg-white/10 transition-colors mt-2 xl:mt-0">
-                <RadioTower className="w-3 h-3 md:w-4 md:h-4 xl:w-5 xl:h-5 text-gray-300" />
-              </div>
+              <span className="text-sm md:text-xl xl:text-3xl font-black text-white z-10 leading-none">{totalSites}</span>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 md:w-16 md:h-16 bg-white/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
             
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 md:p-3 xl:p-4 border border-green-500/10 flex flex-col xl:flex-row justify-between items-center xl:items-start shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group">
-              <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-                <span className="text-[8px] md:text-[9px] xl:text-[11px] font-bold text-green-400 uppercase tracking-wider mb-1">Sites Up</span>
-                <span className="text-sm md:text-lg xl:text-3xl font-black text-green-400">{sitesUp}</span>
+            {/* Sites Up */}
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 xl:p-3 border border-green-500/10 flex flex-col justify-between shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group relative overflow-hidden min-h-[64px] md:min-h-[72px] xl:min-h-[84px]">
+              <div className="flex justify-between items-start w-full mb-1">
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-green-400 uppercase tracking-wider whitespace-nowrap truncate mr-1.5 z-10">Sites Up</span>
+                <div className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors z-10 shrink-0">
+                  <Activity className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-3.5 xl:h-3.5 text-green-400" />
+                </div>
               </div>
-              <div className="h-6 w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors mt-2 xl:mt-0">
-                <Activity className="w-3 h-3 md:w-4 md:h-4 xl:w-5 xl:h-5 text-green-400" />
-              </div>
+              <span className="text-sm md:text-xl xl:text-3xl font-black text-green-400 z-10 leading-none">{sitesUp}</span>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 md:w-16 md:h-16 bg-green-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
 
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 md:p-3 xl:p-4 border border-red-500/10 flex flex-col xl:flex-row justify-between items-center xl:items-start shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group">
-              <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-                <span className="text-[8px] md:text-[9px] xl:text-[11px] font-bold text-red-400 uppercase tracking-wider mb-1">Sites Down</span>
-                <span className="text-sm md:text-lg xl:text-3xl font-black text-red-400">{sitesDown}</span>
+            {/* Sites Down */}
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 xl:p-3 border border-red-500/10 flex flex-col justify-between shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group relative overflow-hidden min-h-[64px] md:min-h-[72px] xl:min-h-[84px]">
+              <div className="flex justify-between items-start w-full mb-1">
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-red-400 uppercase tracking-wider whitespace-nowrap truncate mr-1.5 z-10">Sites Down</span>
+                <div className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors z-10 shrink-0">
+                  <AlertTriangle className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-3.5 xl:h-3.5 text-red-400" />
+                </div>
               </div>
-              <div className="h-6 w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20 group-hover:bg-red-500/20 transition-colors mt-2 xl:mt-0">
-                <AlertTriangle className="w-3 h-3 md:w-4 md:h-4 xl:w-5 xl:h-5 text-red-400" />
-              </div>
+              <span className="text-sm md:text-xl xl:text-3xl font-black text-red-400 z-10 leading-none">{sitesDown}</span>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 md:w-16 md:h-16 bg-red-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
           </div>
           
+          {/* Spacer for Tower */}
+          <div className="hidden xl:block w-[180px] shrink-0 pointer-events-none" />
+
           {/* Right Side Metrics */}
-          <div className="grid grid-cols-3 gap-1.5 md:gap-3 w-[48.5%] pointer-events-auto">
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 md:p-3 xl:p-4 border border-blue-500/10 flex flex-col xl:flex-row justify-between items-center xl:items-start shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group">
-              <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-                <span className="text-[8px] md:text-[9px] xl:text-[11px] font-bold text-blue-400 uppercase tracking-wider mb-1">Single-Band</span>
-                <span className="text-sm md:text-lg xl:text-3xl font-black text-white">{singleBandSites}</span>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 xl:gap-3 flex-1 pointer-events-auto w-full mt-2 sm:mt-0 xl:mt-0">
+            {/* Single-Band */}
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 xl:p-3 border border-blue-500/10 flex flex-col justify-between shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group relative overflow-hidden min-h-[64px] md:min-h-[72px] xl:min-h-[84px]">
+              <div className="flex justify-between items-start w-full mb-1">
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-blue-400 uppercase tracking-wider whitespace-nowrap truncate mr-1.5 z-10">Single-Band</span>
+                <div className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors z-10 shrink-0">
+                  <Signal className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-3.5 xl:h-3.5 text-blue-400" />
+                </div>
               </div>
-              <div className="h-6 w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors mt-2 xl:mt-0">
-                <Signal className="w-3 h-3 md:w-4 md:h-4 xl:w-5 xl:h-5 text-blue-400" />
-              </div>
+              <span className="text-sm md:text-xl xl:text-3xl font-black text-white z-10 leading-none">{singleBandSites}</span>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 md:w-16 md:h-16 bg-blue-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
             
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 md:p-3 xl:p-4 border border-green-500/10 flex flex-col xl:flex-row justify-between items-center xl:items-start shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group">
-              <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-                <span className="text-[8px] md:text-[9px] xl:text-[11px] font-bold text-green-400 uppercase tracking-wider mb-1">Dual-Band</span>
-                <span className="text-sm md:text-lg xl:text-3xl font-black text-white">{dualBandSites}</span>
+            {/* Dual-Band */}
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 xl:p-3 border border-green-500/10 flex flex-col justify-between shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group relative overflow-hidden min-h-[64px] md:min-h-[72px] xl:min-h-[84px]">
+              <div className="flex justify-between items-start w-full mb-1">
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-green-400 uppercase tracking-wider whitespace-nowrap truncate mr-1.5 z-10">Dual-Band</span>
+                <div className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors z-10 shrink-0">
+                  <Layers className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-3.5 xl:h-3.5 text-green-400" />
+                </div>
               </div>
-              <div className="h-6 w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors mt-2 xl:mt-0">
-                <Layers className="w-3 h-3 md:w-4 md:h-4 xl:w-5 xl:h-5 text-green-400" />
-              </div>
+              <span className="text-sm md:text-xl xl:text-3xl font-black text-white z-10 leading-none">{dualBandSites}</span>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 md:w-16 md:h-16 bg-green-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
 
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 md:p-3 xl:p-4 border border-purple-500/10 flex flex-col xl:flex-row justify-between items-center xl:items-start shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group">
-              <div className="flex flex-col items-center xl:items-start text-center xl:text-left">
-                <span className="text-[8px] md:text-[9px] xl:text-[11px] font-bold text-purple-400 uppercase tracking-wider mb-1">Combined</span>
-                <span className="text-sm md:text-lg xl:text-3xl font-black text-white">{combinedSites}</span>
+            {/* Combined */}
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-2 xl:p-3 border border-purple-500/10 flex flex-col justify-between shadow-lg cursor-default w-full hover:bg-white/[0.05] transition-colors group relative overflow-hidden min-h-[64px] md:min-h-[72px] xl:min-h-[84px]">
+              <div className="flex justify-between items-start w-full mb-1">
+                <span className="text-[8px] md:text-[9px] xl:text-[10px] font-bold text-purple-400 uppercase tracking-wider whitespace-nowrap truncate mr-1.5 z-10">Combined</span>
+                <div className="h-4 w-4 md:h-5 md:w-5 xl:h-6 xl:w-6 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors z-10 shrink-0">
+                  <Layers className="w-2.5 h-2.5 md:w-3 md:h-3 xl:w-3.5 xl:h-3.5 text-purple-400" />
+                </div>
               </div>
-              <div className="h-6 w-6 md:h-8 md:w-8 xl:h-10 xl:w-10 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors mt-2 xl:mt-0">
-                <Layers className="w-3 h-3 md:w-4 md:h-4 xl:w-5 xl:h-5 text-purple-400" />
-              </div>
+              <span className="text-sm md:text-xl xl:text-3xl font-black text-white z-10 leading-none">{combinedSites}</span>
+              <div className="absolute -bottom-4 -right-4 w-12 h-12 md:w-16 md:h-16 bg-purple-500/10 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
             </div>
           </div>
         </div>
