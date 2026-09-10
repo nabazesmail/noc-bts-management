@@ -1,14 +1,15 @@
 import { useState, useRef } from "react";
-import { RadioTower, AlertTriangle, Signal, Layers } from "lucide-react";
+import { RadioTower, AlertTriangle, Signal, Layers, Activity } from "lucide-react";
 
 export interface TowerHeroCardProps {
   totalSites: number;
   dualBandSites: number;
   singleBandSites: number;
+  combinedSites: number;
   sitesDown: number;
 }
 
-export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, sitesDown }: TowerHeroCardProps) {
+export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, combinedSites, sitesDown }: TowerHeroCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [glowOpacity, setGlowOpacity] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
@@ -26,6 +27,8 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
   const handleMouseLeave = () => {
     setGlowOpacity(0);
   };
+
+  const sitesUp = totalSites - sitesDown;
 
   return (
     <div className="relative w-full flex items-center justify-center mb-1">
@@ -127,7 +130,7 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
         <div className="absolute inset-x-0 bottom-4 md:bottom-6 z-20 px-4 md:px-8 flex flex-wrap justify-between items-end pointer-events-none gap-y-3">
           {/* Left Side Metrics */}
           <div className="flex w-full md:w-auto gap-2 md:gap-4 pointer-events-auto">
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-white/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-white/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-32 lg:w-36 xl:w-44 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
                 <span className="text-[9px] md:text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">Total Sites</span>
                 <span className="text-xl md:text-3xl font-black text-white">{totalSites}</span>
@@ -137,7 +140,17 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
               </div>
             </div>
             
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-red-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-green-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-32 lg:w-36 xl:w-44 hover:bg-white/[0.05] transition-colors group">
+              <div className="flex flex-col">
+                <span className="text-[9px] md:text-[11px] font-bold text-green-400 uppercase tracking-wider mb-1">Sites Up</span>
+                <span className="text-xl md:text-3xl font-black text-green-400">{sitesUp}</span>
+              </div>
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
+                <Activity className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+              </div>
+            </div>
+
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-red-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-32 lg:w-36 xl:w-44 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
                 <span className="text-[9px] md:text-[11px] font-bold text-red-400 uppercase tracking-wider mb-1">Sites Down</span>
                 <span className="text-xl md:text-3xl font-black text-red-400">{sitesDown}</span>
@@ -150,7 +163,7 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
           
           {/* Right Side Metrics */}
           <div className="flex w-full md:w-auto gap-2 md:gap-4 pointer-events-auto">
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-blue-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-blue-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-32 lg:w-36 xl:w-44 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
                 <span className="text-[9px] md:text-[11px] font-bold text-blue-400 uppercase tracking-wider mb-1">Single-Band</span>
                 <span className="text-xl md:text-3xl font-black text-white">{singleBandSites}</span>
@@ -160,13 +173,23 @@ export function TowerHeroCard({ totalSites, dualBandSites, singleBandSites, site
               </div>
             </div>
             
-            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-green-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-48 lg:w-64 hover:bg-white/[0.05] transition-colors group">
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-green-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-32 lg:w-36 xl:w-44 hover:bg-white/[0.05] transition-colors group">
               <div className="flex flex-col">
                 <span className="text-[9px] md:text-[11px] font-bold text-green-400 uppercase tracking-wider mb-1">Dual-Band</span>
                 <span className="text-xl md:text-3xl font-black text-white">{dualBandSites}</span>
               </div>
               <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/20 group-hover:bg-green-500/20 transition-colors">
                 <Layers className="w-4 h-4 md:w-5 md:h-5 text-green-400" />
+              </div>
+            </div>
+
+            <div className="bg-white/[0.03] backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-4 border border-purple-500/10 flex justify-between items-center shadow-lg cursor-default flex-1 md:w-32 lg:w-36 xl:w-44 hover:bg-white/[0.05] transition-colors group">
+              <div className="flex flex-col">
+                <span className="text-[9px] md:text-[11px] font-bold text-purple-400 uppercase tracking-wider mb-1">Combined</span>
+                <span className="text-xl md:text-3xl font-black text-white">{combinedSites}</span>
+              </div>
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
+                <Layers className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
               </div>
             </div>
           </div>

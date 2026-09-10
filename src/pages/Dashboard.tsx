@@ -62,7 +62,15 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
       return true;
     }
     
-    if (enb20.includes('out of service') || enb7.includes('out of service')) {
+    const b20Down = enb20.includes('out of service') || enb20.includes('not on air') || enb20.includes('off air') || !enb20;
+    const b7Down = enb7.includes('out of service') || enb7.includes('not on air') || enb7.includes('off air') || !enb7;
+    
+    // A site is only "down" if BOTH bands are down, and at least one is explicitly "out of service" or "off air"
+    // (to prevent marking unbuilt/planned sites as down)
+    if (b20Down && b7Down && (
+      enb20.includes('out of service') || enb7.includes('out of service') ||
+      enb20.includes('off air') || enb7.includes('off air')
+    )) {
       return true;
     }
     
@@ -71,15 +79,15 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
 
   const isDualBand = (site: Site) => {
     if (isTurnedOff(site)) return false;
-    const hasB20 = site.b20_on_air_date && site.b20_on_air_date.trim() !== '' && !site.enodb_20?.toLowerCase().includes('not on air');
-    const hasB7 = site.b7_on_air_date && site.b7_on_air_date.trim() !== '' && !site.enodb_7?.toLowerCase().includes('not on air');
+    const hasB20 = site.b20_on_air_date && site.b20_on_air_date.trim() !== '' && !site.enodb_20?.toLowerCase().includes('not on air') && !site.enodb_20?.toLowerCase().includes('out of service') && !site.enodb_20?.toLowerCase().includes('off air');
+    const hasB7 = site.b7_on_air_date && site.b7_on_air_date.trim() !== '' && !site.enodb_7?.toLowerCase().includes('not on air') && !site.enodb_7?.toLowerCase().includes('out of service') && !site.enodb_7?.toLowerCase().includes('off air');
     return hasB20 && hasB7;
   };
 
   const isSingleBand = (site: Site) => {
     if (isTurnedOff(site)) return false;
-    const hasB20 = site.b20_on_air_date && site.b20_on_air_date.trim() !== '' && !site.enodb_20?.toLowerCase().includes('not on air');
-    const hasB7 = site.b7_on_air_date && site.b7_on_air_date.trim() !== '' && !site.enodb_7?.toLowerCase().includes('not on air');
+    const hasB20 = site.b20_on_air_date && site.b20_on_air_date.trim() !== '' && !site.enodb_20?.toLowerCase().includes('not on air') && !site.enodb_20?.toLowerCase().includes('out of service') && !site.enodb_20?.toLowerCase().includes('off air');
+    const hasB7 = site.b7_on_air_date && site.b7_on_air_date.trim() !== '' && !site.enodb_7?.toLowerCase().includes('not on air') && !site.enodb_7?.toLowerCase().includes('out of service') && !site.enodb_7?.toLowerCase().includes('off air');
     return (hasB20 && !hasB7) || (!hasB20 && hasB7);
   };
 
@@ -93,6 +101,12 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
     return totalSectors === 1 || totalSectors === 2 && b20Sectors.length === 1 && b7Sectors.length === 1; 
   };
 
+  const isCombined = (site: Site) => {
+    if (isTurnedOff(site)) return false;
+    const val = site.combined_both_bands?.toLowerCase().trim();
+    return val === 'yes' || val === 'true' || val === '1' || val === 'combined';
+  };
+
   if (loading) {
     return <div className="flex h-[calc(100vh-8rem)] items-center justify-center">Loading Dashboard...</div>;
   }
@@ -102,6 +116,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
   const dualBandSites = sites.filter(isDualBand);
   const singleBandSites = sites.filter(isSingleBand);
   const singleSectorSites = sites.filter(isSingleSector);
+  const combinedSites = sites.filter(isCombined);
 
   // Region Progress Logic
   const allRegions = Array.from(new Set(sites.map(s => s.region))).filter(Boolean).sort();
@@ -200,6 +215,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
           totalSites={totalSites} 
           dualBandSites={dualBandSites.length} 
           singleBandSites={singleBandSites.length} 
+          combinedSites={combinedSites.length}
           sitesDown={turnedOffSites.length} 
         />
       </div>
