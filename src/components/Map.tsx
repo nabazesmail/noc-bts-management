@@ -78,10 +78,28 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
     return color;
   };
 
+  const isSiteDown = (site: any) => {
+    const b20 = getBandStatus(site, 'B20');
+    const b7 = getBandStatus(site, 'B7');
+    
+    const hasB20 = b20 !== null;
+    const hasB7 = b7 !== null;
+    
+    if (!hasB20 && !hasB7) return false;
+    
+    if (hasB20 && b20 === "On-Air") return false;
+    if (hasB7 && b7 === "On-Air") return false;
+    
+    return true; // Down if it has at least one band and all are off-air
+  };
+
   const getMarkerIcon = (site: any) => {
-    const color = getMarkerColor ? getMarkerColor(site) : defaultGetColor(site);
     const isFiberCut = site.hasOwnProperty('cut_type') || site.hasOwnProperty('reason') || site.hasOwnProperty('region_cut_type');
     const isTicket = site.is_ticket === true;
+    const isDown = !isTicket && !isFiberCut && isSiteDown(site);
+
+    let color = getMarkerColor ? getMarkerColor(site) : defaultGetColor(site);
+    if (isDown) color = "#ef4444"; // Force red color for down sites
 
     let innerIcon = '';
     if (isTicket) {
@@ -111,6 +129,17 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
           <line x1="8.12" y1="8.12" x2="12" y2="12"/>
         </g>
       `;
+    } else if (isDown) {
+      // WifiOff icon for Sites Down
+      innerIcon = `
+        <g transform="translate(8, 8)" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="2" y1="2" x2="22" y2="22" />
+          <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+          <path d="M2 8.82a15 15 0 0 1 4.17-2.65" />
+          <path d="M10.66 5c4.01-.36 8.14.9 11.34 3.82" />
+          <path d="M16 12.5a5 5 0 0 1 3.5 1.5" />
+        </g>
+      `;
     } else {
       // Radio Tower icon for Sites
       innerIcon = `
@@ -125,7 +154,7 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
     }
 
     const svgIcon = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="26" height="26" class="drop-shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="26" height="26" class="drop-shadow-sm ${isDown ? 'animate-pulse' : ''}">
         <circle cx="20" cy="20" r="18" fill="${color}" stroke="#ffffff" stroke-width="2.5" />
         ${innerIcon}
       </svg>
@@ -141,12 +170,15 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
   };
 
   const getBandStatus = (site: any, band: 'B20' | 'B7') => {
-    const enb = (band === 'B20' ? site.enodb_20 : site.enodb_7)?.toLowerCase() || '';
-    const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase() || '';
-    const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase() || '';
-    const comm = site.comments?.toLowerCase() || '';
+    const enb = (band === 'B20' ? site.enodb_20 : site.enodb_7)?.toLowerCase().trim() || '';
+    const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase().trim() || '';
+    const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase().trim() || '';
+    const comm = site.comments?.toLowerCase().trim() || '';
 
-    const exists = !!(enb && enb !== '-') || !!(ip && ip !== '-') || !!(date && date !== '-');
+    // A band doesn't exist if its identifying fields are all empty, dash, or explicitly state "not on air"
+    const isValidField = (val: string) => val !== '' && val !== '-' && val !== 'not on air' && val !== 'n/a' && val !== 'none';
+    
+    const exists = isValidField(enb) || isValidField(ip) || isValidField(date);
     if (!exists) return null;
 
     if (comm.includes('dismantled')) return "Off-Air (Dismantled)";

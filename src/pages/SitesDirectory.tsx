@@ -77,12 +77,15 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
   };
 
   const getBandStatus = (site: Site, band: 'B20' | 'B7') => {
-    const enb = (band === 'B20' ? site.enodb_20 : site.enodb_7)?.toLowerCase() || '';
-    const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase() || '';
-    const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase() || '';
-    const comm = site.comments?.toLowerCase() || '';
+    const enb = (band === 'B20' ? site.enodb_20 : site.enodb_7)?.toLowerCase().trim() || '';
+    const ip = (band === 'B20' ? site.band_20_ip : site.band_7_ip)?.toLowerCase().trim() || '';
+    const date = (band === 'B20' ? site.b20_on_air_date : site.b7_on_air_date)?.toLowerCase().trim() || '';
+    const comm = site.comments?.toLowerCase().trim() || '';
 
-    const exists = !!(enb && enb !== '-') || !!(ip && ip !== '-') || !!(date && date !== '-');
+    // A band doesn't exist if its identifying fields are all empty, dash, or explicitly state "not on air"
+    const isValidField = (val: string) => val !== '' && val !== '-' && val !== 'not on air' && val !== 'n/a' && val !== 'none';
+    
+    const exists = isValidField(enb) || isValidField(ip) || isValidField(date);
     if (!exists) return null;
 
     if (comm.includes('dismantled')) return "Off-Air (Dismantled)";

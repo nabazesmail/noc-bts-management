@@ -151,9 +151,12 @@ input:-webkit-autofill:active {
 /* Modern Card Hover Effects */
 .modern-card {
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(0) scale(1) translateZ(0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
 }
 .modern-card:hover {
-  transform: translateY(-4px) scale(1.01);
+  transform: translateY(-4px) scale(1.01) translateZ(0);
   box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3), 0 0 20px rgba(59, 130, 246, 0.1);
   border-color: rgba(59, 130, 246, 0.3);
 }

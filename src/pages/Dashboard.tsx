@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/api";
 import { Profile, Site } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle, LayoutDashboard, Server, RadioTower } from "lucide-react";
+import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle, LayoutDashboard, Server, RadioTower, CheckCircle2 } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -21,6 +21,8 @@ import {
 import { useTheme } from "@/components/ThemeProvider";
 import { parseSiteDate } from "@/lib/utils";
 import { TowerHeroCard } from "@/components/TowerHeroCard";
+
+const UPTIME_WARNING_THRESHOLD = 90;
 
 export default function Dashboard({ profile }: { profile: Profile | null }) {
   const { theme } = useTheme();
@@ -131,6 +133,7 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
   }, [sites]);
 
   const totalSitesUp = totalSites - turnedOffSites.length;
+  const totalUptimePct = totalSites > 0 ? (totalSitesUp / totalSites) * 100 : 0;
 
 
 
@@ -234,44 +237,50 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
         
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 animate-fade-in-up stagger-5">
           {/* Total Card */}
-          <Card className="col-span-full lg:col-span-1 bg-gradient-to-br from-blue-600 to-blue-900 border-none text-white relative overflow-hidden modern-card shadow-lg shadow-blue-900/20">
-            <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-            <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-blue-400/20 rounded-full blur-xl pointer-events-none"></div>
-            <CardContent className="p-4 flex flex-col justify-between h-full relative z-10 min-h-[120px]">
+          <Card className="col-span-full lg:col-span-1 bg-blue-600 border-none text-white relative overflow-hidden modern-card shadow-lg">
+            <CardContent className="p-4 flex flex-col h-full justify-between relative z-10 min-h-[120px]">
               <div>
-                 <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center mb-2 backdrop-blur-md border border-white/10 shadow-inner">
-                   <Activity className="text-white h-4 w-4" />
-                 </div>
-                 <p className="text-white/80 font-bold text-[9px] uppercase tracking-widest mb-1">Total Online Sites</p>
+                <div className="flex justify-between items-start mb-2">
+                   <div className="text-xs font-black tracking-widest uppercase text-blue-200 drop-shadow-sm">
+                     TOTAL ONLINE
+                   </div>
+                   <div className="text-right">
+                      <div className="text-base font-black text-white leading-none">{totalSitesUp} <span className="text-blue-200/70 font-medium text-xs">/ {totalSites}</span></div>
+                   </div>
+                </div>
               </div>
-              <div className="mt-2">
-                 <div className="text-4xl font-black tracking-tighter leading-none">{totalSitesUp}</div>
-                 <p className="text-white/60 text-[8px] font-semibold uppercase mt-1.5 tracking-widest">Across all regions</p>
+              
+              <div className="mt-2 flex justify-between items-end">
+                <div className="flex flex-col gap-1 pb-1">
+                  <div className="text-[9px] font-bold text-blue-200 uppercase tracking-wider">
+                    Uptime
+                  </div>
+                  <CheckCircle2 className="w-5 h-5 text-white drop-shadow-sm" />
+                </div>
+                
+                <div className="relative w-20 h-20 rounded-full flex items-center justify-center bg-blue-900/40 shadow-[inset_2px_2px_5px_rgba(0,0,0,0.3)] shrink-0">
+                  <svg viewBox="0 0 100 100" className="w-20 h-20 -rotate-90 absolute inset-0 drop-shadow-md overflow-visible">
+                    <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-blue-900/30" />
+                    <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-white" strokeDasharray="263.89" strokeDashoffset={263.89 - (263.89 * totalUptimePct) / 100} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1.5s ease-in-out' }} />
+                  </svg>
+                  <div className="text-sm font-black text-white tracking-tighter">
+                     {totalUptimePct.toFixed(1)}%
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Region Cards */}
           {regionProgress.map((rp, index) => {
-            const colorMaps = [
-              { bg: 'bg-blue-500', text: 'text-blue-500' },
-              { bg: 'bg-green-500', text: 'text-green-500' },
-              { bg: 'bg-sky-500', text: 'text-sky-500' },
-              { bg: 'bg-purple-500', text: 'text-purple-500' },
-              { bg: 'bg-orange-500', text: 'text-orange-500' },
-              { bg: 'bg-teal-500', text: 'text-teal-500' },
-              { bg: 'bg-rose-500', text: 'text-rose-500' }
-            ];
-            const r = rp.region?.toString().toLowerCase().replace('region ', '').trim();
-            const isRegion3 = r === '3';
-            const isRegion4 = r === '4';
+            const isPassing = rp.percentage >= UPTIME_WARNING_THRESHOLD;
             
-            let currentColors = colorMaps[index % colorMaps.length];
-            if (isRegion3) currentColors = { bg: 'bg-[#a855f7]', text: 'text-[#a855f7]' }; // Purple
-            else if (isRegion4) currentColors = { bg: 'bg-[#ff6b00]', text: 'text-[#ff6b00]' }; // Orange
+            const currentColors = isPassing 
+              ? { bg: 'bg-[#22c55e]', text: 'text-[#4ade80]', border: 'border-transparent', icon: CheckCircle2 }
+              : { bg: 'bg-[#ef4444]', text: 'text-[#f87171]', border: 'border-red-500/50', icon: AlertTriangle };
             
             return (
-             <Card key={rp.region} className="bg-card border-border relative overflow-hidden modern-card group hover:border-muted-foreground/30 transition-colors">
+             <Card key={rp.region} className={`bg-card relative overflow-hidden modern-card group transition-colors border ${currentColors.border}`}>
                {/* Subtle watermark */}
                <div className="absolute -right-4 -bottom-4 text-6xl font-black text-muted/5 group-hover:text-muted/10 transition-colors pointer-events-none select-none">
                  {rp.region === 'RC' ? 'RC' : (rp.region ? `R${rp.region}` : '?')}
@@ -280,25 +289,31 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                <CardContent className="p-4 flex flex-col h-full justify-between relative z-10 min-h-[120px]">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                       <div className={`text-[10px] font-black tracking-widest uppercase ${currentColors.text}`}>
+                       <div className={`text-xs font-black tracking-widest uppercase drop-shadow-sm ${currentColors.text}`}>
                          REGION {rp.region === 'RC' ? 'RC' : (rp.region ? `${rp.region}` : 'Unknown')}
                        </div>
                        <div className="text-right">
-                          <div className="text-sm font-black text-foreground leading-none">{rp.upSites} <span className="text-muted-foreground font-medium text-[10px]">/ {rp.total}</span></div>
+                          <div className="text-base font-black text-foreground leading-none">{rp.upSites} <span className="text-muted-foreground font-medium text-xs">/ {rp.total}</span></div>
                        </div>
                     </div>
                   </div>
                   
-                  <div className="mt-3">
-                    <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5 tracking-wider">
-                      <span>Uptime</span>
-                      <span className={currentColors.text}>{rp.percentage.toFixed(1)}%</span>
+                  <div className="mt-2 flex justify-between items-end">
+                    <div className="flex flex-col gap-1 pb-1">
+                      <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+                        Uptime
+                      </div>
+                      <currentColors.icon className={`w-5 h-5 drop-shadow-sm ${currentColors.text}`} />
                     </div>
-                    <div className="w-full bg-muted/40 h-1.5 rounded-full relative mt-2">
-                       <div className={`h-full ${currentColors.bg} rounded-full transition-all duration-1000 relative`} style={{ width: `${rp.percentage}%` }}>
-                          {/* Glowing Dot at tip */}
-                          <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full ${currentColors.text}`} style={{ boxShadow: '0 0 10px 2px currentColor' }}></div>
-                       </div>
+                    
+                    <div className="relative w-20 h-20 rounded-full flex items-center justify-center bg-black/5 dark:bg-black/20 shadow-[inset_1px_1px_3px_rgba(0,0,0,0.1)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.5)] shrink-0">
+                      <svg viewBox="0 0 100 100" className="w-20 h-20 -rotate-90 absolute inset-0 drop-shadow-sm overflow-visible">
+                        <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className="stroke-muted/20" />
+                        <circle cx="50" cy="50" r="42" fill="none" strokeWidth="8" className={`stroke-current ${currentColors.text}`} strokeDasharray="263.89" strokeDashoffset={263.89 - (263.89 * rp.percentage) / 100} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1.5s ease-in-out' }} />
+                      </svg>
+                      <div className={`text-sm font-black ${currentColors.text} tracking-tighter`}>
+                         {rp.percentage.toFixed(1)}%
+                      </div>
                     </div>
                   </div>
                </CardContent>
