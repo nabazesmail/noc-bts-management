@@ -126,8 +126,8 @@ export default function FiberCutLocations({
     <div className="h-[calc(100vh-5rem)] flex flex-col p-6 space-y-4 bg-background transition-colors">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
         <div className="flex items-center gap-3">
-          <MapPinned className="w-10 h-10 text-white drop-shadow-md" />
-          <h2 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">FIBER CUT MAP</h2>
+          <MapPinned className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">FIBER CUT MAP</h2>
         </div>
         
         <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">

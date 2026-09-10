@@ -187,12 +187,12 @@ export default function SlaTrackingPage() {
     <div className="p-6 h-full flex flex-col bg-background text-foreground transition-colors overflow-hidden">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 shrink-0">
         <div className="flex items-center gap-3">
-          <ClipboardList className="w-10 h-10 text-white drop-shadow-md" />
+          <ClipboardList className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">
               SLA TRACKING
             </h1>
-            <p className="text-sm font-medium text-gray-300 dark:text-gray-400 mt-1">
+            <p className="text-sm font-medium text-slate-500 dark:text-gray-400 mt-1">
               Daily and Weekly SLA Compliance Reports
             </p>
           </div>

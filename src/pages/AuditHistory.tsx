@@ -119,8 +119,8 @@ export default function AuditHistory({}: AuditHistoryProps) {
     <div className="p-6 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <History className="w-10 h-10 text-white drop-shadow-md" />
-          <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">AUDIT HISTORY</h1>
+          <History className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">AUDIT HISTORY</h1>
         </div>
         <div className="relative w-full md:w-72">
           <input

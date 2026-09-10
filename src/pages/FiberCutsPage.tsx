@@ -156,10 +156,10 @@ export default function FiberCutsPage() {
       {/* Header Area */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 shrink-0">
         <div className="flex items-center gap-3">
-          <Scissors className="w-10 h-10 text-white drop-shadow-md" />
+          <Scissors className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">FIBER CUTS</h1>
-            <p className="text-sm font-medium text-gray-300 dark:text-gray-400 mt-1">Fiber Cut Tracking and Analysis</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">FIBER CUTS</h1>
+            <p className="text-sm font-medium text-slate-500 dark:text-gray-400 mt-1">Fiber Cut Tracking and Analysis</p>
           </div>
         </div>
         

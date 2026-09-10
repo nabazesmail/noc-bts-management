@@ -158,10 +158,10 @@ export default function UserManagement({ currentUser }: { currentUser: Profile |
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <Users className="w-10 h-10 text-white drop-shadow-md" />
+          <Users className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">USER MANAGEMENT</h1>
-            <p className="text-sm font-medium text-gray-300 dark:text-gray-400 mt-1">Manage system access, roles, and specific page permissions.</p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">USER MANAGEMENT</h1>
+            <p className="text-sm font-medium text-slate-500 dark:text-gray-400 mt-1">Manage system access, roles, and specific page permissions.</p>
           </div>
         </div>
         

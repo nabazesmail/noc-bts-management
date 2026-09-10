@@ -207,12 +207,12 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
       
       {/* Top Header Section */}
       <div className="flex items-center gap-2 mb-4 animate-fade-in-up">
-        <LayoutDashboard className="w-8 h-8 text-white drop-shadow-md" />
+        <LayoutDashboard className="w-8 h-8 text-slate-800 dark:text-white drop-shadow-md" />
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white dark:text-white uppercase">
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">
             NOC Management System
           </h1>
-          <p className="text-xs font-medium text-gray-300 dark:text-gray-400 tracking-wide mt-0.5">
+          <p className="text-xs font-medium text-slate-500 dark:text-gray-400 tracking-wide mt-0.5">
             Mission Status: Strengthening our network
           </p>
         </div>

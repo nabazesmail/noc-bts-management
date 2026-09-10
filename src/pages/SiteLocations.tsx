@@ -357,8 +357,8 @@ export default function SiteLocations({
     <div className="space-y-6 h-[calc(100vh-8rem)] flex flex-col">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div className="flex items-center gap-3">
-          <MapIcon className="w-10 h-10 text-white drop-shadow-md" />
-          <h2 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">SITE LOCATIONS</h2>
+          <MapIcon className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">SITE LOCATIONS</h2>
         </div>
 
         <div className="flex flex-row overflow-x-auto items-center gap-2.5 w-full md:w-auto custom-scrollbar pb-2 md:pb-0">

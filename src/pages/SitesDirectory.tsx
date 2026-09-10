@@ -314,8 +314,8 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <RadioTower className="w-10 h-10 text-white drop-shadow-md" />
-          <h2 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">SITE DATA</h2>
+          <RadioTower className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
+          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">SITE DATA</h2>
         </div>
         <div className="flex gap-2">
           <button

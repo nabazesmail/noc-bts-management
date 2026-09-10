@@ -123,12 +123,12 @@ export default function IncidentsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-3">
-          <Flame className="w-10 h-10 text-white drop-shadow-md" />
+          <Flame className="w-10 h-10 text-slate-800 dark:text-white drop-shadow-md" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white dark:text-white uppercase">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">
               NETWORK INCIDENTS
             </h1>
-            <p className="text-gray-300 dark:text-gray-400 mt-1 text-sm font-medium">
+            <p className="text-slate-500 dark:text-gray-400 mt-1 text-sm font-medium">
               Track and analyze network issues, downtime, and maintenance scopes.
             </p>
           </div>
