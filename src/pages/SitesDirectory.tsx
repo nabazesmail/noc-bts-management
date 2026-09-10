@@ -168,7 +168,10 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     return "-";
   };
 
-
+  const checkIfCombined = (site: Site) => {
+    const val = site.combined_both_bands?.toLowerCase().trim();
+    return val === 'yes' || val === 'true' || val === '1' || val === 'combined';
+  };
 
   const toggleRow = (id: string) => {
     setExpandedRows((prev) =>
@@ -218,7 +221,7 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
     const matchesStatus = matchesB20Status && matchesB7Status;
 
     const bandType = getBandType(site);
-    const isCombined = bandType === "Dual-Band" && !!site.combined_both_bands && site.combined_both_bands.trim() !== '' && site.combined_both_bands.trim() !== '-';
+    const isCombined = bandType === "Dual-Band" && checkIfCombined(site);
     
     const matchesBand = bandFilter === "All" ||
                         (bandFilter === "Single-Band (Any)" && bandType.startsWith("Single-Band")) ||
@@ -512,9 +515,16 @@ export default function SitesDirectory({}: { profile: Profile | null }) {
                     </td>
                     <td className="p-4">
                       {bandType !== "-" && (
-                        <Badge variant="outline" className={`whitespace-nowrap ${bandType === "Dual-Band" ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800" : "text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700"}`}>
-                          {bandType}
-                        </Badge>
+                        <div className="flex gap-2 items-center flex-wrap">
+                          <Badge variant="outline" className={`whitespace-nowrap ${bandType === "Dual-Band" ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800" : "text-gray-600 border-gray-200 bg-gray-50 dark:text-gray-300 dark:bg-gray-800 dark:border-gray-700"}`}>
+                            {bandType}
+                          </Badge>
+                          {bandType === "Dual-Band" && checkIfCombined(site) && (
+                            <Badge variant="outline" className="whitespace-nowrap text-purple-600 border-purple-200 bg-purple-50 dark:bg-purple-900/20 dark:border-purple-800">
+                              Combined
+                            </Badge>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="p-4 text-gray-700 dark:text-gray-300">{site.power_source || "-"}</td>
