@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/api";
 import { Profile, Site } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle, LayoutDashboard } from "lucide-react";
+import { Activity, Radio, Wifi, WifiOff, Target, AlertCircle, SignalHigh, SignalLow, ArrowRight, Scissors, MapPin, AlertTriangle, LayoutDashboard, Server, RadioTower } from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -107,28 +107,30 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
     return val === 'yes' || val === 'true' || val === '1' || val === 'combined';
   };
 
-  if (loading) {
-    return <div className="flex h-[calc(100vh-8rem)] items-center justify-center">Loading Dashboard...</div>;
-  }
-
-  const totalSites = sites.length;
-  const turnedOffSites = sites.filter(isTurnedOff);
-  const dualBandSites = sites.filter(isDualBand);
-  const singleBandSites = sites.filter(isSingleBand);
-  const singleSectorSites = sites.filter(isSingleSector);
-  const combinedSites = sites.filter(isCombined);
+  const { totalSites, turnedOffSites, dualBandSites, singleBandSites, singleSectorSites, combinedSites } = useMemo(() => {
+    return {
+      totalSites: sites.length,
+      turnedOffSites: sites.filter(isTurnedOff),
+      dualBandSites: sites.filter(isDualBand),
+      singleBandSites: sites.filter(isSingleBand),
+      singleSectorSites: sites.filter(isSingleSector),
+      combinedSites: sites.filter(isCombined)
+    };
+  }, [sites]);
 
   // Region Progress Logic
-  const allRegions = Array.from(new Set(sites.map(s => s.region))).filter(Boolean).sort();
-  const regionProgress = allRegions.map(r => {
-    const regionSites = sites.filter(s => s.region === r && !isTurnedOff(s));
-    const upgraded = regionSites.filter(isDualBand).length;
-    const total = regionSites.length;
-    const percentage = total > 0 ? (upgraded / total) * 100 : 0;
-    return { region: r, total, upgraded, percentage };
-  });
+  const regionProgress = useMemo(() => {
+    const allRegions = Array.from(new Set(sites.map(s => s.region))).filter(Boolean).sort();
+    return allRegions.map(r => {
+      const regionSites = sites.filter(s => s.region === r);
+      const total = regionSites.length;
+      const upSites = regionSites.filter(s => !isTurnedOff(s)).length;
+      const percentage = total > 0 ? (upSites / total) * 100 : 0;
+      return { region: r, total, upSites, percentage };
+    });
+  }, [sites]);
 
-  const totalUpgraded = dualBandSites.length;
+  const totalSitesUp = totalSites - turnedOffSites.length;
 
 
 
@@ -193,6 +195,10 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
   const gridColor = isDark ? '#374151' : '#e5e7eb';
   const cursorColor = isDark ? '#374151' : '#f3f4f6';
 
+  if (loading) {
+    return <div className="flex h-[calc(100vh-8rem)] items-center justify-center">Loading Dashboard...</div>;
+  }
+
   return (
     <div className="space-y-3">
       
@@ -220,10 +226,10 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
         />
       </div>
 
-      {/* Second Carrier Deployment Progress */}
+      {/* Region Uptime Status */}
       <div className="flex flex-col space-y-3">
         <div className="flex items-center justify-between px-1">
-          <h2 className="text-xs font-black tracking-widest text-muted-foreground uppercase">Carrier Deployment Progress</h2>
+          <h2 className="text-xs font-black tracking-widest text-muted-foreground uppercase">Region Uptime Status</h2>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-5 gap-3 animate-fade-in-up stagger-5">
@@ -234,12 +240,12 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
             <CardContent className="p-4 flex flex-col justify-between h-full relative z-10 min-h-[120px]">
               <div>
                  <div className="bg-white/10 w-8 h-8 rounded-lg flex items-center justify-center mb-2 backdrop-blur-md border border-white/10 shadow-inner">
-                   <Wifi className="text-white h-4 w-4" />
+                   <Activity className="text-white h-4 w-4" />
                  </div>
-                 <p className="text-white/80 font-bold text-[9px] uppercase tracking-widest mb-1">Total Upgraded</p>
+                 <p className="text-white/80 font-bold text-[9px] uppercase tracking-widest mb-1">Total Online Sites</p>
               </div>
               <div className="mt-2">
-                 <div className="text-4xl font-black tracking-tighter leading-none">{totalUpgraded}</div>
+                 <div className="text-4xl font-black tracking-tighter leading-none">{totalSitesUp}</div>
                  <p className="text-white/60 text-[8px] font-semibold uppercase mt-1.5 tracking-widest">Across all regions</p>
               </div>
             </CardContent>
@@ -256,7 +262,13 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
               { bg: 'bg-teal-500', text: 'text-teal-500' },
               { bg: 'bg-rose-500', text: 'text-rose-500' }
             ];
-            const currentColors = colorMaps[index % colorMaps.length];
+            const r = rp.region?.toString().toLowerCase().replace('region ', '').trim();
+            const isRegion3 = r === '3';
+            const isRegion4 = r === '4';
+            
+            let currentColors = colorMaps[index % colorMaps.length];
+            if (isRegion3) currentColors = { bg: 'bg-[#a855f7]', text: 'text-[#a855f7]' }; // Purple
+            else if (isRegion4) currentColors = { bg: 'bg-[#ff6b00]', text: 'text-[#ff6b00]' }; // Orange
             
             return (
              <Card key={rp.region} className="bg-card border-border relative overflow-hidden modern-card group hover:border-muted-foreground/30 transition-colors">
@@ -272,14 +284,14 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                          REGION {rp.region === 'RC' ? 'RC' : (rp.region ? `${rp.region}` : 'Unknown')}
                        </div>
                        <div className="text-right">
-                          <div className="text-sm font-black text-foreground leading-none">{rp.upgraded} <span className="text-muted-foreground font-medium text-[10px]">/ {rp.total}</span></div>
+                          <div className="text-sm font-black text-foreground leading-none">{rp.upSites} <span className="text-muted-foreground font-medium text-[10px]">/ {rp.total}</span></div>
                        </div>
                     </div>
                   </div>
                   
                   <div className="mt-3">
                     <div className="flex justify-between text-[9px] font-bold text-muted-foreground uppercase mb-1.5 tracking-wider">
-                      <span>Progress</span>
+                      <span>Uptime</span>
                       <span className={currentColors.text}>{rp.percentage.toFixed(1)}%</span>
                     </div>
                     <div className="w-full bg-muted/40 h-1.5 rounded-full relative mt-2">
@@ -331,20 +343,22 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col justify-center gap-2 pb-3">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 h-full">
               
               {/* Total Cuts */}
-              <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
-                <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Total Cuts</div>
-                <div className="text-xl font-black text-foreground flex items-center gap-2">
-                  <Scissors className="h-3 w-3 text-red-500" />
+              <div className="bg-muted/10 hover:bg-muted/20 transition-colors p-4 rounded-xl border border-border/50 flex flex-col items-center text-center justify-center gap-2 shadow-sm h-full">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Total Cuts</div>
+                <div className="text-3xl font-black text-foreground flex items-center gap-2">
+                  <Scissors className="h-5 w-5 text-red-500" />
                   {fiberCuts.length}
                 </div>
               </div>
-              <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
-                <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Top Region</div>
-                <div className="text-lg font-black text-foreground flex items-center gap-1.5 truncate">
-                  <MapPin className="h-3 w-3 text-orange-500" />
+              
+              {/* Top Region */}
+              <div className="bg-muted/10 hover:bg-muted/20 transition-colors p-4 rounded-xl border border-border/50 flex flex-col items-center text-center justify-center gap-2 shadow-sm h-full">
+                <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Top Region</div>
+                <div className="text-2xl font-black text-foreground flex items-center gap-2 truncate">
+                  <MapPin className="h-5 w-5 text-orange-500" />
                   {(() => {
                     if (fiberCuts.length === 0) return "-";
                     const regionCounts = fiberCuts.reduce((acc, cut) => {
@@ -358,20 +372,33 @@ export default function Dashboard({ profile }: { profile: Profile | null }) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 col-span-2">
-                <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
-                  <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Backbone Cuts</div>
-                  <div className="text-lg font-black text-foreground flex items-center gap-1.5">
-                    <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                    {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}
+              {/* Backbone Cuts */}
+              <div className="bg-red-500/5 hover:bg-red-500/10 transition-colors p-4 rounded-xl border border-red-500/20 flex flex-col items-center text-center justify-center gap-2 shadow-sm group h-full">
+                <div className="text-[10px] font-bold text-red-500/80 uppercase tracking-wider group-hover:text-red-500 transition-colors">Backbone</div>
+                <div className="text-3xl font-black text-red-500 flex items-center gap-2">
+                  <div className="flex items-center justify-between w-28 bg-red-500/10 p-1.5 px-2 rounded-lg border border-red-500/20 text-red-500 opacity-90 scale-90 mr-2">
+                     <Server className="h-5 w-5 shrink-0" />
+                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
+                     <Scissors className="h-4 w-4 rotate-90 text-red-400 shrink-0" />
+                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
+                     <Server className="h-5 w-5 shrink-0" />
                   </div>
+                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backbone').length}
                 </div>
-                <div className="bg-muted/30 p-2 rounded-lg border border-border/50 col-span-2">
-                  <div className="text-[9px] font-bold text-muted-foreground uppercase mb-0.5">Backhaul Cuts</div>
-                  <div className="text-lg font-black text-foreground flex items-center gap-1.5">
-                    <Activity className="h-3 w-3 text-blue-500" />
-                    {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}
+              </div>
+
+              {/* Backhaul Cuts */}
+              <div className="bg-red-500/5 hover:bg-red-500/10 transition-colors p-4 rounded-xl border border-red-500/20 flex flex-col items-center text-center justify-center gap-2 shadow-sm group h-full">
+                <div className="text-[10px] font-bold text-red-500/80 uppercase tracking-wider group-hover:text-red-500 transition-colors">Backhaul</div>
+                <div className="text-3xl font-black text-red-500 flex items-center gap-2">
+                  <div className="flex items-center justify-between w-28 bg-red-500/10 p-1.5 px-2 rounded-lg border border-red-500/20 text-red-500 opacity-90 scale-90 mr-2">
+                     <RadioTower className="h-5 w-5 shrink-0" />
+                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
+                     <Scissors className="h-4 w-4 rotate-90 text-red-400 shrink-0" />
+                     <div className="flex-1 h-[2px] bg-red-500/40 mx-1"></div>
+                     <RadioTower className="h-5 w-5 shrink-0" />
                   </div>
+                  {fiberCuts.filter(c => c.cut_type?.toLowerCase() === 'backhaul').length}
                 </div>
               </div>
 

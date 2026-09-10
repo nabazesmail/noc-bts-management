@@ -67,8 +67,8 @@ export default function Map({ sites, loading, renderPopup, getMarkerColor, force
     let color = "#64748b"; // default slate-500
     if (r === "1" || r === "region 1") color = "#3b82f6"; // blue-500
     else if (r === "2" || r === "region 2") color = "#22c55e"; // green-500
-    else if (r === "3" || r === "region 3") color = "#0ea5e9"; // sky-500
-    else if (r === "4" || r === "region 4") color = "#a855f7"; // purple-500
+    else if (r === "3" || r === "region 3") color = "#a855f7"; // purple-500
+    else if (r === "4" || r === "region 4") color = "#ff6b00"; // rcell orange
     else if (r === "5" || r === "region 5") color = "#f97316"; // orange-500
     else if (r === "6" || r === "region 6") color = "#14b8a6"; // teal-500
     else if (r === "7" || r === "region 7") color = "#f43f5e"; // rose-500
